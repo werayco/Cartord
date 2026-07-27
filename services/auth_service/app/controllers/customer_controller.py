@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import (ChangePasswordRequest,LoginRequest,RegisterRequest,TokenResponse)
+from app.schemas import (ChangePasswordRequest,LoginRequest,RegisterRequest)
 from app.models.customer import Customer
 from app.utils import (get_tokens, hash_password,verify_password)
 
@@ -13,28 +13,63 @@ class AuthController:
             return {"response": "this Customer already exists", "status": "failed"}
 
         passwordHash = hash_password(payload.get("password"))
-        Customer = Customer(email=payload.get("email"),username=payload.get("username"),name=payload.get("name"),password=passwordHash)
+        Customer = Customer(email=payload.get("email"),username=payload.get("username"),name=payload.get("name"),password=passwordHash, shipping_address=payload.get("shipping_address"))
         db.add(Customer)
 
         await db.commit()
         await db.refresh(Customer)
-        return {"response": "Registration successful"}
+        tokens = await get_tokens(Customer)
+        return {"response": "Registration successful", "tokens": tokens}
 
     @staticmethod
-    async def login(payload: LoginRequest, db: AsyncSession, table):
-        result = await db.execute(select(table).where(table.username == payload.username))
+    async def login(payload: LoginRequest, db: AsyncSession):
+        result = await db.execute(select(Customer).where(Customer.username == payload.username))
         Customer = result.scalar_one_or_none()
         if not Customer or not verify_password(payload.password, Customer.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
+        tokens = await get_tokens(Customer)
 
-        role = Customer.role if hasattr(Customer, "role") else "Customer"
-        tokens = await get_tokens(Customer, role=role)
-        return {"response": "login successful", "tokens": tokens}
+        return {"response": "Login successful", "tokens": tokens}
 
     @staticmethod
-    async def change_password(payload: ChangePasswordRequest,current_Customer: Customer,db: AsyncSession):
-        if not verify_password(payload.old_password, current_Customer.password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Old password is incorrect",)
-        current_Customer.password = hash_password(payload.new_password)
+    async def update_user(payload: RegisterRequest, db: AsyncSession, current_user: Customer):
+        update_data = payload.model_dump(exclude_unset=True, exclude={"password"})
+
+        if "email" in update_data or "username" in update_data:
+            result = await db.execute(
+                select(Customer).where(
+                    or_(
+                        Customer.email == update_data.get("email", current_user.email),
+                        Customer.username == update_data.get("username", current_user.username),
+                    ),
+                    Customer.id != current_user.id,
+                )
+            )
+            if result.scalars().first():
+                raise HTTPException(status.HTTP_409_CONFLICT, detail="Email or username already taken")
+
+        for k, v in update_data.items():
+            setattr(current_user, k, v)
+
         await db.commit()
-        return {"message": "Password changed successfully"}
+        await db.refresh(current_user)
+        return {"response": "Update successful"}
+
+    @staticmethod
+    async def delete_user(payload: LoginRequest, db: AsyncSession, current_user: Customer):
+        if not verify_password(payload.password, current_user.password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is incorrect",
+            )
+        await db.delete(current_user)
+        await db.commit()
+        return {"response": "Account deleted successfully"}
+
+    @staticmethod
+    async def change_password(payload: ChangePasswordRequest,current_user: Customer,db: AsyncSession):
+        if not verify_password(payload.old_password, current_user.password):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Old password is incorrect",)
+        current_user.password = hash_password(payload.new_password)
+        await db.commit()
+        return {"response": "Password changed successfully"}

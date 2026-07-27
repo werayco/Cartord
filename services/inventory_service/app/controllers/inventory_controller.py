@@ -9,7 +9,7 @@ from app.utils import seralize_to_json
 class InventoryCRUD:
     @staticmethod
     async def add_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
-        if current_user.role == Roles.EMPLOYEE.value:
+        if current_user.is_admin == False:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to add a product. Contact your admin or inventory manager.")
 
         try:
@@ -31,7 +31,7 @@ class InventoryCRUD:
         
     @staticmethod
     async def add_inventory_items(db: AsyncSession, inventory: InventorySchemaList, current_user: Employee):
-        if current_user.role == Roles.EMPLOYEE.value:
+        if current_user.is_admin == False:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to add a product. Contact your admin or inventory manager.")
         
         try:
@@ -53,7 +53,7 @@ class InventoryCRUD:
                 
     @staticmethod
     async def delete_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
-        if current_user.role == Roles.EMPLOYEE.value:
+        if current_user.is_admin == False:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to delete a product from the inventory, contact your admin or inventory manager")
             
         result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
@@ -74,10 +74,11 @@ class InventoryCRUD:
 
     @staticmethod
     async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
-        if current_user.role == Roles.EMPLOYEE.value:
+        if current_user.is_admin == False:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to update the inventory, contact your admin or inventory manager")
 
-        record = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)).scalar_one_or_none())
+        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
+        record  = result.scalar_one_or_none()
         if not record:
             raise HTTPException(status_code=404, detail="Inventory item not found")
         
@@ -97,7 +98,8 @@ class InventoryCRUD:
 
     @staticmethod
     async def get_inventory_item(db: AsyncSession, inventory: InventorySchema):
-        record = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)).scalar_one_or_none())
+        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
+        record  = result.scalar_one_or_none()
         if not record:
             raise HTTPException(status_code=404, detail="Inventory item not found")        
         return record

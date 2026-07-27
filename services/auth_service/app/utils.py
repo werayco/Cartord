@@ -40,25 +40,24 @@ def get_current_user_dep(table_name):
         return user
     return _get_current_user
 
-def _build_token(user_id, token_type: str, expires_delta: timedelta, role) -> str:
+def _build_token(user_id, token_type: str, expires_delta: timedelta) -> str:
     now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
         "iat": now,
-        "role": role,
         "exp": now + expires_delta,
         "type": token_type
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
 
-async def issue_access_token(user_id, role) -> str:
-    return _build_token(user_id, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES), role)
+async def issue_access_token(user_id) -> str:
+    return _build_token(user_id, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
 async def issue_refresh_token() -> str:
     return secrets.token_urlsafe(64)
 
-async def get_tokens(user_id, role):
-    access = await issue_access_token(user_id, role)
+async def get_tokens(user_id):
+    access = await issue_access_token(user_id)
     refresh = await issue_refresh_token()
     await redis_client.set(f"refresh:{user_id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
     return {"access_token": access, "refresh_token": refresh}
@@ -77,7 +76,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
-async def cache_refresh_tokens(user_id: str,refresh_token: str, role):
+async def cache_refresh_tokens(user_id: str,refresh_token: str):
     key = f"refresh:{user_id}"
     stored_hash = redis_client.get(key)
 
@@ -87,7 +86,7 @@ async def cache_refresh_tokens(user_id: str,refresh_token: str, role):
     if stored_hash != hash_token(refresh_token):
         raise Exception("Invalid refresh token")
 
-    new_access_token = await issue_access_token(user_id, role)
+    new_access_token = await issue_access_token(user_id)
     new_refresh_token = await issue_refresh_token()
 
     redis_client.set(

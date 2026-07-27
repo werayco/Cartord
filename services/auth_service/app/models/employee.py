@@ -1,6 +1,6 @@
 from typing import Optional
 from uuid import UUID
-from sqlalchemy import String, Uuid
+from sqlalchemy import String, Uuid, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid6 import uuid7
 from app.db.session import Base
@@ -11,5 +11,5 @@ class Employee(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    role: Mapped[str] = mapped_column(String, nullable=False)
+    is_admin: Mapped[str] = mapped_column(Boolean, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)

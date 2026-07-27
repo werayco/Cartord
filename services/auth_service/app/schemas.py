@@ -1,13 +1,14 @@
 from typing import Optional
 from uuid import UUID
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class RegisterRequest(BaseModel):
     email: str
     name: str
     username: str
     password: str
+    shipping_address: str
 
 class LoginRequest(BaseModel):
     username: str
@@ -49,3 +50,17 @@ class RegisterEmployee(BaseModel):
     name: str
     role: Roles = Roles.EMPLOYEE
     password: str
+
+
+class DeleteUser(BaseModel):
+    password: str
+
+
+class CustomerOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    username: str
+    name: str
+    shipping_address: str | None

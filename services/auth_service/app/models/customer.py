@@ -12,3 +12,4 @@ class Customer(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False, index=True)
     password: Mapped[str] = mapped_column(String, nullable=False)
+    shipping_address: Mapped[str] = mapped_column(String, nullable=False)

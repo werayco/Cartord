@@ -47,7 +47,7 @@ class EmployeeController:
             if result.scalars().first():
                 raise HTTPException(status_code=409, detail="Username already exists")
 
-            data["role"] = Roles.EMPLOYEE.value
+            data["is_admin"] = False
             data["password"] = hash_password(data["password"])
 
             add_employee = Employee(**data)
