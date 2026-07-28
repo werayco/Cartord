@@ -100,5 +100,5 @@ async def seed() -> None:
         await engine.dispose()
 
 
-if __name__ == "__main__":
-    asyncio.run(seed())
+# if __name__ == "__main__":
+#     asyncio.run(seed())

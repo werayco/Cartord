@@ -23,6 +23,15 @@ async def get_user_details(access_token: str) -> dict:
             response.raise_for_status()
             return await response.json()
 
+async def update_inventory(access_token: str) -> dict:
+    url = f"{settings.AUTH_BASE_URL}/api/v1/inventory/update"
+    headers = {"Authorization": f"Bearer {access_token}"}
+
+    async with aiohttp.ClientSession() as session:
+        async with session.patch(url, data={}, headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()
+
 def seralize_to_json(data):
     try:
         return json.dumps(data).encode("utf-8")

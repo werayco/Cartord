@@ -1,5 +1,3 @@
-from typing import Optional
-from uuid import UUID
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
 
@@ -33,6 +31,7 @@ class Roles(Enum):
     ADMIN = "admin"
     CUSTOMER = "customer"
     EMPLOYEE = "employee"
+    INVENTORY_MANAGER = "inventory_manager"
 
 class RegisterEmployee(BaseModel):
     email: str
@@ -51,10 +50,8 @@ class RegisterEmployee(BaseModel):
     role: Roles = Roles.EMPLOYEE
     password: str
 
-
 class DeleteUser(BaseModel):
     password: str
-
 
 class CustomerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)

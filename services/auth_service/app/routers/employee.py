@@ -10,13 +10,9 @@ from app.schemas import *
 
 employee_router = APIRouter(prefix="/api/v1/auth/employee", tags=["auth"])
 
-@employee_router.post("/create-admin", status_code=status.HTTP_201_CREATED)
-async def register(payload: RegisterAdmin, db: AsyncSession = Depends(get_db)):
-    return await EmployeeController.register_admin(payload, db)
-
 @employee_router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(payload: RegisterEmployee, db: AsyncSession = Depends(get_db)):
-    return await EmployeeController.register_employee(payload, db)
+async def register(payload: RegisterEmployee, db: AsyncSession = Depends(get_db), current_user: Employee = Depends(get_current_user_dep(Employee))):
+    return await EmployeeController.register_employee(payload, db, current_user)
 
 @employee_router.post("/login")
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):

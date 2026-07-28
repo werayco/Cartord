@@ -8,8 +8,8 @@ class KafkaManager:
             'client.id': settings.KAFKA_CLIENT_ID
         })
 
-    def produce(self, topic: str, key: str, value: str):
-        self.producer.produce(topic=topic, key=key, value=value)
+    def produce(self, key: str, value: str):
+        self.producer.produce(topic="order", key=key, value=value)
         self.producer.flush()
 
 kafka_manager = KafkaManager()

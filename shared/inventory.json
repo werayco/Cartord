@@ -1,802 +1,902 @@
 [
-  {
-    "sku": "DEL5554",
-    "name": "Canvas Sneakers Low-Top",
-    "category": "apparel",
-    "quantity": 128,
-    "price": 119.21,
-    "description": "Durable stitching and a flattering modern fit."
-  },
-  {
-    "sku": "DEL8019",
-    "name": "Board Game Family Night Edition",
-    "category": "toys",
-    "quantity": 356,
-    "price": 23.18,
-    "description": null
-  },
-  {
-    "sku": "DEL2674",
-    "name": "Dried Mango Slices 250g",
-    "category": "groceries",
-    "quantity": 375,
-    "price": 20.19,
-    "description": "Ideal for snacking, baking, or cooking."
-  },
-  {
-    "sku": "DEL4150",
-    "name": "Leather Belt Full Grain",
-    "category": "apparel",
-    "quantity": 381,
-    "price": 49.44,
-    "description": "Durable stitching and a flattering modern fit."
-  },
-  {
-    "sku": "DEL6925",
-    "name": "Oversized Hoodie Fleece",
-    "category": "apparel",
-    "quantity": 478,
-    "price": 47.02,
-    "description": "A versatile wardrobe essential for any season."
-  },
-  {
-    "sku": "DEL7216",
-    "name": "Storage Ottoman Bench",
-    "category": "furniture",
-    "quantity": 1,
-    "price": 705.64,
-    "description": "Premium finish that complements most decor styles."
-  },
-  {
-    "sku": "DEL9348",
-    "name": "Marble Run Deluxe Set",
-    "category": "toys",
-    "quantity": 215,
-    "price": 72.98,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL4811",
-    "name": "Smart LED Light Strip",
-    "category": "electronics",
-    "quantity": 103,
-    "price": 995.38,
-    "description": "Compact, powerful, and easy to set up in minutes."
-  },
-  {
-    "sku": "DEL5010",
-    "name": "Queen Platform Bed Frame",
-    "category": "furniture",
-    "quantity": 136,
-    "price": 620.77,
-    "description": null
-  },
-  {
-    "sku": "DEL4814",
-    "name": "Performance Compression Leggings",
-    "category": "apparel",
-    "quantity": 354,
-    "price": 15.03,
-    "description": "Classic style that pairs well with anything."
-  },
-  {
-    "sku": "DEL2824",
-    "name": "Wireless Noise-Cancelling Headphones",
-    "category": "electronics",
-    "quantity": 441,
-    "price": 646.06,
-    "description": null
-  },
-  {
-    "sku": "DEL3803",
-    "name": "Adjustable Standing Desk",
-    "category": "furniture",
-    "quantity": 348,
-    "price": 371.27,
-    "description": "Premium finish that complements most decor styles."
-  },
-  {
-    "sku": "DEL9785",
-    "name": "Classic Cotton Crewneck T-Shirt",
-    "category": "apparel",
-    "quantity": 480,
-    "price": 74.15,
-    "description": null
-  },
-  {
-    "sku": "DEL5339",
-    "name": "Foam Dart Blaster",
-    "category": "toys",
-    "quantity": 227,
-    "price": 41.26,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL2584",
-    "name": "Canned Chickpeas 400g",
-    "category": "groceries",
-    "quantity": 0,
-    "price": 5.56,
-    "description": "Ideal for snacking, baking, or cooking."
-  },
-  {
-    "sku": "DEL3340",
-    "name": "Dollhouse with Furniture",
-    "category": "toys",
-    "quantity": 272,
-    "price": 31.96,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL4733",
-    "name": "Puffer Vest Lightweight",
-    "category": "apparel",
-    "quantity": 0,
-    "price": 16.16,
-    "description": "Durable stitching and a flattering modern fit."
-  },
-  {
-    "sku": "DEL1488",
-    "name": "Dual-Band WiFi 6 Router",
-    "category": "electronics",
-    "quantity": 390,
-    "price": 171.96,
-    "description": "Sleek design with fast connectivity and reliable performance."
-  },
-  {
-    "sku": "DEL6930",
-    "name": "Play Kitchen Set",
-    "category": "toys",
-    "quantity": 200,
-    "price": 85.41,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL8517",
-    "name": "Kinetic Sand Play Kit",
-    "category": "toys",
-    "quantity": 470,
-    "price": 16.32,
-    "description": "Develops motor skills through hands-on play."
-  },
-  {
-    "sku": "DEL3287",
-    "name": "Magnetic Tiles 64-Piece",
-    "category": "toys",
-    "quantity": 229,
-    "price": 43.25,
-    "description": "Develops motor skills through hands-on play."
-  },
-  {
-    "sku": "DEL4752",
-    "name": "Shoe Rack 4-Tier",
-    "category": "furniture",
-    "quantity": 482,
-    "price": 638.57,
-    "description": "Easy assembly and built to last for years."
-  },
-  {
-    "sku": "DEL8359",
-    "name": "Extra Virgin Olive Oil 750ml",
-    "category": "groceries",
-    "quantity": 209,
-    "price": 3.81,
-    "description": null
-  },
-  {
-    "sku": "DEL8428",
-    "name": "Rain Boots Rubber",
-    "category": "apparel",
-    "quantity": 209,
-    "price": 139.6,
-    "description": "A versatile wardrobe essential for any season."
-  },
-  {
-    "sku": "DEL7543",
-    "name": "Dinosaur Figures 12-Pack",
-    "category": "toys",
-    "quantity": 170,
-    "price": 10.28,
-    "description": "Develops motor skills through hands-on play."
-  },
-  {
-    "sku": "DEL2169",
-    "name": "Convertible Sofa Bed",
-    "category": "furniture",
-    "quantity": 143,
-    "price": 390.07,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL7572",
-    "name": "Kids Bunk Bed Twin",
-    "category": "furniture",
-    "quantity": 110,
-    "price": 679.31,
-    "description": "Easy assembly and built to last for years."
-  },
-  {
-    "sku": "DEL4611",
-    "name": "Organic Whole Bean Coffee 1kg",
-    "category": "groceries",
-    "quantity": 452,
-    "price": 8.04,
-    "description": "Great taste and quality at an everyday price."
-  },
-  {
-    "sku": "DEL6574",
-    "name": "Green Tea Bags 100ct",
-    "category": "groceries",
-    "quantity": 39,
-    "price": 3.84,
-    "description": "Ideal for snacking, baking, or cooking."
-  },
-  {
-    "sku": "DEL5557",
-    "name": "Raw Wildflower Honey Jar",
-    "category": "groceries",
-    "quantity": 217,
-    "price": 20.52,
-    "description": "Sourced from trusted farms for fresh, rich flavor."
-  },
-  {
-    "sku": "DEL9928",
-    "name": "Electric Kettle with Temperature Control",
-    "category": "electronics",
-    "quantity": 464,
-    "price": 363.9,
-    "description": null
-  },
-  {
-    "sku": "DEL4657",
-    "name": "Mechanical Gaming Keyboard",
-    "category": "electronics",
-    "quantity": 175,
-    "price": 463.02,
-    "description": null
-  },
-  {
-    "sku": "DEL5374",
-    "name": "5-Tier Bookshelf Walnut",
-    "category": "furniture",
-    "quantity": 117,
-    "price": 680.42,
-    "description": null
-  },
-  {
-    "sku": "DEL7924",
-    "name": "Dark Chocolate Bar 85%",
-    "category": "groceries",
-    "quantity": 217,
-    "price": 14.41,
-    "description": null
-  },
-  {
-    "sku": "DEL3615",
-    "name": "Almond Butter Smooth 500g",
-    "category": "groceries",
-    "quantity": 56,
-    "price": 6.51,
-    "description": null
-  },
-  {
-    "sku": "DEL6977",
-    "name": "Baseball Cap Adjustable",
-    "category": "apparel",
-    "quantity": 84,
-    "price": 133.39,
-    "description": "A versatile wardrobe essential for any season."
-  },
-  {
-    "sku": "DEL5386",
-    "name": "Recliner Chair Faux Leather",
-    "category": "furniture",
-    "quantity": 340,
-    "price": 147.77,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL5333",
-    "name": "Coconut Milk Can 400ml",
-    "category": "groceries",
-    "quantity": 318,
-    "price": 20.06,
-    "description": null
-  },
-  {
-    "sku": "DEL3266",
-    "name": "Stuffed Unicorn Rainbow",
-    "category": "toys",
-    "quantity": 0,
-    "price": 77.53,
-    "description": "Develops motor skills through hands-on play."
-  },
-  {
-    "sku": "DEL7873",
-    "name": "Cordless Handheld Vacuum",
-    "category": "electronics",
-    "quantity": 143,
-    "price": 562.26,
-    "description": "Sleek design with fast connectivity and reliable performance."
-  },
-  {
-    "sku": "DEL2139",
-    "name": "Ankle Socks 6-Pack",
-    "category": "apparel",
-    "quantity": 176,
-    "price": 98.78,
-    "description": null
-  },
-  {
-    "sku": "DEL2307",
-    "name": "Knit Cardigan Sweater",
-    "category": "apparel",
-    "quantity": 362,
-    "price": 25.65,
-    "description": "Soft, breathable fabric designed for all-day comfort."
-  },
-  {
-    "sku": "DEL6168",
-    "name": "Filing Cabinet 3-Drawer",
-    "category": "furniture",
-    "quantity": 297,
-    "price": 497.08,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL1711",
-    "name": "Instant Ramen Variety Pack",
-    "category": "groceries",
-    "quantity": 162,
-    "price": 20.42,
-    "description": "A pantry staple perfect for quick everyday meals."
-  },
-  {
-    "sku": "DEL4598",
-    "name": "Corner Computer Desk",
-    "category": "furniture",
-    "quantity": 472,
-    "price": 683.57,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL5304",
-    "name": "Art Easel Double-Sided",
-    "category": "toys",
-    "quantity": 164,
-    "price": 16.75,
-    "description": "Encourages creativity and hours of screen-free play."
-  },
-  {
-    "sku": "DEL9085",
-    "name": "Toy Cash Register",
-    "category": "toys",
-    "quantity": 250,
-    "price": 42.04,
-    "description": null
-  },
-  {
-    "sku": "DEL3677",
-    "name": "Industrial TV Stand 60\"",
-    "category": "furniture",
-    "quantity": 403,
-    "price": 985.17,
-    "description": "Premium finish that complements most decor styles."
-  },
-  {
-    "sku": "DEL4527",
-    "name": "Tomato Pasta Sauce Jar",
-    "category": "groceries",
-    "quantity": 31,
-    "price": 1.06,
-    "description": null
-  },
-  {
-    "sku": "DEL4582",
-    "name": "Digital Photo Frame 10\"",
-    "category": "electronics",
-    "quantity": 494,
-    "price": 562.32,
-    "description": null
-  },
-  {
-    "sku": "DEL6635",
-    "name": "Granola Clusters Honey Nut",
-    "category": "groceries",
-    "quantity": 121,
-    "price": 8.14,
-    "description": "Ideal for snacking, baking, or cooking."
-  },
-  {
-    "sku": "DEL9935",
-    "name": "Fitness Tracker Watch",
-    "category": "electronics",
-    "quantity": 102,
-    "price": 774.38,
-    "description": null
-  },
-  {
-    "sku": "DEL7201",
-    "name": "Waterproof Windbreaker Jacket",
-    "category": "apparel",
-    "quantity": 478,
-    "price": 133.09,
-    "description": "Soft, breathable fabric designed for all-day comfort."
-  },
-  {
-    "sku": "DEL6514",
-    "name": "Sparkling Mineral Water 12-Pack",
-    "category": "groceries",
-    "quantity": 475,
-    "price": 9.27,
-    "description": "Great taste and quality at an everyday price."
-  },
-  {
-    "sku": "DEL9751",
-    "name": "Velvet Accent Armchair",
-    "category": "furniture",
-    "quantity": 0,
-    "price": 227.84,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL4432",
-    "name": "Solid Oak Coffee Table",
-    "category": "furniture",
-    "quantity": 419,
-    "price": 346.87,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL7912",
-    "name": "Portable Power Bank 20000mAh",
-    "category": "electronics",
-    "quantity": 58,
-    "price": 277.47,
-    "description": "A dependable everyday gadget built for modern homes."
-  },
-  {
-    "sku": "DEL8527",
-    "name": "Trail Mix Deluxe 750g",
-    "category": "groceries",
-    "quantity": 136,
-    "price": 14.25,
-    "description": "Naturally delicious with no artificial additives."
-  },
-  {
-    "sku": "DEL1409",
-    "name": "4K Ultra HD Smart TV 55\"",
-    "category": "electronics",
-    "quantity": 217,
-    "price": 412.53,
-    "description": "Compact, powerful, and easy to set up in minutes."
-  },
-  {
-    "sku": "DEL1916",
-    "name": "Upholstered Dining Chair",
-    "category": "furniture",
-    "quantity": 357,
-    "price": 179.64,
-    "description": null
-  },
-  {
-    "sku": "DEL2535",
-    "name": "External SSD 1TB",
-    "category": "electronics",
-    "quantity": 282,
-    "price": 551.28,
-    "description": null
-  },
-  {
-    "sku": "DEL9279",
-    "name": "Over-Ear Studio Headphones",
-    "category": "electronics",
-    "quantity": 225,
-    "price": 164.94,
-    "description": "Compact, powerful, and easy to set up in minutes."
-  },
-  {
-    "sku": "DEL5422",
-    "name": "Bar Stool Set of 2",
-    "category": "furniture",
-    "quantity": 378,
-    "price": 465.41,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL9830",
-    "name": "Stacking Rings Baby Toy",
-    "category": "toys",
-    "quantity": 226,
-    "price": 29.28,
-    "description": null
-  },
-  {
-    "sku": "DEL3286",
-    "name": "1080p Webcam with Ring Light",
-    "category": "electronics",
-    "quantity": 489,
-    "price": 973.28,
-    "description": "A dependable everyday gadget built for modern homes."
-  },
-  {
-    "sku": "DEL2424",
-    "name": "Wireless Ergonomic Mouse",
-    "category": "electronics",
-    "quantity": 399,
-    "price": 618.99,
-    "description": "Delivers crisp audio and long battery life for everyday use."
-  },
-  {
-    "sku": "DEL3547",
-    "name": "Sea Salt Grinder",
-    "category": "groceries",
-    "quantity": 86,
-    "price": 7.2,
-    "description": "Great taste and quality at an everyday price."
-  },
-  {
-    "sku": "DEL5803",
-    "name": "Athletic Running Shorts",
-    "category": "apparel",
-    "quantity": 414,
-    "price": 103.49,
-    "description": "Soft, breathable fabric designed for all-day comfort."
-  },
-  {
-    "sku": "DEL9179",
-    "name": "Wooden Train Track Set",
-    "category": "toys",
-    "quantity": 0,
-    "price": 71.16,
-    "description": "Encourages creativity and hours of screen-free play."
-  },
-  {
-    "sku": "DEL5506",
-    "name": "Bluetooth Portable Speaker",
-    "category": "electronics",
-    "quantity": 271,
-    "price": 575.55,
-    "description": null
-  },
-  {
-    "sku": "DEL6820",
-    "name": "Ergonomic Mesh Office Chair",
-    "category": "furniture",
-    "quantity": 56,
-    "price": 867.07,
-    "description": "Sturdy construction with a clean, modern silhouette."
-  },
-  {
-    "sku": "DEL5040",
-    "name": "Science Experiment Lab Kit",
-    "category": "toys",
-    "quantity": 431,
-    "price": 46.18,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL2519",
-    "name": "Peanut Butter Crunchy 1kg",
-    "category": "groceries",
-    "quantity": 98,
-    "price": 29.08,
-    "description": null
-  },
-  {
-    "sku": "DEL2654",
-    "name": "Denim Trucker Jacket",
-    "category": "apparel",
-    "quantity": 283,
-    "price": 27.83,
-    "description": null
-  },
-  {
-    "sku": "DEL6881",
-    "name": "Maple Syrup Grade A 500ml",
-    "category": "groceries",
-    "quantity": 42,
-    "price": 18.25,
-    "description": "Sourced from trusted farms for fresh, rich flavor."
-  },
-  {
-    "sku": "DEL6155",
-    "name": "Remote Control Off-Road Truck",
-    "category": "toys",
-    "quantity": 38,
-    "price": 21.52,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL2291",
-    "name": "Merino Wool Beanie",
-    "category": "apparel",
-    "quantity": 81,
-    "price": 108.49,
-    "description": "Classic style that pairs well with anything."
-  },
-  {
-    "sku": "DEL4456",
-    "name": "Building Blocks 500-Piece Set",
-    "category": "toys",
-    "quantity": 24,
-    "price": 45.38,
-    "description": null
-  },
-  {
-    "sku": "DEL3664",
-    "name": "Thermal Base Layer Top",
-    "category": "apparel",
-    "quantity": 0,
-    "price": 119.52,
-    "description": "Durable stitching and a flattering modern fit."
-  },
-  {
-    "sku": "DEL5552",
-    "name": "Rolled Oats 1kg",
-    "category": "groceries",
-    "quantity": 277,
-    "price": 27.86,
-    "description": "Sourced from trusted farms for fresh, rich flavor."
-  },
-  {
-    "sku": "DEL3045",
-    "name": "Slim Fit Stretch Jeans",
-    "category": "apparel",
-    "quantity": 52,
-    "price": 39.83,
-    "description": null
-  },
-  {
-    "sku": "DEL1750",
-    "name": "Plaid Flannel Shirt",
-    "category": "apparel",
-    "quantity": 251,
-    "price": 137.13,
-    "description": null
-  },
-  {
-    "sku": "DEL7224",
-    "name": "Whole Wheat Spaghetti 500g",
-    "category": "groceries",
-    "quantity": 278,
-    "price": 10.09,
-    "description": null
-  },
-  {
-    "sku": "DEL2679",
-    "name": "Smart Home Security Camera",
-    "category": "electronics",
-    "quantity": 260,
-    "price": 849.58,
-    "description": "A dependable everyday gadget built for modern homes."
-  },
-  {
-    "sku": "DEL1106",
-    "name": "Basmati Rice 5kg Bag",
-    "category": "groceries",
-    "quantity": 51,
-    "price": 22.11,
-    "description": null
-  },
-  {
-    "sku": "DEL2489",
-    "name": "Walkie Talkie Kids Pair",
-    "category": "toys",
-    "quantity": 0,
-    "price": 66.55,
-    "description": "Develops motor skills through hands-on play."
-  },
-  {
-    "sku": "DEL4257",
-    "name": "Robot Vacuum Cleaner",
-    "category": "electronics",
-    "quantity": 4,
-    "price": 649.54,
-    "description": null
-  },
-  {
-    "sku": "DEL7227",
-    "name": "Linen Button-Down Shirt",
-    "category": "apparel",
-    "quantity": 461,
-    "price": 135.84,
-    "description": "Soft, breathable fabric designed for all-day comfort."
-  },
-  {
-    "sku": "DEL4483",
-    "name": "Plush Teddy Bear 40cm",
-    "category": "toys",
-    "quantity": 254,
-    "price": 60.75,
-    "description": "Safe, durable materials suitable for young children."
-  },
-  {
-    "sku": "DEL1520",
-    "name": "Noise-Isolating Earbuds",
-    "category": "electronics",
-    "quantity": 291,
-    "price": 745.3,
-    "description": "Delivers crisp audio and long battery life for everyday use."
-  },
-  {
-    "sku": "DEL4593",
-    "name": "Yo-Yo Pro Aluminum",
-    "category": "toys",
-    "quantity": 0,
-    "price": 37.32,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL7482",
-    "name": "Jigsaw Puzzle 1000 Pieces",
-    "category": "toys",
-    "quantity": 412,
-    "price": 44.48,
-    "description": "Perfect for solo play or sharing with friends."
-  },
-  {
-    "sku": "DEL6313",
-    "name": "Floating Wall Shelves Set of 3",
-    "category": "furniture",
-    "quantity": 461,
-    "price": 686.87,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL1525",
-    "name": "Full-Length Standing Mirror",
-    "category": "furniture",
-    "quantity": 281,
-    "price": 329.69,
-    "description": "Blends comfort and style for any living space."
-  },
-  {
-    "sku": "DEL5741",
-    "name": "Chino Trousers Regular Fit",
-    "category": "apparel",
-    "quantity": 67,
-    "price": 32.61,
-    "description": "Durable stitching and a flattering modern fit."
-  },
-  {
-    "sku": "DEL5012",
-    "name": "USB-C Fast Charging Hub",
-    "category": "electronics",
-    "quantity": 349,
-    "price": 763.32,
-    "description": "Engineered for seamless streaming and smart-home integration."
-  },
-  {
-    "sku": "DEL8573",
-    "name": "Nesting Side Tables Set of 2",
-    "category": "furniture",
-    "quantity": 0,
-    "price": 299.43,
-    "description": "Easy assembly and built to last for years."
-  },
-  {
-    "sku": "DEL2084",
-    "name": "Console Entry Table",
-    "category": "furniture",
-    "quantity": 121,
-    "price": 818.16,
-    "description": "Easy assembly and built to last for years."
-  },
-  {
-    "sku": "DEL1434",
-    "name": "Mini Projector HD",
-    "category": "electronics",
-    "quantity": 174,
-    "price": 576.22,
-    "description": null
-  },
-  {
-    "sku": "DEL7065",
-    "name": "Silk Scarf Printed",
-    "category": "apparel",
-    "quantity": 343,
-    "price": 47.34,
-    "description": "A versatile wardrobe essential for any season."
-  }
+    {
+        "sku": "DEL5554",
+        "name": "Canvas Sneakers Low-Top",
+        "category": "apparel",
+        "quantity": 70,
+        "price": 119.21,
+        "description": "Durable stitching and a flattering modern fit.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8019",
+        "name": "Board Game Family Night Edition",
+        "category": "toys",
+        "quantity": 94,
+        "price": 23.18,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2674",
+        "name": "Dried Mango Slices 250g",
+        "category": "groceries",
+        "quantity": 68,
+        "price": 20.19,
+        "description": "Ideal for snacking, baking, or cooking.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4150",
+        "name": "Leather Belt Full Grain",
+        "category": "apparel",
+        "quantity": 97,
+        "price": 49.44,
+        "description": "Durable stitching and a flattering modern fit.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6925",
+        "name": "Oversized Hoodie Fleece",
+        "category": "apparel",
+        "quantity": 46,
+        "price": 47.02,
+        "description": "A versatile wardrobe essential for any season.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7216",
+        "name": "Storage Ottoman Bench",
+        "category": "furniture",
+        "quantity": 42,
+        "price": 705.64,
+        "description": "Premium finish that complements most decor styles.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9348",
+        "name": "Marble Run Deluxe Set",
+        "category": "toys",
+        "quantity": 82,
+        "price": 72.98,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4811",
+        "name": "Smart LED Light Strip",
+        "category": "electronics",
+        "quantity": 39,
+        "price": 995.38,
+        "description": "Compact, powerful, and easy to set up in minutes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5010",
+        "name": "Queen Platform Bed Frame",
+        "category": "furniture",
+        "quantity": 69,
+        "price": 620.77,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4814",
+        "name": "Performance Compression Leggings",
+        "category": "apparel",
+        "quantity": 56,
+        "price": 15.03,
+        "description": "Classic style that pairs well with anything.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2824",
+        "name": "Wireless Noise-Cancelling Headphones",
+        "category": "electronics",
+        "quantity": 85,
+        "price": 646.06,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3803",
+        "name": "Adjustable Standing Desk",
+        "category": "furniture",
+        "quantity": 95,
+        "price": 371.27,
+        "description": "Premium finish that complements most decor styles.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9785",
+        "name": "Classic Cotton Crewneck T-Shirt",
+        "category": "apparel",
+        "quantity": 32,
+        "price": 74.15,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5339",
+        "name": "Foam Dart Blaster",
+        "category": "toys",
+        "quantity": 40,
+        "price": 41.26,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2584",
+        "name": "Canned Chickpeas 400g",
+        "category": "groceries",
+        "quantity": 45,
+        "price": 5.56,
+        "description": "Ideal for snacking, baking, or cooking.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3340",
+        "name": "Dollhouse with Furniture",
+        "category": "toys",
+        "quantity": 46,
+        "price": 31.96,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4733",
+        "name": "Puffer Vest Lightweight",
+        "category": "apparel",
+        "quantity": 64,
+        "price": 16.16,
+        "description": "Durable stitching and a flattering modern fit.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1488",
+        "name": "Dual-Band WiFi 6 Router",
+        "category": "electronics",
+        "quantity": 73,
+        "price": 171.96,
+        "description": "Sleek design with fast connectivity and reliable performance.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6930",
+        "name": "Play Kitchen Set",
+        "category": "toys",
+        "quantity": 53,
+        "price": 85.41,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8517",
+        "name": "Kinetic Sand Play Kit",
+        "category": "toys",
+        "quantity": 52,
+        "price": 16.32,
+        "description": "Develops motor skills through hands-on play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3287",
+        "name": "Magnetic Tiles 64-Piece",
+        "category": "toys",
+        "quantity": 85,
+        "price": 43.25,
+        "description": "Develops motor skills through hands-on play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4752",
+        "name": "Shoe Rack 4-Tier",
+        "category": "furniture",
+        "quantity": 99,
+        "price": 638.57,
+        "description": "Easy assembly and built to last for years.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8359",
+        "name": "Extra Virgin Olive Oil 750ml",
+        "category": "groceries",
+        "quantity": 71,
+        "price": 3.81,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8428",
+        "name": "Rain Boots Rubber",
+        "category": "apparel",
+        "quantity": 33,
+        "price": 139.6,
+        "description": "A versatile wardrobe essential for any season.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7543",
+        "name": "Dinosaur Figures 12-Pack",
+        "category": "toys",
+        "quantity": 66,
+        "price": 10.28,
+        "description": "Develops motor skills through hands-on play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2169",
+        "name": "Convertible Sofa Bed",
+        "category": "furniture",
+        "quantity": 83,
+        "price": 390.07,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7572",
+        "name": "Kids Bunk Bed Twin",
+        "category": "furniture",
+        "quantity": 85,
+        "price": 679.31,
+        "description": "Easy assembly and built to last for years.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4611",
+        "name": "Organic Whole Bean Coffee 1kg",
+        "category": "groceries",
+        "quantity": 94,
+        "price": 8.04,
+        "description": "Great taste and quality at an everyday price.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6574",
+        "name": "Green Tea Bags 100ct",
+        "category": "groceries",
+        "quantity": 47,
+        "price": 3.84,
+        "description": "Ideal for snacking, baking, or cooking.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5557",
+        "name": "Raw Wildflower Honey Jar",
+        "category": "groceries",
+        "quantity": 34,
+        "price": 20.52,
+        "description": "Sourced from trusted farms for fresh, rich flavor.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9928",
+        "name": "Electric Kettle with Temperature Control",
+        "category": "electronics",
+        "quantity": 43,
+        "price": 363.9,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4657",
+        "name": "Mechanical Gaming Keyboard",
+        "category": "electronics",
+        "quantity": 90,
+        "price": 463.02,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5374",
+        "name": "5-Tier Bookshelf Walnut",
+        "category": "furniture",
+        "quantity": 72,
+        "price": 680.42,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7924",
+        "name": "Dark Chocolate Bar 85%",
+        "category": "groceries",
+        "quantity": 90,
+        "price": 14.41,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3615",
+        "name": "Almond Butter Smooth 500g",
+        "category": "groceries",
+        "quantity": 41,
+        "price": 6.51,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6977",
+        "name": "Baseball Cap Adjustable",
+        "category": "apparel",
+        "quantity": 31,
+        "price": 133.39,
+        "description": "A versatile wardrobe essential for any season.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5386",
+        "name": "Recliner Chair Faux Leather",
+        "category": "furniture",
+        "quantity": 79,
+        "price": 147.77,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5333",
+        "name": "Coconut Milk Can 400ml",
+        "category": "groceries",
+        "quantity": 89,
+        "price": 20.06,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3266",
+        "name": "Stuffed Unicorn Rainbow",
+        "category": "toys",
+        "quantity": 66,
+        "price": 77.53,
+        "description": "Develops motor skills through hands-on play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7873",
+        "name": "Cordless Handheld Vacuum",
+        "category": "electronics",
+        "quantity": 92,
+        "price": 562.26,
+        "description": "Sleek design with fast connectivity and reliable performance.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2139",
+        "name": "Ankle Socks 6-Pack",
+        "category": "apparel",
+        "quantity": 69,
+        "price": 98.78,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2307",
+        "name": "Knit Cardigan Sweater",
+        "category": "apparel",
+        "quantity": 40,
+        "price": 25.65,
+        "description": "Soft, breathable fabric designed for all-day comfort.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6168",
+        "name": "Filing Cabinet 3-Drawer",
+        "category": "furniture",
+        "quantity": 68,
+        "price": 497.08,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1711",
+        "name": "Instant Ramen Variety Pack",
+        "category": "groceries",
+        "quantity": 79,
+        "price": 20.42,
+        "description": "A pantry staple perfect for quick everyday meals.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4598",
+        "name": "Corner Computer Desk",
+        "category": "furniture",
+        "quantity": 67,
+        "price": 683.57,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5304",
+        "name": "Art Easel Double-Sided",
+        "category": "toys",
+        "quantity": 50,
+        "price": 16.75,
+        "description": "Encourages creativity and hours of screen-free play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9085",
+        "name": "Toy Cash Register",
+        "category": "toys",
+        "quantity": 57,
+        "price": 42.04,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3677",
+        "name": "Industrial TV Stand 60\"",
+        "category": "furniture",
+        "quantity": 63,
+        "price": 985.17,
+        "description": "Premium finish that complements most decor styles.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4527",
+        "name": "Tomato Pasta Sauce Jar",
+        "category": "groceries",
+        "quantity": 37,
+        "price": 1.06,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4582",
+        "name": "Digital Photo Frame 10\"",
+        "category": "electronics",
+        "quantity": 85,
+        "price": 562.32,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6635",
+        "name": "Granola Clusters Honey Nut",
+        "category": "groceries",
+        "quantity": 52,
+        "price": 8.14,
+        "description": "Ideal for snacking, baking, or cooking.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9935",
+        "name": "Fitness Tracker Watch",
+        "category": "electronics",
+        "quantity": 66,
+        "price": 774.38,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7201",
+        "name": "Waterproof Windbreaker Jacket",
+        "category": "apparel",
+        "quantity": 70,
+        "price": 133.09,
+        "description": "Soft, breathable fabric designed for all-day comfort.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6514",
+        "name": "Sparkling Mineral Water 12-Pack",
+        "category": "groceries",
+        "quantity": 52,
+        "price": 9.27,
+        "description": "Great taste and quality at an everyday price.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9751",
+        "name": "Velvet Accent Armchair",
+        "category": "furniture",
+        "quantity": 96,
+        "price": 227.84,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4432",
+        "name": "Solid Oak Coffee Table",
+        "category": "furniture",
+        "quantity": 77,
+        "price": 346.87,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7912",
+        "name": "Portable Power Bank 20000mAh",
+        "category": "electronics",
+        "quantity": 75,
+        "price": 277.47,
+        "description": "A dependable everyday gadget built for modern homes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8527",
+        "name": "Trail Mix Deluxe 750g",
+        "category": "groceries",
+        "quantity": 55,
+        "price": 14.25,
+        "description": "Naturally delicious with no artificial additives.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1409",
+        "name": "4K Ultra HD Smart TV 55\"",
+        "category": "electronics",
+        "quantity": 68,
+        "price": 412.53,
+        "description": "Compact, powerful, and easy to set up in minutes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1916",
+        "name": "Upholstered Dining Chair",
+        "category": "furniture",
+        "quantity": 58,
+        "price": 179.64,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2535",
+        "name": "External SSD 1TB",
+        "category": "electronics",
+        "quantity": 73,
+        "price": 551.28,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9279",
+        "name": "Over-Ear Studio Headphones",
+        "category": "electronics",
+        "quantity": 69,
+        "price": 164.94,
+        "description": "Compact, powerful, and easy to set up in minutes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5422",
+        "name": "Bar Stool Set of 2",
+        "category": "furniture",
+        "quantity": 66,
+        "price": 465.41,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9830",
+        "name": "Stacking Rings Baby Toy",
+        "category": "toys",
+        "quantity": 49,
+        "price": 29.28,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3286",
+        "name": "1080p Webcam with Ring Light",
+        "category": "electronics",
+        "quantity": 92,
+        "price": 973.28,
+        "description": "A dependable everyday gadget built for modern homes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2424",
+        "name": "Wireless Ergonomic Mouse",
+        "category": "electronics",
+        "quantity": 87,
+        "price": 618.99,
+        "description": "Delivers crisp audio and long battery life for everyday use.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3547",
+        "name": "Sea Salt Grinder",
+        "category": "groceries",
+        "quantity": 83,
+        "price": 7.2,
+        "description": "Great taste and quality at an everyday price.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5803",
+        "name": "Athletic Running Shorts",
+        "category": "apparel",
+        "quantity": 64,
+        "price": 103.49,
+        "description": "Soft, breathable fabric designed for all-day comfort.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL9179",
+        "name": "Wooden Train Track Set",
+        "category": "toys",
+        "quantity": 48,
+        "price": 71.16,
+        "description": "Encourages creativity and hours of screen-free play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5506",
+        "name": "Bluetooth Portable Speaker",
+        "category": "electronics",
+        "quantity": 47,
+        "price": 575.55,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6820",
+        "name": "Ergonomic Mesh Office Chair",
+        "category": "furniture",
+        "quantity": 75,
+        "price": 867.07,
+        "description": "Sturdy construction with a clean, modern silhouette.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5040",
+        "name": "Science Experiment Lab Kit",
+        "category": "toys",
+        "quantity": 90,
+        "price": 46.18,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2519",
+        "name": "Peanut Butter Crunchy 1kg",
+        "category": "groceries",
+        "quantity": 64,
+        "price": 29.08,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2654",
+        "name": "Denim Trucker Jacket",
+        "category": "apparel",
+        "quantity": 89,
+        "price": 27.83,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6881",
+        "name": "Maple Syrup Grade A 500ml",
+        "category": "groceries",
+        "quantity": 90,
+        "price": 18.25,
+        "description": "Sourced from trusted farms for fresh, rich flavor.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6155",
+        "name": "Remote Control Off-Road Truck",
+        "category": "toys",
+        "quantity": 95,
+        "price": 21.52,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2291",
+        "name": "Merino Wool Beanie",
+        "category": "apparel",
+        "quantity": 76,
+        "price": 108.49,
+        "description": "Classic style that pairs well with anything.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4456",
+        "name": "Building Blocks 500-Piece Set",
+        "category": "toys",
+        "quantity": 51,
+        "price": 45.38,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3664",
+        "name": "Thermal Base Layer Top",
+        "category": "apparel",
+        "quantity": 80,
+        "price": 119.52,
+        "description": "Durable stitching and a flattering modern fit.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5552",
+        "name": "Rolled Oats 1kg",
+        "category": "groceries",
+        "quantity": 64,
+        "price": 27.86,
+        "description": "Sourced from trusted farms for fresh, rich flavor.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL3045",
+        "name": "Slim Fit Stretch Jeans",
+        "category": "apparel",
+        "quantity": 76,
+        "price": 39.83,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1750",
+        "name": "Plaid Flannel Shirt",
+        "category": "apparel",
+        "quantity": 70,
+        "price": 137.13,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7224",
+        "name": "Whole Wheat Spaghetti 500g",
+        "category": "groceries",
+        "quantity": 44,
+        "price": 10.09,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2679",
+        "name": "Smart Home Security Camera",
+        "category": "electronics",
+        "quantity": 100,
+        "price": 849.58,
+        "description": "A dependable everyday gadget built for modern homes.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1106",
+        "name": "Basmati Rice 5kg Bag",
+        "category": "groceries",
+        "quantity": 86,
+        "price": 22.11,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2489",
+        "name": "Walkie Talkie Kids Pair",
+        "category": "toys",
+        "quantity": 94,
+        "price": 66.55,
+        "description": "Develops motor skills through hands-on play.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4257",
+        "name": "Robot Vacuum Cleaner",
+        "category": "electronics",
+        "quantity": 85,
+        "price": 649.54,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7227",
+        "name": "Linen Button-Down Shirt",
+        "category": "apparel",
+        "quantity": 100,
+        "price": 135.84,
+        "description": "Soft, breathable fabric designed for all-day comfort.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4483",
+        "name": "Plush Teddy Bear 40cm",
+        "category": "toys",
+        "quantity": 97,
+        "price": 60.75,
+        "description": "Safe, durable materials suitable for young children.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1520",
+        "name": "Noise-Isolating Earbuds",
+        "category": "electronics",
+        "quantity": 68,
+        "price": 745.3,
+        "description": "Delivers crisp audio and long battery life for everyday use.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL4593",
+        "name": "Yo-Yo Pro Aluminum",
+        "category": "toys",
+        "quantity": 77,
+        "price": 37.32,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7482",
+        "name": "Jigsaw Puzzle 1000 Pieces",
+        "category": "toys",
+        "quantity": 57,
+        "price": 44.48,
+        "description": "Perfect for solo play or sharing with friends.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL6313",
+        "name": "Floating Wall Shelves Set of 3",
+        "category": "furniture",
+        "quantity": 78,
+        "price": 686.87,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1525",
+        "name": "Full-Length Standing Mirror",
+        "category": "furniture",
+        "quantity": 31,
+        "price": 329.69,
+        "description": "Blends comfort and style for any living space.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5741",
+        "name": "Chino Trousers Regular Fit",
+        "category": "apparel",
+        "quantity": 53,
+        "price": 32.61,
+        "description": "Durable stitching and a flattering modern fit.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL5012",
+        "name": "USB-C Fast Charging Hub",
+        "category": "electronics",
+        "quantity": 41,
+        "price": 763.32,
+        "description": "Engineered for seamless streaming and smart-home integration.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL8573",
+        "name": "Nesting Side Tables Set of 2",
+        "category": "furniture",
+        "quantity": 95,
+        "price": 299.43,
+        "description": "Easy assembly and built to last for years.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL2084",
+        "name": "Console Entry Table",
+        "category": "furniture",
+        "quantity": 40,
+        "price": 818.16,
+        "description": "Easy assembly and built to last for years.",
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL1434",
+        "name": "Mini Projector HD",
+        "category": "electronics",
+        "quantity": 79,
+        "price": 576.22,
+        "description": null,
+        "reserved_quantity": 0
+    },
+    {
+        "sku": "DEL7065",
+        "name": "Silk Scarf Printed",
+        "category": "apparel",
+        "quantity": 67,
+        "price": 47.34,
+        "description": "A versatile wardrobe essential for any season.",
+        "reserved_quantity": 0
+    }
 ]

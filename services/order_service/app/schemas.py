@@ -12,3 +12,10 @@ class Roles(Enum):
     ADMIN = "admin"
     CUSTOMER = "customer"
     EMPLOYEE = "employee"
+
+class OrderStatus(str):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
