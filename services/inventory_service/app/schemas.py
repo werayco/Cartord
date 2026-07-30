@@ -5,7 +5,7 @@ from typing import Union
 class InventorySchema(BaseModel):
     name: Union[str,None]
     description: Union[str,None]
-    price: Union[float,None]
+    unit_price: Union[float,None]
     sku: Union[str,None]
     quantity: Union[int, None]
     reserved_quantity: Union[int, None]
@@ -20,4 +20,9 @@ class Roles(Enum):
     ADMIN = "admin"
     CUSTOMER = "customer"
     EMPLOYEE = "employee"
+
+class InventoryReserve(BaseModel):
+    sku: Union[str,None]
+    reserved_quantity: Union[int, None]
+
 

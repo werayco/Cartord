@@ -5,6 +5,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str
+    SERVICE_SHARED_KEY: str
     class Config:
         env_file = ".env"
 

@@ -1,10 +1,10 @@
 from sqlalchemy import select, inspect
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import *
-from app.schemas import Roles
 from app.kafka.producer import kafka_manager
 from app.models import Inventory, Employee
+from app.config import settings
 from app.utils import seralize_to_json
 
 ALLOW_ROLES = (Roles.ADMIN, Roles.INVENTORY_MANAGER)
@@ -97,6 +97,34 @@ class InventoryCRUD:
 
             kafka_manager.produce(topic="inventory", key="inventory.updated", value=seralize_to_json(inventory.model_dump()))
             return {"message": "Inventory item updated successfully"}
+
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+
+
+    @staticmethod
+    async def reserve_inventory(inventory:InventoryReserve, req: Request, db: AsyncSession):
+        shared_api_key = req.headers.get("SHARED_API_KEY")
+
+        if not shared_api_key:
+            raise HTTPException(status_code=403, detail="Insert the service shared key as a request header")
+        
+        if shared_api_key != settings.SERVICE_SHARED_KEY:
+            raise HTTPException(status_code=402, detail="Not authorized")
+
+        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
+        record = result.scalar_one_or_none()
+
+        if not record:
+            raise HTTPException(status_code=404, detail="Inventory item not found")
+        
+        try:
+            record.reserved_quantity += inventory.reserved_quantity
+            await db.commit()
+            await db.refresh(record)
+
+            return {"message": f"{inventory.reserved_quantity} pieces of {inventory.sku} has been reserved", "status": "successful", "unit_price": record.unit_price}
 
         except Exception as e:
             await db.rollback()

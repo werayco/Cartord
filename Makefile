@@ -5,6 +5,9 @@ TOPIC ?= inventory
 PARTITIONS ?= 3
 REPLICATION ?= 1
 
+gen-secret:
+	python -c "import secrets; print(secrets.token_urlsafe(64))"
+
 build-auth-service:
 	docker build -t $(IMAGE_REPO)-auth-service:latest ./services/auth-service
 

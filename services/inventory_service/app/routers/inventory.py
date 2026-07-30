@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schemas import InventorySchema
+from app.schemas import InventorySchema, InventoryReserve
 from app.controllers.inventory_controller import InventoryCRUD
 from app.utils import get_current_user_dep
 from app.models.employee import Employee
@@ -23,3 +23,7 @@ async def update_inventory_item(db: AsyncSession = Depends(get_db), inventory: I
 @inventory_router.delete("/delete")
 async def delete_inventory_item(inventory: InventorySchema, db: AsyncSession = Depends(get_db), current_user: Employee = Depends(get_current_user_dep(Employee))):
     return InventoryCRUD.delete_inventory_item(db, inventory, current_user)
+
+@inventory_router.patch("/reserve")
+async def reserve_item(inventory: InventoryReserve, req:Request, db: AsyncSession = Depends(get_db)):
+    return InventoryCRUD.reserve_inventory(inventory, req, db)

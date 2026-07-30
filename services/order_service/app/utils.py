@@ -23,12 +23,12 @@ async def get_user_details(access_token: str) -> dict:
             response.raise_for_status()
             return await response.json()
 
-async def update_inventory(access_token: str) -> dict:
-    url = f"{settings.AUTH_BASE_URL}/api/v1/inventory/update"
-    headers = {"Authorization": f"Bearer {access_token}"}
+async def update_inventory(sku: str, reserved_quantity: int) -> dict:
+    url = f"{settings.AUTH_BASE_URL}/api/v1/inventory/reserved_inventory"
+    headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
 
     async with aiohttp.ClientSession() as session:
-        async with session.patch(url, data={}, headers=headers) as response:
+        async with session.patch(url, data={"sku":sku, "reserved_quantity":reserved_quantity}, headers=headers) as response:
             response.raise_for_status()
             return await response.json()
 
