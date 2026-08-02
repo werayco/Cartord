@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    response = asyncio.run(EmployeeController.run())
+    response = await EmployeeController.run()
     print(response)
     
     yield

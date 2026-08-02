@@ -43,6 +43,7 @@ class RegisterAdmin(BaseModel):
     email: str
     name: str
     password: str
+    username: str
 
 class RegisterEmployee(BaseModel):
     email: str
@@ -61,3 +62,12 @@ class CustomerOut(BaseModel):
     username: str
     name: str
     shipping_address: str | None
+
+class EmployeeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: str
+    username: str
+    role: str
+    name: str

@@ -13,5 +13,5 @@ class Employee(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    role: Mapped[Roles] = mapped_column(Enum(Roles), nullable=False)
+    role: Mapped[str] = mapped_column(Enum(Roles, native_enum=False, values_callable=lambda enum_cls: [e.value for e in enum_cls]),nullable=False,)
     password: Mapped[str] = mapped_column(String, nullable=False)

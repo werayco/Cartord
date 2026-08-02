@@ -11,7 +11,10 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     SERVICE_SHARED_KEY: str
-    
+
+    REDIS_HOST: str
+    REDIS_PORT: int = 6379
+
     class Config:
         env_file = ".env"
 

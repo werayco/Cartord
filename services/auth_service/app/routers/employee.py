@@ -23,7 +23,7 @@ async def refresh(current_user: Employee = Depends(get_current_user_dep(Employee
     tokens = await get_tokens(current_user)
     return tokens
 
-@employee_router.get("/me")
+@employee_router.get("/me", response_model=CustomerOut)
 async def me(current_user: Employee = Depends(get_current_user_dep(Employee))):
     return current_user
 

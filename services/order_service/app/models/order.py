@@ -6,7 +6,6 @@ from uuid6 import uuid7
 from app.db.session import Base
 from app.schemas import OrderStatus
 
-
 class Order(Base):
     __tablename__ = "order"
 

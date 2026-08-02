@@ -20,6 +20,8 @@ class Roles(Enum):
     ADMIN = "admin"
     CUSTOMER = "customer"
     EMPLOYEE = "employee"
+    INVENTORY_MANAGER = "inventory_manager"
+
 
 class InventoryReserve(BaseModel):
     sku: Union[str,None]

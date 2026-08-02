@@ -12,7 +12,19 @@ from app.config import settings
 import json
 from app.schemas import Roles
 import redis
+import aiohttp
 
+bearer_scheme = HTTPBearer()
+async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
+    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/user/me"
+    headers = {"Authorization": f"Bearer {access_token.credentials}"}
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                response.raise_for_status()
+                return await response.json()
+    except aiohttp.ClientResponseError as e:
+        raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
 
 async def get_redis_client():
     redis_client = redis.Redis(
@@ -28,7 +40,6 @@ def seralize_to_json(data):
     except (TypeError, ValueError) as e:
         raise ValueError(f"Data serialization error: {e}")
     
-bearer_scheme = HTTPBearer()
 
 def get_current_user_dep(table_name):
     async def _get_current_user(

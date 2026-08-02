@@ -1,18 +1,17 @@
-from sqlalchemy import select, inspect
+from sqlalchemy import select, inspect, update
 from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import *
 from app.kafka.producer import kafka_manager
-from app.models import Inventory, Employee
+from app.models import Inventory
 from app.config import settings
 from app.utils import seralize_to_json
 
-ALLOW_ROLES = (Roles.ADMIN, Roles.INVENTORY_MANAGER)
-
+ALLOW_ROLES = (Roles.ADMIN.value, Roles.INVENTORY_MANAGER.value)
 
 class InventoryCRUD:
     @staticmethod
-    async def add_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
+    async def add_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user):
         if current_user.role not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to add a product. Contact your admin or inventory manager.")
 
@@ -34,7 +33,7 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def add_inventory_items(db: AsyncSession, inventory: InventorySchemaList, current_user: Employee):
+    async def add_inventory_items(db: AsyncSession, inventory: InventorySchemaList, current_user):
         if current_user.role not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to add a product. Contact your admin or inventory manager.")
 
@@ -56,7 +55,7 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def delete_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
+    async def delete_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user):
         if current_user.role not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to delete a product from the inventory, contact your admin or inventory manager")
 
@@ -79,7 +78,7 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
+    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user):
         if current_user.role not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to update the inventory, contact your admin or inventory manager")
 
@@ -104,34 +103,61 @@ class InventoryCRUD:
 
 
     @staticmethod
-    async def reserve_inventory(inventory:InventoryReserve, req: Request, db: AsyncSession):
+    async def reserve_inventory(inventory: InventoryReserve, req: Request, db: AsyncSession):
         shared_api_key = req.headers.get("SHARED_API_KEY")
-
         if not shared_api_key:
-            raise HTTPException(status_code=403, detail="Insert the service shared key as a request header")
-        
+            raise HTTPException(status_code=401, detail="Insert the service shared key as a request header")
         if shared_api_key != settings.SERVICE_SHARED_KEY:
-            raise HTTPException(status_code=402, detail="Not authorized")
+            raise HTTPException(status_code=401, detail="Not authorized")
 
-        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
-        record = result.scalar_one_or_none()
-
-        if not record:
-            raise HTTPException(status_code=404, detail="Inventory item not found")
-        
         try:
-            record.reserved_quantity += inventory.reserved_quantity
+            if inventory.reserved_quantity > 0:
+                stmt = (
+                    update(Inventory)
+                    .where(
+                        Inventory.sku == inventory.sku,
+                        Inventory.available_quantity - Inventory.reserved_quantity >= inventory.reserved_quantity,
+                    )
+                    .values(reserved_quantity=Inventory.reserved_quantity + inventory.reserved_quantity)
+                    .returning(Inventory.reserved_quantity, Inventory.unit_price)
+                )
+            else:
+                release_amt = -inventory.reserved_quantity
+                stmt = (
+                    update(Inventory)
+                    .where(
+                        Inventory.sku == inventory.sku,
+                        Inventory.reserved_quantity >= release_amt,
+                    )
+                    .values(reserved_quantity=Inventory.reserved_quantity - release_amt)
+                    .returning(Inventory.reserved_quantity, Inventory.unit_price)
+                )
+
+            result = await db.execute(stmt)
+            row = result.first()
+
+            if row is None:
+                exists = await db.execute(select(Inventory.sku).where(Inventory.sku == inventory.sku))
+                await db.rollback()
+                if exists.scalar_one_or_none() is None:
+                    raise HTTPException(status_code=404, detail="Inventory item not found")
+                raise HTTPException(status_code=409, detail="Insufficient available inventory")
+
             await db.commit()
-            await db.refresh(record)
-
-            return {"message": f"{inventory.reserved_quantity} pieces of {inventory.sku} has been reserved", "status": "successful", "unit_price": record.unit_price}
-
-        except Exception as e:
+            new_reserved, unit_price = row
+            return {
+                "message": f"{inventory.reserved_quantity} pieces of {inventory.sku} updated",
+                "status": "successful",
+                "unit_price": unit_price,
+            }
+        except HTTPException:
+            raise
+        except Exception:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
-
+            raise HTTPException(status_code=500, detail="Inventory update failed")
+    
     @staticmethod
-    async def get_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: Employee):
+    async def get_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user):
         result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
         record = result.scalar_one_or_none()
         if not record:

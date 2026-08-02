@@ -15,7 +15,7 @@ class Inventory(Base):
     unit_price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
 
     sku: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    available_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     reserved_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

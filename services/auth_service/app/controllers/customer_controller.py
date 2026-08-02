@@ -1,34 +1,44 @@
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import (ChangePasswordRequest,LoginRequest,RegisterRequest)
+from app.schemas import (ChangePasswordRequest, LoginRequest, RegisterRequest)
 from app.models.customer import Customer
-from app.utils import (get_tokens, hash_password,verify_password)
+from app.utils import (get_tokens, hash_password, verify_password)
+
 
 class AuthController:
     @staticmethod
     async def register(payload: RegisterRequest, db: AsyncSession):
-        result = (await db.execute(select(Customer).where(or_(Customer.email == payload.get("email"),Customer.username == payload.get("username")))))
+        result = await db.execute(
+            select(Customer).where(
+                or_(Customer.email == payload.email, Customer.username == payload.username)
+            )
+        )
         if result.scalars().first():
             return {"response": "this Customer already exists", "status": "failed"}
 
-        passwordHash = hash_password(payload.get("password"))
-        Customer = Customer(email=payload.get("email"),username=payload.get("username"),name=payload.get("name"),password=passwordHash, shipping_address=payload.get("shipping_address"))
-        db.add(Customer)
+        password_hash = hash_password(payload.password)
+        customer_data = Customer(
+            email=payload.email,
+            username=payload.username,
+            name=payload.name,
+            password=password_hash,
+            shipping_address=payload.shipping_address,
+        )
+        db.add(customer_data)
 
         await db.commit()
-        await db.refresh(Customer)
-        tokens = await get_tokens(Customer)
+        await db.refresh(customer_data)
+        tokens = await get_tokens(customer_data)
         return {"response": "Registration successful", "tokens": tokens}
 
     @staticmethod
     async def login(payload: LoginRequest, db: AsyncSession):
         result = await db.execute(select(Customer).where(Customer.username == payload.username))
-        Customer = result.scalar_one_or_none()
-        if not Customer or not verify_password(payload.password, Customer.password):
+        customer = result.scalar_one_or_none()
+        if not customer or not verify_password(payload.password, customer.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
-        tokens = await get_tokens(Customer)
-
+        tokens = await get_tokens(customer)
         return {"response": "Login successful", "tokens": tokens}
 
     @staticmethod
@@ -67,9 +77,9 @@ class AuthController:
         return {"response": "Account deleted successfully"}
 
     @staticmethod
-    async def change_password(payload: ChangePasswordRequest,current_user: Customer,db: AsyncSession):
+    async def change_password(payload: ChangePasswordRequest, current_user: Customer, db: AsyncSession):
         if not verify_password(payload.old_password, current_user.password):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Old password is incorrect",)
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Old password is incorrect")
         current_user.password = hash_password(payload.new_password)
         await db.commit()
         return {"response": "Password changed successfully"}

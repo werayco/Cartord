@@ -14,17 +14,20 @@ from app.schemas import Roles
 import aiohttp
 
 
-async def get_user_details(access_token: str) -> dict:
+bearer_scheme = HTTPBearer()
+async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
     url = f"{settings.AUTH_BASE_URL}/api/v1/auth/user/me"
-    headers = {"Authorization": f"Bearer {access_token}"}
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as response:
-            response.raise_for_status()
-            return await response.json()
+    headers = {"Authorization": f"Bearer {access_token.credentials}"}
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as response:
+                response.raise_for_status()
+                return await response.json()
+    except aiohttp.ClientResponseError as e:
+        raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
 
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
-    url = f"{settings.AUTH_BASE_URL}/api/v1/inventory/reserved_inventory"
+    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/reserved_inventory"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
 
     async with aiohttp.ClientSession() as session:
@@ -37,28 +40,3 @@ def seralize_to_json(data):
         return json.dumps(data).encode("utf-8")
     except (TypeError, ValueError) as e:
         raise ValueError(f"Data serialization error: {e}")
-    
-bearer_scheme = HTTPBearer()
-
-def get_current_user_dep(table_name):
-    async def _get_current_user(
-        token: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-        db: AsyncSession = Depends(get_db),
-    ):
-        credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
-        permission_exception = HTTPException(status_code=403, detail="You aren't permitted to use this endpoint")
-        try:
-            payload = jwt.decode(token.credentials, settings.SECRET_KEY, algorithms=["HS256"])
-            if payload.get("type") != "access":
-                raise credentials_exception
-            if payload.get("role") == Roles.EMPLOYEE:
-                raise permission_exception
-            user_id = UUID(payload["sub"])
-        except (JWTError, ValueError, KeyError):
-            raise credentials_exception
-        result = await db.execute(select(table_name).where(table_name.id == user_id))
-        user = result.scalar_one_or_none()
-        if user is None:
-            raise credentials_exception
-        return user
-    return _get_current_user
