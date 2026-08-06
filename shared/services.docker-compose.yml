@@ -10,6 +10,7 @@ services:
   #     - "../services/ai_service:/app/"
   #   env_file:
   #     - ./.env
+  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
   #   restart: unless-stopped
   #   healthcheck:
   #     test: ["CMD-SHELL", "curl -f http://localhost:9000/api/v1/health || exit 1"]
@@ -30,6 +31,7 @@ services:
       - "../services/auth_service:/app/"
     env_file:
       - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9001", "--reload"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9001/api/v1/health || exit 1"]
@@ -50,6 +52,7 @@ services:
       - "../services/inventory_service:/app/"
     env_file:
       - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9002/api/v1/health || exit 1"]
@@ -70,6 +73,7 @@ services:
   #     - "../services/notification_service:/app/"
   #   env_file:
   #     - ./.env
+  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
   #   restart: unless-stopped
   #   healthcheck:
   #     test: ["CMD-SHELL", "curl -f http://localhost:9003/api/v1/health || exit 1"]
@@ -90,6 +94,7 @@ services:
   #     - "../services/order_service:/app/"
   #   env_file:
   #     - ./.env
+  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
   #   restart: unless-stopped
   #   healthcheck:
   #     test: ["CMD-SHELL", "curl -f http://localhost:9004/api/v1/health || exit 1"]
@@ -110,6 +115,7 @@ services:
   #     - "../services/payment_service:/app/"
   #   env_file:
   #     - ./.env
+  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
   #   restart: unless-stopped
   #   healthcheck:
   #     test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
@@ -130,6 +136,7 @@ services:
       - "../services/search_service:/app/"
     env_file:
       - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9007/api/v1/health || exit 1"]
@@ -138,26 +145,6 @@ services:
       retries: 5
     networks:
       - mynet
-
-  # user_service:
-  #   build:
-  #     context: ../services/user_service
-  #     dockerfile: Dockerfile
-  #   container_name: user_service
-  #   ports:
-  #     - "9006:9006"
-  #   volumes:
-  #     - "../services/user_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9006/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
 
 networks:
   mynet:

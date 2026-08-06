@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from app.models import Employee
 from app.config import settings
-from app.schemas import RegisterEmployee, RegisterAdmin, Roles
+from app.schemas import LoginRequest, RegisterEmployee, RegisterAdmin, Roles
 from app.db.session import AsyncSessionLocal
-from app.utils import hash_password
+from app.utils import hash_password, verify_password, get_tokens
 
 
 class EmployeeController:
@@ -25,10 +25,12 @@ class EmployeeController:
 
         try:
             data = payload.model_dump()
-            data["role"] = Roles.ADMIN.value
+            data["role"] = Roles.ADMIN
             data["password"] = hash_password(data["password"])
+
             admin_data = Employee(**data)
             db.add(admin_data)
+
             await db.commit()
             await db.refresh(admin_data)
             return {"message": "Admin registered successfully", "created": True}
@@ -39,7 +41,8 @@ class EmployeeController:
 
     @staticmethod
     async def register_employee(payload: RegisterEmployee, db: AsyncSession, current_user: Employee):
-        if current_user.role != Roles.ADMIN.value:
+        print("the user role is",current_user.role)
+        if current_user.role != Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can create an employee account")
 
         try:
@@ -55,14 +58,14 @@ class EmployeeController:
             if result.scalars().first():
                 raise HTTPException(status_code=409, detail="Username already exists")
 
-            data["role"] = Roles.EMPLOYEE.value
+            data["role"] = Roles.EMPLOYEE
             data["password"] = hash_password(data["password"])
 
             add_employee = Employee(**data)
             db.add(add_employee)
             await db.commit()
             await db.refresh(add_employee)
-            return {"message": "Employee registered successfully", "id": str(add_employee.id)}
+            return {"message": "Employee registered successfully"}
         except HTTPException:
             await db.rollback()
             raise
@@ -72,7 +75,7 @@ class EmployeeController:
 
     @staticmethod
     async def register_inventory_manager(payload: RegisterEmployee, db: AsyncSession, current_user: Employee):
-        if current_user.role != Roles.ADMIN.value:
+        if current_user.role != Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can create an inventory manager account")
 
         try:
@@ -88,7 +91,7 @@ class EmployeeController:
             if result.scalars().first():
                 raise HTTPException(status_code=409, detail="Username already exists")
 
-            data["role"] = Roles.INVENTORY_MANAGER.value
+            data["role"] = Roles.INVENTORY_MANAGER
             data["password"] = hash_password(data["password"])
 
             add_employee = Employee(**data)
@@ -112,32 +115,32 @@ class EmployeeController:
 
     @staticmethod
     async def get_all_employees(db: AsyncSession, current_user: Employee):
-        if current_user.role != Roles.ADMIN.value:
+        if current_user.role != Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can view employees")
-        result = await db.execute(select(Employee).where(Employee.role == Roles.EMPLOYEE.value))
+        result = await db.execute(select(Employee).where(Employee.role == Roles.EMPLOYEE))
         return result.scalars().all()
 
     @staticmethod
     async def get_all_inventory_managers(db: AsyncSession, current_user: Employee):
-        if current_user.role != Roles.ADMIN.value:
+        if current_user.role != Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can view inventory managers")
-        result = await db.execute(select(Employee).where(Employee.role == Roles.INVENTORY_MANAGER.value))
+        result = await db.execute(select(Employee).where(Employee.role == Roles.INVENTORY_MANAGER))
         return result.scalars().all()
 
     @staticmethod
-    async def delete_user(user_id: UUID, db: AsyncSession, current_user: Employee):
-        if current_user.role != Roles.ADMIN.value:
+    async def delete_user(username: str, db: AsyncSession, current_user: Employee):
+        if current_user.role != Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Only an admin can delete users")
 
-        if user_id == current_user.id:
+        if username == current_user.username:
             raise HTTPException(status_code=400, detail="Admins cannot delete their own account")
 
-        result = await db.execute(select(Employee).where(Employee.id == user_id))
+        result = await db.execute(select(Employee).where(Employee.username == username))
         employee = result.scalars().first()
         if not employee:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if employee.role == Roles.ADMIN.value:
+        if employee.role == Roles.ADMIN:
             raise HTTPException(status_code=403, detail="Cannot delete an admin account")
 
         try:
@@ -147,3 +150,12 @@ class EmployeeController:
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+        
+    @staticmethod
+    async def login(payload: LoginRequest, db: AsyncSession):
+        result = await db.execute(select(Employee).where(Employee.username == payload.username))
+        Emplo = result.scalar_one_or_none()
+        if not Emplo or not verify_password(payload.password, Emplo.password):
+            raise HTTPException(status_code=401, detail="Invalid username or password")
+        tokens = await get_tokens(Emplo)
+        return {"response": "Login successful", "tokens": tokens}

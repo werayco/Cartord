@@ -7,7 +7,20 @@ REPLICATION ?= 1
 
 gen-secret:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
-
+auth:
+	docker logs -f auth_service
+inventory:
+	docker logs -f inventory_service
+notification:
+	docker logs -f notification_service
+order:
+	docker logs -f order_service
+search:
+	docker logs -f search_service
+db:
+	docker logs -f cartord-pg
+kf:
+	docker logs -f cartord-kf
 build-auth-service:
 	docker build -t $(IMAGE_REPO)-auth-service:latest ./services/auth-service
 

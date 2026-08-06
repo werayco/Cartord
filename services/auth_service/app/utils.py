@@ -57,9 +57,9 @@ async def issue_refresh_token() -> str:
     return secrets.token_urlsafe(64)
 
 async def get_tokens(user_id):
-    access = await issue_access_token(user_id)
+    access = await issue_access_token(user_id.id)
     refresh = await issue_refresh_token()
-    await redis_client.set(f"refresh:{user_id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
+    redis_client.set(f"refresh:{user_id.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
     return {"access_token": access, "refresh_token": refresh}
 
 def hash_password(password: str) -> str:
@@ -76,7 +76,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
-async def cache_refresh_tokens(user_id: str,refresh_token: str):
+async def cache_refresh_tokens(user_id: UUID,refresh_token: str):
     key = f"refresh:{user_id}"
     stored_hash = redis_client.get(key)
 

@@ -9,8 +9,13 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./init-scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rayco -d cartord"]
+      test:
+        [
+          "CMD-SHELL",
+          "for db in auth_db inventory_db order_db payment_db notification_db search_db; do pg_isready -U rayco -d $$db || exit 1; done",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -44,13 +49,17 @@ services:
     container_name: cartord-kf
     restart: unless-stopped
     ports:
-      - "9092:9092"    
+      - "9092:9092"
     env_file:
       - ./.env
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:29092 || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:29092 || exit 1",
+        ]
       interval: 10s
       timeout: 10s
       retries: 10

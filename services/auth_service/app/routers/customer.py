@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import (RefreshRequest,ChangePasswordRequest,LoginRequest,RegisterRequest, DeleteUser, CustomerOut)
+from app.schemas import (RefreshRequest,ChangePasswordRequest,LoginRequest,RegisterRequest, DeleteUser, CustomerOut, UpdateUser)
 from app.db.session import get_db
 from app.models.customer import Customer
 from app.utils import (get_current_user_dep,cache_refresh_tokens)
@@ -17,8 +17,8 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     return await AuthController.login(payload, db)
 
 @user_router.post("/refresh")
-async def refresh(refresh_token:RefreshRequest, current_user: Customer = Depends(get_current_user_dep(Customer))):
-    tokens = await cache_refresh_tokens(current_user.id,refresh_token)
+async def refresh(payload:RefreshRequest, current_user: Customer = Depends(get_current_user_dep(Customer))):
+    tokens = await cache_refresh_tokens(current_user.id,payload.refresh_token)
     return tokens
 
 @user_router.get("/me", response_model=CustomerOut)
@@ -30,7 +30,7 @@ async def change_password(payload: ChangePasswordRequest,current_user: Customer 
     return await AuthController.change_password(payload, current_user, db)
 
 @user_router.patch("/update")
-async def update_user(payload: RegisterRequest, current_user: Customer = Depends(get_current_user_dep(Customer)),db: AsyncSession = Depends(get_db),):
+async def update_user(payload: UpdateUser, current_user: Customer = Depends(get_current_user_dep(Customer)),db: AsyncSession = Depends(get_db),):
     return await AuthController.update_user(payload, db, current_user)
 
 @user_router.delete("/delete")

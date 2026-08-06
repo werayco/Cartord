@@ -1,4 +1,4 @@
-# Ordering System = TODO
+# Cartord TODO
 
 ## Idempotency
 - [ ] Add idempotency key / event ID tracking for order service consumers
@@ -34,8 +34,7 @@
 - [ ] Define Kafka topic and event schema conventions (event name, payload shape, saga/correlation ID)
 - [ ] Document consumer group naming per service
 
-## Monitoring
+## Extras
 - [ ] Configure Prometheus and Grafana
+- [ ] Access Token Rotation and Revoking
 
-## Access Token Rotation and Revoking
-- [ ] Configure Prometheus and Grafana

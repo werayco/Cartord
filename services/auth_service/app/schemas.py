@@ -19,7 +19,7 @@ class ChangePasswordRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
-    
+
 class RefreshRequest(BaseModel):
     refresh_token: str
 
@@ -45,29 +45,33 @@ class RegisterAdmin(BaseModel):
     password: str
     username: str
 
+class EmployeeOut(BaseModel):
+    email: str
+    name: str
+    username: str
+    role: str
+    model_config = {"from_attributes": True}
+
 class RegisterEmployee(BaseModel):
     email: str
     name: str
-    role: Roles = Roles.EMPLOYEE
     password: str
+    username: str
 
 class DeleteUser(BaseModel):
+    username: str
     password: str
 
 class CustomerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
     email: str
     username: str
     name: str
     shipping_address: str | None
 
-class EmployeeOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    email: str
-    username: str
-    role: str
-    name: str
+class UpdateUser(BaseModel):
+    email: str | None = None
+    name: str | None = None
+    username: str | None = None
+    shipping_address: str | None = None

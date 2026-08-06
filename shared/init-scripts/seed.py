@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 load_dotenv()
 
-RAW_DATABASE_URL = os.environ["DATABASE_URL"]
+RAW_DATABASE_URL = os.environ.get("INVENTORY_DATABASE_URL", os.environ["DATABASE_URL"])
 DATABASE_URL = RAW_DATABASE_URL.replace("@postgres", "@localhost")
 INVENTORY_JSON_PATH = Path(__file__).parent / "inventory.json"
 

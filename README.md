@@ -6,7 +6,6 @@ full observability, deployed on Kubernetes.
 
 ## Microservices
 - **Auth Service** - registration, login, JWT issuing/validation
-- **User Service** - customer profile management
 - **Inventory Service** - product catalog and stock, source of truth (Postgres)
 - **Order Service** - order lifecycle, orchestrates stock reservation
 - **Search Service** - read-optimized product search (Elasticsearch)
@@ -91,7 +90,6 @@ The architecture includes a few patterns that help the system stay stable under 
 - Dead letter queues capture failed events so they do not disappear silently.
 
 ## Deployment
-
 The project is prepared for container based deployment.
 
 - Docker Compose is used for local development.

@@ -7,7 +7,7 @@ from app.utils import get_current_user
 
 inventory_router = APIRouter(prefix="/api/v1/inventory", tags=["inventory"])
 
-@inventory_router.post("/add")
+@inventory_router.post("/")
 async def add_inventory_item(
     inventory: InventorySchema,
     db: AsyncSession = Depends(get_db),
@@ -15,7 +15,7 @@ async def add_inventory_item(
 ):
     return await InventoryCRUD.add_inventory_item(db, inventory, current_user)
 
-@inventory_router.get("/get")
+@inventory_router.get("/")
 async def get_inventory_item(
     inventory: InventorySchema,
     db: AsyncSession = Depends(get_db),
@@ -23,7 +23,7 @@ async def get_inventory_item(
 ):
     return await InventoryCRUD.get_inventory_item(db, inventory, current_user)
 
-@inventory_router.put("/update")
+@inventory_router.put("/")
 async def update_inventory_item(
     inventory: InventorySchema,
     db: AsyncSession = Depends(get_db),
@@ -31,7 +31,7 @@ async def update_inventory_item(
 ):
     return await InventoryCRUD.update_inventory_item(db, inventory, current_user)
 
-@inventory_router.delete("/delete")
+@inventory_router.delete("/")
 async def delete_inventory_item(
     inventory: InventorySchema,
     db: AsyncSession = Depends(get_db),
