@@ -33,3 +33,9 @@
 - [ ] Define compensating actions for each step (e.g. inventory release, payment refund)
 - [ ] Define Kafka topic and event schema conventions (event name, payload shape, saga/correlation ID)
 - [ ] Document consumer group naming per service
+
+## Monitoring
+- [ ] Configure Prometheus and Grafana
+
+## Access Token Rotation and Revoking
+- [ ] Configure Prometheus and Grafana
