@@ -9,7 +9,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./init-scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
+      - ./init_scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
     healthcheck:
       test:
         [

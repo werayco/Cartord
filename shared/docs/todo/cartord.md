@@ -16,7 +16,7 @@
 - [ ] Build poller/relay process to publish unpublished outbox rows to Kafka
 - [ ] Mark outbox rows as published once Kafka ack is received
 
-## Database Per Service
+## Database Per Service (Completed)
 - [ ] Provision separate database per service (auth, inventory, order, payment, notification, search)
 - [ ] Update each service's `settings.py` with its own `DATABASE_URL`
 - [ ] Split Alembic into per-service `alembic/` directories with their own `env.py`
@@ -33,8 +33,9 @@
 - [ ] Define compensating actions for each step (e.g. inventory release, payment refund)
 - [ ] Define Kafka topic and event schema conventions (event name, payload shape, saga/correlation ID)
 - [ ] Document consumer group naming per service
+- [ ] Add a circuit breaker between order service and inventory service when reservation is made
 
-## Extras
+## Extras (Completed)
 - [ ] Configure Prometheus and Grafana
 - [ ] Access Token Rotation and Revoking
 

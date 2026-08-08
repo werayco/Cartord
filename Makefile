@@ -53,7 +53,7 @@ build:
 	docker-compose -f shared/services.docker-compose.yml up -d 
 	python -m shared.kafka.create_topics --topic inventory --partitions 3 --replication 1
 	python -m shared.kafka.create_topics --topic order --partitions 1 --replication 1
-# 	python -m shared.seed
+# 	python -m shared.init_scripts.seed
 
 services-all:
 	docker-compose -f shared/services.docker-compose.yml up --build -d

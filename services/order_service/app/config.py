@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int = 6379
 
+    CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
+    CIRCUIT_BREAKER_FAIL_MAX: int = 5
+
     class Config:
         env_file = ".env"
 
