@@ -1,18 +1,9 @@
-from datetime import datetime, timedelta, timezone
-from uuid import UUID
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.config import settings
-from app.db.session import get_db
-from sqlalchemy.ext.asyncio import AsyncSession
-from jose import jwt, JWTError
-from app.config import settings
 import json
-from app.schemas import Roles
 import aiohttp
-
+from app.services.circuit_breaker import breaker as inventory_breaker
 
 bearer_scheme = HTTPBearer()
 async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
@@ -26,6 +17,7 @@ async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(
     except aiohttp.ClientResponseError as e:
         raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
 
+@inventory_breaker
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
     url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/reserved_inventory"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}

@@ -83,26 +83,26 @@ services:
   #   networks:
   #     - mynet
 
-  # order_service:
-  #   build:
-  #     context: ../services/order_service
-  #     dockerfile: Dockerfile
-  #   container_name: order_service
-  #   ports:
-  #     - "9004:9004"
-  #   volumes:
-  #     - "../services/order_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9004/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  order_service:
+    build:
+      context: ../services/order_service
+      dockerfile: Dockerfile
+    container_name: order_service
+    ports:
+      - "9004:9004"
+    volumes:
+      - "../services/order_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9004/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
   # payment_service:
   #   build:
