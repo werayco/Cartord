@@ -1,5 +1,5 @@
 <div align="center">
- <img src="shared/images/cartord-logo-1.png" alt="Screenbond Logo" width="300"/>
+ <img src="shared/images/cartord-logo-1.png" alt="Screenbond Logo" width="700"/>
 
  <br/>
 
