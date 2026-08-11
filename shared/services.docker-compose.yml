@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth_service
     ports:
-      - "9001:9001"
+      - "9068:9001"
     volumes:
       - "../services/auth_service:/app/"
     env_file:

@@ -22,7 +22,7 @@ load_dotenv()
 
 RAW_DATABASE_URL = os.environ.get("INVENTORY_DATABASE_URL", os.environ["DATABASE_URL"])
 DATABASE_URL = RAW_DATABASE_URL.replace("@postgres", "@localhost")
-INVENTORY_JSON_PATH = Path(__file__).parent / "inventory.json"
+INVENTORY_JSON_PATH = Path(__file__).parent.parent / "inventory.json"
 
 metadata = MetaData()
 
@@ -100,5 +100,5 @@ async def seed() -> None:
         await engine.dispose()
 
 
-# if __name__ == "__main__":
-#     asyncio.run(seed())
+if __name__ == "__main__":
+    asyncio.run(seed())

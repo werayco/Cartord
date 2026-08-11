@@ -1,7 +1,7 @@
 # Cartord TODO
 
 ## Idempotency
-- [ ] Add idempotency key / event ID tracking for order service consumers
+- [ ] Add idempotency key / event ID tracking for order service consumers (completed)
 - [ ] Persist processed event IDs (per saga ID + step) to guard against duplicate Kafka delivery
 - [ ] Add idempotency check before any DB write triggered by a consumed event
 
@@ -11,7 +11,7 @@
 - [ ] Define limits for auth endpoints (login/register) separately from general API limits
 
 ## Outbox Pattern
-- [ ] Create `outbox` table per service (event payload, topic, status, created_at)
+- [ ] Create `outbox` table per service (event payload, topic, status, created_at) (completed)
 - [ ] Write business data + outbox row in the same DB transaction
 - [ ] Build poller/relay process to publish unpublished outbox rows to Kafka
 - [ ] Mark outbox rows as published once Kafka ack is received
@@ -37,5 +37,5 @@
 
 ## Extras (Completed)
 - [ ] Configure Prometheus and Grafana
-- [ ] Access Token Rotation and Revoking
+- [ ] Access Token Rotation and Revoking (completed)
 

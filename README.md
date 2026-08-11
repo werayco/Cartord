@@ -1,3 +1,32 @@
+<div align="center">
+ <img src="shared/images/cartord-logo-1.png" alt="Screenbond Logo" width="300"/>
+
+ <br/>
+
+ ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+ ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+ ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+ ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+ ![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?style=flat-square&logo=elasticsearch&logoColor=white)
+ ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+ ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
+ ![JWT](https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white)
+ ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=flat-square&logo=prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=flat-square&logo=grafana&logoColor=white)
+![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-000000?style=flat-square&logo=opentelemetry&logoColor=white)
+![Kafka](https://img.shields.io/badge/Kafka-231F20?style=flat-square&logo=apachekafka&logoColor=white)
+![Jaeger](https://img.shields.io/badge/Jaeger-66CFE3?style=flat-square&logo=jaeger&logoColor=white)
+![Debezium](https://img.shields.io/badge/Debezium-EE3A43?style=flat-square&logoColor=white)
+![GlitchTip](https://img.shields.io/badge/GlitchTip-8B5CF6?style=flat-square&logoColor=white)
+![Saga Pattern](https://img.shields.io/badge/Saga_Pattern-6E56CF?style=flat-square&logoColor=white)
+![Circuit Breaker](https://img.shields.io/badge/Circuit_Breaker-D97706?style=flat-square&logoColor=white)
+![Microservices](https://img.shields.io/badge/Microservices-0EA5E9?style=flat-square&logoColor=white)
+![Makefile](https://img.shields.io/badge/Makefile-427819?style=flat-square&logoColor=white)
+</div>
+<br/>
+
+
 # Cartord: Event-Driven Ordering Platform
 
 A mini ordering system built to demonstrate production-grade backend

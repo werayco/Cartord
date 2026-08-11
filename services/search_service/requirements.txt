@@ -11,4 +11,6 @@ aiohttp
 opentelemetry-api==1.27.0
 opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
+opentelemetry-instrumentation-confluent-kafka
 sentry-sdk[fastapi]==2.14.0
+opentelemetry-instrumentation-elasticsearch
