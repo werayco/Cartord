@@ -42,23 +42,19 @@ build-user-service:
 build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
 
 create-topics:
-	python -m shared.kafka.create_topics --topic $(TOPIC) --partitions $(PARTITIONS) --replication $(REPLICATION)
+	python -m shared.init_scripts.create_topics --partitions $(PARTITIONS) --replication $(REPLICATION)
 
 run:
 	docker-compose -f shared/docker-compose.yml up -d
 	docker-compose -f shared/services.docker-compose.yml up -d 
-
-build:
-	docker-compose -f shared/docker-compose.yml up -d
-	docker-compose -f shared/services.docker-compose.yml up -d 
-	python -m shared.kafka.create_topics --topic inventory --partitions 3 --replication 1
-	python -m shared.kafka.create_topics --topic order --partitions 1 --replication 1
-# 	python -m shared.seed
+	python -m shared.init_scripts.create_topics --topic inventory --partitions 3 --replication 1
+	python -m shared.init_scripts.create_topics --topic order --partitions 1 --replication 1
+	python -m shared.init_scripts.seed
 
 services-all:
 	docker-compose -f shared/services.docker-compose.yml up --build -d
 
-service-recreate:
+recreate-services:
 	docker-compose -f shared/services.docker-compose.yml up --force-recreate -d
 
 stop-all:

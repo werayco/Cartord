@@ -7,9 +7,14 @@ services:
       - ./.env
     ports:
       - "5432:5432"
+    command: >
+      postgres
+      -c wal_level=logical
+      -c max_replication_slots=10
+      -c max_wal_senders=10
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./init-scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
+      - ./init_scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
     healthcheck:
       test:
         [
@@ -21,6 +26,33 @@ services:
       retries: 5
     networks:
       - mynet
+
+  debezium:
+      image: debezium/connect:2.7
+      container_name: cartord-debezium
+      restart: unless-stopped
+      depends_on:
+        kafka:
+          condition: service_healthy
+        postgres:
+          condition: service_healthy
+      ports:
+        - "8083:8083"
+      environment:
+        BOOTSTRAP_SERVERS: kafka:29092
+        GROUP_ID: cartord-connect-cluster
+        CONFIG_STORAGE_TOPIC: cartord_connect_configs
+        OFFSET_STORAGE_TOPIC: cartord_connect_offsets
+        STATUS_STORAGE_TOPIC: cartord_connect_statuses
+        CONFIG_STORAGE_REPLICATION_FACTOR: 1
+        OFFSET_STORAGE_REPLICATION_FACTOR: 1
+        STATUS_STORAGE_REPLICATION_FACTOR: 1
+        KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+        VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+        CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+        CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      networks:
+        - mynet
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
@@ -138,7 +170,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./bind_volumes/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -155,6 +187,13 @@ services:
       - prometheus
     networks:
       - mynet
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    volumes:
+      - ./bind_volumes/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    ports:
+      - "4317:4317"
 
 volumes:
   db_data:

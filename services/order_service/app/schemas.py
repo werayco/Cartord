@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Union
 
 class OrderPayload(BaseModel):
-    "Frontend/client sends this payload to the backend, then the backend queries using the sku and retrieve the PR"
     sku: str
     quantity: int
 
@@ -13,7 +12,7 @@ class Roles(Enum):
     CUSTOMER = "customer"
     EMPLOYEE = "employee"
 
-class OrderStatus(str):
+class OrderStatus(Enum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
     SHIPPED = "shipped"
