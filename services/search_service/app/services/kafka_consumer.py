@@ -2,6 +2,8 @@ import asyncio
 import json
 import logging
 from confluent_kafka import Consumer, Producer
+from opentelemetry.trace import get_tracer_provider
+from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from app.services.elasticsearch_client import elasticsearch_client
 from app.config import settings
 from app.utils import deserialize_from_json
@@ -10,13 +12,20 @@ logger = logging.getLogger(__name__)
 
 class KafkaConsumer:
     def __init__(self):
-        self.consumer = Consumer({
+        inst = ConfluentKafkaInstrumentor()
+        tracer_provider = get_tracer_provider()
+
+        consumer = Consumer({
             "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
             "group.id": "search-service",
             "auto.offset.reset": "earliest",
             "enable.auto.commit": False,
         })
-        self.dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
+        self.consumer = inst.instrument_consumer(consumer, tracer_provider=tracer_provider)
+
+        dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
+        self.dlq_producer = inst.instrument_producer(dlq_producer, tracer_provider)
+
         self._running = False
 
     async def consume(self):

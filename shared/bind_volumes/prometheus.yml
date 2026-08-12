@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 20s
+  evaluation_interval: 20s
+
+scrape_configs:
+  - job_name: "auth_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "auth_service:9001"
+
+  - job_name: "inventory_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "inventory_service:9002"
+
+  - job_name: "order_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "order_service:9004"
+
+  - job_name: "search_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "search_service:9007"

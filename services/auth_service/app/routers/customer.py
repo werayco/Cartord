@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import (RefreshRequest,ChangePasswordRequest,LoginRequest,RegisterRequest, DeleteUser, CustomerOut, UpdateUser)
+from app.core.schemas import (RefreshRequest,ChangePasswordRequest,LoginRequest,RegisterRequest, DeleteUser, CustomerOut, UpdateUser)
 from app.db.session import get_db
 from app.models.customer import Customer
-from app.utils import (get_current_user_dep,cache_refresh_tokens)
+from app.core.utils import (get_current_user_dep,cache_refresh_tokens)
 from app.controllers.customer_controller import AuthController
 
 user_router = APIRouter(prefix="/api/v1/auth/user", tags=["auth"])

@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import (ChangePasswordRequest, LoginRequest, RegisterRequest)
+from app.core.schemas import (ChangePasswordRequest, LoginRequest, RegisterRequest)
 from app.models.customer import Customer
-from app.utils import (get_tokens, hash_password, verify_password)
+from app.core.utils import (get_tokens, hash_password, verify_password)
 
 
 class AuthController:

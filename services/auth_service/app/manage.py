@@ -4,8 +4,8 @@ from sqlalchemy import select, or_
 from sqlalchemy.exc import IntegrityError
 from app.db.session import AsyncSessionLocal
 from app.models import Employee
-from app.utils import hash_password
-from app.schemas import Roles
+from app.core.utils import hash_password
+from app.core.schemas import Roles
 
 
 def parse_args():

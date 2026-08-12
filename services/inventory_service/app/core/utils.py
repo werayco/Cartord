@@ -4,13 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.config import settings
+from app.core.config import settings
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError
-from app.config import settings
+from app.core.config import settings
 import json
-from app.schemas import Roles
+from app.core.schemas import Roles
 import redis
 import aiohttp
 

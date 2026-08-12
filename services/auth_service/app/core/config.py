@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     ADMIN_PASSWORD: str
     ADMIN_EMAIL: str
     ADMIN_USERNAME: str
+
+    OTEL_SERVICE_NAME: str
+    OTEL_EXPORTER_OTLP_ENDPOINT: str
     
     class Config:
         env_file = ".env"

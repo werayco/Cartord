@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.config import settings
+from app.core.config import settings
 from app.models.customer import Customer
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
