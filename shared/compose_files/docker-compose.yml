@@ -14,12 +14,12 @@ services:
       -c max_wal_senders=10
     volumes:
       - db_data:/var/lib/postgresql/data
-      - ./init_scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
+      - ../init_scripts/create-databases.sql:/docker-entrypoint-initdb.d/create-databases.sql:ro
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "for db in auth_db inventory_db order_db payment_db notification_db search_db; do pg_isready -U rayco -d $$db || exit 1; done",
+          "for db in auth_db inventory_db order_db payment_db notification_db search_db glitchtip; do pg_isready -U rayco -d $$db || exit 1; done",
         ]
       interval: 10s
       timeout: 5s
@@ -28,7 +28,7 @@ services:
       - mynet
 
   debezium:
-      image: debezium/connect:2.7
+      image: debezium/connect:2.7.3.Final 
       container_name: cartord-debezium
       restart: unless-stopped
       depends_on:
@@ -72,7 +72,6 @@ services:
     image: jaegertracing/all-in-one:1.60
     ports:
       - "16686:16686"
-      - "4317:4317"
     networks:
       - mynet
 
@@ -170,7 +169,7 @@ services:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
-      - ./bind_volumes/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../bind_volumes/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -189,12 +188,25 @@ services:
       - mynet
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: cartord-otel-collector
+    restart: unless-stopped
     volumes:
-      - ./bind_volumes/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+      - ../bind_volumes/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
       - "4317:4317"
-
+      - "4318:4318" 
+    depends_on:
+      - jaeger
+      - prometheus
+    networks:
+      - mynet
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:13133/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      
 volumes:
   db_data:
   esdata:

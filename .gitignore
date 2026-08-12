@@ -1,1 +1,2 @@
-shared/.env
+shared/compose_files/.env
+.vscode

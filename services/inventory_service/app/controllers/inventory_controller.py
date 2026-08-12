@@ -1,11 +1,11 @@
 from sqlalchemy import select, inspect, update
 from fastapi import HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas import *
+from app.core.schemas import *
 from app.kafka.producer import kafka_manager
 from app.models import Inventory
-from app.config import settings
-from app.utils import seralize_to_json
+from app.core.config import settings
+from app.core.utils import seralize_to_json
 
 ALLOW_ROLES = (Roles.ADMIN.value, Roles.INVENTORY_MANAGER.value)
 

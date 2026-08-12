@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
     CIRCUIT_BREAKER_FAIL_MAX: int = 5
 
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://otel-collector:4317"
+    
     class Config:
         env_file = ".env"
 

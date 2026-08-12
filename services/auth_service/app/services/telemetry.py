@@ -5,13 +5,14 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from app.config import settings
+from app.db.redis_client import redis_client
+from app.core.config import settings
+
 
 def setup_telemetry(app, engine: AsyncEngine):
-    resource = Resource.create({SERVICE_NAME: "order_service"})
+    resource = Resource.create({SERVICE_NAME: "auth_service"})
     provider = TracerProvider(resource=resource)
     exporter = OTLPSpanExporter(endpoint=settings.OTEL_EXPORTER_OTLP_ENDPOINT)
     provider.add_span_processor(BatchSpanProcessor(exporter))
@@ -19,5 +20,5 @@ def setup_telemetry(app, engine: AsyncEngine):
 
     FastAPIInstrumentor.instrument_app(app)
     SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
-    AioHttpClientInstrumentor().instrument()
+
     RedisInstrumentor().instrument()

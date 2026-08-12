@@ -2,13 +2,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid6 import UUID
-from app.config import *
+from app.core.config import *
 from app.db.session import get_db
 from app.models.employee import Employee
-from app.utils import (get_current_user_dep, get_tokens, cache_refresh_tokens)
+from app.core.utils import (get_current_user_dep, get_tokens, cache_refresh_tokens)
 from app.controllers.employee_controller import EmployeeController
 from app.controllers.customer_controller import AuthController
-from app.schemas import *
+from app.core.schemas import *
 
 employee_router = APIRouter(prefix="/api/v1/auth/employee", tags=["auth"])
 

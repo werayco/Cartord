@@ -4,7 +4,7 @@ from sqlalchemy import String, Uuid, Boolean
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid6 import uuid7
 from app.db.session import Base
-from app.schemas import Roles
+from app.core.schemas import Roles
 from sqlalchemy import Enum
 
 class Employee(Base):

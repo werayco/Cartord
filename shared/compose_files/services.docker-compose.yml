@@ -1,13 +1,13 @@
 services:
   # ai_service:
   #   build:
-  #     context: ../services/ai_service
+  #     context: ../../services/ai_service
   #     dockerfile: Dockerfile
   #   container_name: ai_service
   #   ports:
   #     - "9000:9000"
   #   volumes:
-  #     - "../services/ai_service:/app/"
+  #     - "../../services/ai_service:/app/"
   #   env_file:
   #     - ./.env
   #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
@@ -22,13 +22,13 @@ services:
 
   auth_service:
     build:
-      context: ../services/auth_service
+      context: ../../services/auth_service
       dockerfile: Dockerfile
     container_name: auth_service
     ports:
       - "9068:9001"
     volumes:
-      - "../services/auth_service:/app/"
+      - "../../services/auth_service:/app/"
     env_file:
       - ./.env
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9001", "--reload"]
@@ -43,13 +43,13 @@ services:
 
   inventory_service:
     build:
-      context: ../services/inventory_service
+      context: ../../services/inventory_service
       dockerfile: Dockerfile
     container_name: inventory_service
     ports:
       - "9002:9002"
     volumes:
-      - "../services/inventory_service:/app/"
+      - "../../services/inventory_service:/app/"
     env_file:
       - ./.env
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
@@ -64,13 +64,13 @@ services:
 
   # notification_service:
   #   build:
-  #     context: ../services/notification_service
+  #     context: ../../services/notification_service
   #     dockerfile: Dockerfile
   #   container_name: notification_service
   #   ports:
   #     - "9003:9003"
   #   volumes:
-  #     - "../services/notification_service:/app/"
+  #     - "../../services/notification_service:/app/"
   #   env_file:
   #     - ./.env
   #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
@@ -85,13 +85,13 @@ services:
 
   order_service:
     build:
-      context: ../services/order_service
+      context: ../../services/order_service
       dockerfile: Dockerfile
     container_name: order_service
     ports:
       - "9004:9004"
     volumes:
-      - "../services/order_service:/app/"
+      - "../../services/order_service:/app/"
     env_file:
       - ./.env
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
@@ -106,13 +106,13 @@ services:
 
   # payment_service:
   #   build:
-  #     context: ../services/payment_service
+  #     context: ../../services/payment_service
   #     dockerfile: Dockerfile
   #   container_name: payment_service
   #   ports:
   #     - "9005:9005"
   #   volumes:
-  #     - "../services/payment_service:/app/"
+  #     - "../../services/payment_service:/app/"
   #   env_file:
   #     - ./.env
   #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
@@ -127,13 +127,13 @@ services:
 
   search_service:
     build:
-      context: ../services/search_service
+      context: ../../services/search_service
       dockerfile: Dockerfile
     container_name: search_service
     ports:
       - "9007:9007"
     volumes:
-      - "../services/search_service:/app/"
+      - "../../services/search_service:/app/"
     env_file:
       - ./.env
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]

@@ -16,3 +16,5 @@ opentelemetry-instrumentation-fastapi==0.48b0
 sentry-sdk[fastapi]==2.14.0
 opentelemetry-instrumentation-confluent-kafka
 aiohttp
+opentelemetry-instrumentation-redis
+opentelemetry-instrumentation-aiohttp-client

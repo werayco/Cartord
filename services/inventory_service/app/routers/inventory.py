@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
-from app.schemas import InventorySchema, InventoryReserve
+from app.core.schemas import InventorySchema, InventoryReserve
 from app.controllers.inventory_controller import InventoryCRUD
-from app.utils import get_current_user
+from app.core.utils import get_current_user
 
 inventory_router = APIRouter(prefix="/api/v1/inventory", tags=["inventory"])
 

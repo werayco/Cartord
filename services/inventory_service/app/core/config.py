@@ -10,6 +10,8 @@ class Settings(BaseSettings):
 
     AUTH_BASE_URL: str = "http://auth_service:9002"
 
+    OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://otel-collector:4317"
+
     class Config:
         env_file = ".env"
 

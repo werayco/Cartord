@@ -3,10 +3,10 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, or_
 from app.models import Employee
-from app.config import settings
-from app.schemas import LoginRequest, RegisterEmployee, RegisterAdmin, Roles
+from app.core.config import settings
+from app.core.schemas import LoginRequest, RegisterEmployee, RegisterAdmin, Roles
 from app.db.session import AsyncSessionLocal
-from app.utils import hash_password, verify_password, get_tokens
+from app.core.utils import hash_password, verify_password, get_tokens
 
 
 class EmployeeController:
