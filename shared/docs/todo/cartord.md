@@ -10,7 +10,7 @@
 - [ ] Add rate-limiting middleware/dependency to public-facing endpoints
 - [ ] Define limits for auth endpoints (login/register) separately from general API limits
 
-## Outbox Pattern
+## Outbox Pattern (12/08/26, in progress)
 - [ ] Create `outbox` table per service (event payload, topic, status, created_at) (completed)
 - [ ] Write business data + outbox row in the same DB transaction
 - [ ] Build poller/relay process to publish unpublished outbox rows to Kafka

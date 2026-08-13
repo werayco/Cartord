@@ -4,7 +4,7 @@ from sqlalchemy import String, Uuid, Integer, Numeric, Enum, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 from uuid6 import uuid7
 from app.db.session import Base
-from app.schemas import OrderStatus
+from app.core.schemas import OrderStatus
 
 class Order(Base):
     __tablename__ = "order"

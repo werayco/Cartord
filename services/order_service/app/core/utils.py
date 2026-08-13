@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.config import settings
+from app.core.config import settings
 import json
 import aiohttp
 from app.services.circuit_breaker import breaker as inventory_breaker

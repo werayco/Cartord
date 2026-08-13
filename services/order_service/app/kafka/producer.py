@@ -1,6 +1,6 @@
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
-from app.config import settings
+from app.core.config import settings
 from confluent_kafka import Producer
 
 

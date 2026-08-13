@@ -11,8 +11,8 @@ exporters:
     endpoint: jaeger:4317
     tls:
       insecure: true
-  logging:
-    logLevel: debug
+  debug:
+    verbosity: detailed
 
 processors:
   batch:
@@ -28,4 +28,4 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp, logging]
+      exporters: [otlp, debug]

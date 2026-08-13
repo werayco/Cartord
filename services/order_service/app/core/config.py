@@ -2,7 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = Field(..., env=["ORDER_DATABASE_URL", "DATABASE_URL"])
+    ORDER_DATABASE_URL: str
 
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str

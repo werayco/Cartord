@@ -17,6 +17,7 @@ opentelemetry-instrumentation-fastapi==0.48b0
 opentelemetry-instrumentation-httpx==0.48b0
 opentelemetry-instrumentation-confluent-kafka
 opentelemetry-instrumentation-redis
+opentelemetry-exporter-otlp-proto-grpc
 sentry-sdk[fastapi]==2.14.0
 aiohttp
 aiobreaker

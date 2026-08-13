@@ -2,7 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = Field(..., env=["AUTH_DATABASE_URL", "DATABASE_URL"])
+    AUTH_DATABASE_URL: str
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str
     ADMIN_USERNAME: str
 
-    OTEL_SERVICE_NAME: str
     OTEL_EXPORTER_OTLP_ENDPOINT: str
     
     class Config:

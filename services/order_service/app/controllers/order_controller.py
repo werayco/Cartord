@@ -4,9 +4,9 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.order import Order
 from app.models.outbox import OutboxEvent
-from app.schemas import OrderPayload
+from app.core.schemas import OrderPayload
 from app.services.idempotency import idempotency
-from app.utils import update_inventory
+from app.core.utils import update_inventory
 
 class OrderController:
     @staticmethod

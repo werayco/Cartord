@@ -14,3 +14,4 @@ opentelemetry-instrumentation-fastapi==0.48b0
 opentelemetry-instrumentation-confluent-kafka
 sentry-sdk[fastapi]==2.14.0
 opentelemetry-instrumentation-elasticsearch
+opentelemetry-exporter-otlp-proto-grpc
