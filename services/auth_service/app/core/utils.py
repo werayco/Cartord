@@ -14,12 +14,23 @@ from jose import jwt, JWTError
 import secrets
 import hashlib
 from app.db.redis_client import redis_client
+from app.services.circuit_breaker import breaker as payment_breaker
+import aiohttp
+bearer_scheme = HTTPBearer()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
 
-bearer_scheme = HTTPBearer()
+@payment_breaker 
+async def create_wallet(user_id: UUID) -> dict:
+    url = f"{settings.PAYMENT_BASE_URL}/payment/wallet"
+    headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY,"Content-Type": "application/json"}
 
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json={"user_id": str(user_id)},headers=headers) as response:
+            response.raise_for_status()
+            return await response.json()
+        
 def get_current_user_dep(table_name):
     async def _get_current_user(
         token: HTTPAuthorizationCredentials = Depends(bearer_scheme),

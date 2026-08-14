@@ -1,9 +1,10 @@
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiobreaker import CircuitBreakerError
 from app.core.schemas import (ChangePasswordRequest, LoginRequest, RegisterRequest)
 from app.models.customer import Customer
-from app.core.utils import (get_tokens, hash_password, verify_password)
+from app.core.utils import (get_tokens, hash_password, verify_password, create_wallet)
 
 
 class AuthController:
@@ -26,12 +27,29 @@ class AuthController:
             shipping_address=payload.shipping_address,
         )
         db.add(customer_data)
+        await db.flush()
+        await db.refresh(customer_data)
+
+        try:
+            await create_wallet(customer_data.id)
+        except CircuitBreakerError:
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Payment service temporarily unavailable, please try again",
+            )
+        except Exception:
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Failed to create wallet for new customer",
+            )
 
         await db.commit()
         await db.refresh(customer_data)
         tokens = await get_tokens(customer_data)
         return {"response": "Registration successful", "tokens": tokens}
-
+    
     @staticmethod
     async def login(payload: LoginRequest, db: AsyncSession):
         result = await db.execute(select(Customer).where(Customer.username == payload.username))

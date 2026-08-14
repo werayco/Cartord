@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str
+
+    CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
+    CIRCUIT_BREAKER_FAIL_MAX: int = 5
+
+    PAYMENT_BASE_URL: str
+    SERVICE_SHARED_KEY: str
     
     class Config:
         env_file = ".env"

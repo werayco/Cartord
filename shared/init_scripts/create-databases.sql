@@ -6,5 +6,4 @@ CREATE DATABASE notification_db;
 CREATE DATABASE search_db;
 CREATE DATABASE glitchtip;
 
-
 ALTER ROLE rayco WITH REPLICATION;

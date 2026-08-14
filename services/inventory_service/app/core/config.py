@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     KAFKA_BOOTSTRAP_SERVERS: str
     SERVICE_SHARED_KEY: str
 
-    AUTH_BASE_URL: str = "http://auth_service:9002"
+    AUTH_BASE_URL: str = "http://auth_service:9001"
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://otel-collector:4317"
 

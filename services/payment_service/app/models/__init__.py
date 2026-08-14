@@ -1,0 +1,1 @@
+from app.models.user_wallet import UserWallet

@@ -9,6 +9,8 @@ gen-secret:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
 auth:
 	docker logs -f auth_service
+payment:
+	docker logs -f payment_service
 inventory:
 	docker logs -f inventory_service
 notification:
@@ -21,6 +23,7 @@ db:
 	docker logs -f cartord-pg
 kf:
 	docker logs -f cartord-kf
+
 build-auth-service:
 	docker build -t $(IMAGE_REPO)-auth-service:latest ./services/auth-service
 
@@ -41,26 +44,26 @@ build-user-service:
 
 build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
 
-create-topics:
-	python -m shared.init_scripts.create_topics --partitions $(PARTITIONS) --replication $(REPLICATION)
-cdc:
+init:
 	python -m shared.init_scripts.debezium_setup
+	python -m shared.init_scripts.seed
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d
 	python -m shared.init_scripts.create_topics --topic inventory --partitions 3 --replication 1
 	python -m shared.init_scripts.create_topics --topic order --partitions 1 --replication 1
 	docker-compose -f shared/compose_files/services.docker-compose.yml up -d 
-	python -m shared.init_scripts.seed
+
 services-all:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build -d
 recreate-services:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --force-recreate -d
-stop-all:
+
+stop:
 	docker-compose -f shared/compose_files/docker-compose.yml down
 	docker-compose -f shared/compose_files/services.docker-compose.yml down
 stop-v:
-	docker-compose -f shared/compose_files/services.docker-compose.yml down -v
 	docker-compose -f shared/compose_files/docker-compose.yml down -v
+	docker-compose -f shared/compose_files/services.docker-compose.yml down -v
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"

@@ -7,7 +7,7 @@ class InventorySchema(BaseModel):
     description: Union[str,None]
     unit_price: Union[float,None]
     sku: Union[str,None]
-    quantity: Union[int, None]
+    available_quantity: Union[int, None]
     reserved_quantity: Union[int, None]
 
 class InventorySchemaList(RootModel[list[InventorySchema]]):
