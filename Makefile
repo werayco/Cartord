@@ -48,6 +48,7 @@ init:
 	python -m shared.init_scripts.debezium_setup
 	python -m shared.init_scripts.seed
 	python -m shared.init_scripts.create_topics --topic inventory --partitions 3 --replication 1
+	python -m shared.init_scripts.create_topics --topic payment --partitions 3 --replication 1
 	python -m shared.init_scripts.create_topics --topic order --partitions 1 --replication 1
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d
@@ -64,6 +65,7 @@ stop:
 stop-v:
 	docker-compose -f shared/compose_files/docker-compose.yml down -v
 	docker-compose -f shared/compose_files/services.docker-compose.yml down -v
+	
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"

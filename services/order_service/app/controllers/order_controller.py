@@ -31,7 +31,7 @@ class OrderController:
 
             await db.flush()
 
-            outbox_event = OutboxEvent(event_type="order.created", aggregate_id=str(order_entry.id), payload={"order_id": str(order_entry.id), "sku": order_entry.sku, "quantity": order_entry.quantity, "customer_id": str(order_entry.customer_id)})
+            outbox_event = OutboxEvent(event_type="order.created", aggregate_id=str(order_entry.id), payload={"order_id": str(order_entry.id), "sku": order_entry.sku, "quantity": order_entry.quantity, "customer_id": str(order_entry.customer_id, "unit_price",float(order_entry.unit_price) )})
             db.add(outbox_event)
 
             await db.commit()

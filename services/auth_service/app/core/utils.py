@@ -22,12 +22,12 @@ ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
 
 @payment_breaker 
-async def create_wallet(user_id: UUID) -> dict:
+async def create_wallet(customer_id: UUID) -> dict:
     url = f"{settings.PAYMENT_BASE_URL}/payment/wallet"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY,"Content-Type": "application/json"}
 
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, json={"user_id": str(user_id)},headers=headers) as response:
+        async with session.post(url, json={"customer_id": str(customer_id)},headers=headers) as response:
             response.raise_for_status()
             return await response.json()
         

@@ -53,6 +53,14 @@ connector_config_inventory = outbox_connector(
     topic="inventory",
 )
 
+connector_config_payment = outbox_connector(
+    name="payment-outbox-connector",
+    db_name="payment_db",
+    table_name="payment_outbox_events",
+    slot_name="payment_outbox_slot",
+    topic="payment",
+)
+
 def register_connector(connector_config):
     name = connector_config["name"]
     config = connector_config["config"]
@@ -74,3 +82,4 @@ def register_connector(connector_config):
 if __name__ == "__main__":
     register_connector(connector_config_order)
     register_connector(connector_config_inventory)
+    register_connector(connector_config_payment)
