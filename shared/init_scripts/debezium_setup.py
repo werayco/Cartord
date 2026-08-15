@@ -27,7 +27,7 @@ def outbox_connector(name, db_name, table_name, slot_name, topic):
             "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
             "transforms.outbox.table.field.event.id": "id",
             "transforms.outbox.table.field.event.key": "aggregate_id",
-            "transforms.outbox.table.field.event.timestamp": "created_at",
+            # "transforms.outbox.table.field.event.timestamp": "created_at",
             "transforms.outbox.table.field.event.payload": "payload",
             "transforms.outbox.table.expand.json.payload": "true",
             "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType",
@@ -54,21 +54,22 @@ connector_config_inventory = outbox_connector(
 )
 
 def register_connector(connector_config):
-    response = requests.post(
-        DEBEZIUM_URL,
+    name = connector_config["name"]
+    config = connector_config["config"]
+    url = f"{DEBEZIUM_URL}/{name}/config"
+
+    response = requests.put(
+        url,
         headers={"Content-Type": "application/json"},
-        data=json.dumps(connector_config),
+        data=json.dumps(config),
     )
-    if response.status_code == 201:
-        print(f"Connector {connector_config['name']} registered successfully.")
-    elif response.status_code == 409:
-        print(f"Connector {connector_config['name']} already exists. Use PUT to update its config instead:")
-        print(f"  {DEBEZIUM_URL}/{connector_config['name']}/config")
+    if response.status_code in (200, 201):
+        verb = "updated" if response.status_code == 200 else "created"
+        print(f"Connector {name} {verb} successfully.")
     else:
-        print(f"Failed to register {connector_config['name']}: {response.status_code}")
+        print(f"Failed to register {name}: {response.status_code}")
         print(response.text)
         response.raise_for_status()
-
 
 if __name__ == "__main__":
     register_connector(connector_config_order)

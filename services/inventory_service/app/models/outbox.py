@@ -17,7 +17,7 @@ class OutboxEvent(Base):
     status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending", index=True)
     attempts: Mapped[int] = mapped_column(nullable=False, default=0)
     available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), index=True)
-    
+
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())

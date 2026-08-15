@@ -71,6 +71,12 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
     networks:
       - mynet
 
@@ -208,12 +214,7 @@ services:
       - prometheus
     networks:
       - mynet
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:13133/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      
+
 volumes:
   db_data:
   esdata:
