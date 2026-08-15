@@ -2,12 +2,13 @@ from app.db.session import get_db
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas import WalletCreate
-from app.models.user_wallet import UserWallet
+from app.models import Payment, UserWallet, OutboxEvent
 from app.core.config import settings
 from fastapi import Request, status
 from fastapi.exceptions import HTTPException
 import secrets
 from app.core.logging import logger
+from app.core.schemas import PaymentStatus
 
 class PaymentProcessorController:
     @staticmethod
@@ -24,7 +25,7 @@ class PaymentProcessorController:
                 detail="Invalid or missing shared API key",)
 
         try:
-            result = UserWallet(user_id=payload.user_id)
+            result = UserWallet(customer_id=payload.customer_id)
             db.add(result)
             await db.commit()
             await db.refresh(result)
@@ -32,3 +33,50 @@ class PaymentProcessorController:
         except Exception as e:
             await db.rollback()
             raise e
+
+
+    @staticmethod
+    async def process_payment(order_event: dict, db: AsyncSession):
+        order_id = order_event.get("order_id")
+        sku = order_event.get("sku")
+        quantity = order_event.get("quantity")
+        customer_id = order_event.get("customer_id")
+        unit_price = order_event.get("unit_price")
+
+        if None in (order_id, sku, quantity, customer_id, unit_price):
+            logger.error(f"Malformed order event, missing required fields: {order_event}")
+            return
+
+        existing = (await db.execute(select(Payment).where(Payment.order_id == order_id))).scalar_one_or_none()
+        if existing:
+            logger.info(f"Payment for order {order_id} already processed, skipping")
+            return
+
+        subtotal = unit_price * quantity
+        wallet = (await db.execute(select(UserWallet).where(UserWallet.user_id == customer_id).with_for_update())).scalar_one_or_none()
+
+        if wallet and wallet.balance >= subtotal:
+            wallet.balance -= subtotal
+            status = PaymentStatus.SUCCEEDED
+            event_type = "payment.succeeded"
+        else:
+            status = PaymentStatus.FAILED
+            event_type = "payment.failed"
+
+        payment = Payment(customer_id=customer_id, order_id=order_id, sku=sku, subtotal=subtotal, status=status)
+        db.add(payment)
+        await db.flush()
+
+        db.add(OutboxEvent(
+            event_type=event_type,
+            aggregate_id=str(payment.id),
+            payload={
+                "payment_id": str(payment.id),
+                "order_id": order_id,
+                "customer_id": customer_id,
+                "subtotal": float(subtotal),
+                "status": status.value,
+            },
+        ))
+        
+        await db.commit()
