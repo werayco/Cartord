@@ -5,8 +5,8 @@ from confluent_kafka import Consumer, Producer
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from app.services.elasticsearch_client import elasticsearch_client
-from app.config import settings
-from app.utils import deserialize_from_json
+from app.core.config import settings
+from app.core.utils import deserialize_from_json
 
 logger = logging.getLogger(__name__)
 

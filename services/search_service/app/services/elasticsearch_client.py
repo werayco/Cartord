@@ -1,5 +1,5 @@
 from elasticsearch import AsyncElasticsearch
-from app.config import settings
+from app.core.config import settings
 
 class ElasticsearchClient:
     """this is the encapsulation of the logics that are involved in the Elastic Search CRUD operations performed on the inventory events/messages"""

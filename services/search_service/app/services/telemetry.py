@@ -6,7 +6,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
 from opentelemetry.instrumentation.elasticsearch import ElasticsearchInstrumentor
-from app.config import settings
+from app.core.config import settings
 
 def setup_telemetry(app):
     resource = Resource.create({SERVICE_NAME: "search_service"})
