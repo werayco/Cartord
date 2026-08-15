@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth_service
     ports:
-      - "9068:9001"
+      - "9001:9001"
     volumes:
       - "../../services/auth_service:/app/"
     env_file:
@@ -104,27 +104,26 @@ services:
     networks:
       - mynet
 
-  # payment_service:
-  #   build:
-  #     context: ../../services/payment_service
-  #     dockerfile: Dockerfile
-  #   container_name: payment_service
-  #   ports:
-  #     - "9005:9005"
-  #   volumes:
-  #     - "../../services/payment_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
-
+  payment_service:
+    build:
+      context: ../../services/payment_service
+      dockerfile: Dockerfile
+    container_name: payment_service
+    ports:
+      - "9005:9005"
+    volumes:
+      - "../../services/payment_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
   search_service:
     build:
       context: ../../services/search_service

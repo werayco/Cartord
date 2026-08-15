@@ -18,3 +18,4 @@ opentelemetry-instrumentation-confluent-kafka
 aiohttp
 opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-aiohttp-client
+opentelemetry-exporter-otlp-proto-grpc

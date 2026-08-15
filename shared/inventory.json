@@ -1,902 +1,1022 @@
 [
-    {
-        "sku": "CTD5554",
-        "name": "Canvas Sneakers Low-Top",
-        "category": "apparel",
-        "quantity": 70,
-        "price": 119.21,
-        "description": "Durable stitching and a flattering modern fit.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8019",
-        "name": "Board Game Family Night Edition",
-        "category": "toys",
-        "quantity": 94,
-        "price": 23.18,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2674",
-        "name": "Dried Mango Slices 250g",
-        "category": "groceries",
-        "quantity": 68,
-        "price": 20.19,
-        "description": "Ideal for snacking, baking, or cooking.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4150",
-        "name": "Leather Belt Full Grain",
-        "category": "apparel",
-        "quantity": 97,
-        "price": 49.44,
-        "description": "Durable stitching and a flattering modern fit.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6925",
-        "name": "Oversized Hoodie Fleece",
-        "category": "apparel",
-        "quantity": 46,
-        "price": 47.02,
-        "description": "A versatile wardrobe essential for any season.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7216",
-        "name": "Storage Ottoman Bench",
-        "category": "furniture",
-        "quantity": 42,
-        "price": 705.64,
-        "description": "Premium finish that complements most decor styles.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9348",
-        "name": "Marble Run Deluxe Set",
-        "category": "toys",
-        "quantity": 82,
-        "price": 72.98,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4811",
-        "name": "Smart LED Light Strip",
-        "category": "electronics",
-        "quantity": 39,
-        "price": 995.38,
-        "description": "Compact, powerful, and easy to set up in minutes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5010",
-        "name": "Queen Platform Bed Frame",
-        "category": "furniture",
-        "quantity": 69,
-        "price": 620.77,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4814",
-        "name": "Performance Compression Leggings",
-        "category": "apparel",
-        "quantity": 56,
-        "price": 15.03,
-        "description": "Classic style that pairs well with anything.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2824",
-        "name": "Wireless Noise-Cancelling Headphones",
-        "category": "electronics",
-        "quantity": 85,
-        "price": 646.06,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3803",
-        "name": "Adjustable Standing Desk",
-        "category": "furniture",
-        "quantity": 95,
-        "price": 371.27,
-        "description": "Premium finish that complements most decor styles.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9785",
-        "name": "Classic Cotton Crewneck T-Shirt",
-        "category": "apparel",
-        "quantity": 32,
-        "price": 74.15,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5339",
-        "name": "Foam Dart Blaster",
-        "category": "toys",
-        "quantity": 40,
-        "price": 41.26,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2584",
-        "name": "Canned Chickpeas 400g",
-        "category": "groceries",
-        "quantity": 45,
-        "price": 5.56,
-        "description": "Ideal for snacking, baking, or cooking.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3340",
-        "name": "Dollhouse with Furniture",
-        "category": "toys",
-        "quantity": 46,
-        "price": 31.96,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4733",
-        "name": "Puffer Vest Lightweight",
-        "category": "apparel",
-        "quantity": 64,
-        "price": 16.16,
-        "description": "Durable stitching and a flattering modern fit.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1488",
-        "name": "Dual-Band WiFi 6 Router",
-        "category": "electronics",
-        "quantity": 73,
-        "price": 171.96,
-        "description": "Sleek design with fast connectivity and reliable performance.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6930",
-        "name": "Play Kitchen Set",
-        "category": "toys",
-        "quantity": 53,
-        "price": 85.41,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8517",
-        "name": "Kinetic Sand Play Kit",
-        "category": "toys",
-        "quantity": 52,
-        "price": 16.32,
-        "description": "Develops motor skills through hands-on play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3287",
-        "name": "Magnetic Tiles 64-Piece",
-        "category": "toys",
-        "quantity": 85,
-        "price": 43.25,
-        "description": "Develops motor skills through hands-on play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4752",
-        "name": "Shoe Rack 4-Tier",
-        "category": "furniture",
-        "quantity": 99,
-        "price": 638.57,
-        "description": "Easy assembly and built to last for years.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8359",
-        "name": "Extra Virgin Olive Oil 750ml",
-        "category": "groceries",
-        "quantity": 71,
-        "price": 3.81,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8428",
-        "name": "Rain Boots Rubber",
-        "category": "apparel",
-        "quantity": 33,
-        "price": 139.6,
-        "description": "A versatile wardrobe essential for any season.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7543",
-        "name": "Dinosaur Figures 12-Pack",
-        "category": "toys",
-        "quantity": 66,
-        "price": 10.28,
-        "description": "Develops motor skills through hands-on play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2169",
-        "name": "Convertible Sofa Bed",
-        "category": "furniture",
-        "quantity": 83,
-        "price": 390.07,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7572",
-        "name": "Kids Bunk Bed Twin",
-        "category": "furniture",
-        "quantity": 85,
-        "price": 679.31,
-        "description": "Easy assembly and built to last for years.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4611",
-        "name": "Organic Whole Bean Coffee 1kg",
-        "category": "groceries",
-        "quantity": 94,
-        "price": 8.04,
-        "description": "Great taste and quality at an everyday price.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6574",
-        "name": "Green Tea Bags 100ct",
-        "category": "groceries",
-        "quantity": 47,
-        "price": 3.84,
-        "description": "Ideal for snacking, baking, or cooking.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5557",
-        "name": "Raw Wildflower Honey Jar",
-        "category": "groceries",
-        "quantity": 34,
-        "price": 20.52,
-        "description": "Sourced from trusted farms for fresh, rich flavor.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9928",
-        "name": "Electric Kettle with Temperature Control",
-        "category": "electronics",
-        "quantity": 43,
-        "price": 363.9,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4657",
-        "name": "Mechanical Gaming Keyboard",
-        "category": "electronics",
-        "quantity": 90,
-        "price": 463.02,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5374",
-        "name": "5-Tier Bookshelf Walnut",
-        "category": "furniture",
-        "quantity": 72,
-        "price": 680.42,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7924",
-        "name": "Dark Chocolate Bar 85%",
-        "category": "groceries",
-        "quantity": 90,
-        "price": 14.41,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3615",
-        "name": "Almond Butter Smooth 500g",
-        "category": "groceries",
-        "quantity": 41,
-        "price": 6.51,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6977",
-        "name": "Baseball Cap Adjustable",
-        "category": "apparel",
-        "quantity": 31,
-        "price": 133.39,
-        "description": "A versatile wardrobe essential for any season.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5386",
-        "name": "Recliner Chair Faux Leather",
-        "category": "furniture",
-        "quantity": 79,
-        "price": 147.77,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5333",
-        "name": "Coconut Milk Can 400ml",
-        "category": "groceries",
-        "quantity": 89,
-        "price": 20.06,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3266",
-        "name": "Stuffed Unicorn Rainbow",
-        "category": "toys",
-        "quantity": 66,
-        "price": 77.53,
-        "description": "Develops motor skills through hands-on play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7873",
-        "name": "Cordless Handheld Vacuum",
-        "category": "electronics",
-        "quantity": 92,
-        "price": 562.26,
-        "description": "Sleek design with fast connectivity and reliable performance.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2139",
-        "name": "Ankle Socks 6-Pack",
-        "category": "apparel",
-        "quantity": 69,
-        "price": 98.78,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2307",
-        "name": "Knit Cardigan Sweater",
-        "category": "apparel",
-        "quantity": 40,
-        "price": 25.65,
-        "description": "Soft, breathable fabric designed for all-day comfort.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6168",
-        "name": "Filing Cabinet 3-Drawer",
-        "category": "furniture",
-        "quantity": 68,
-        "price": 497.08,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1711",
-        "name": "Instant Ramen Variety Pack",
-        "category": "groceries",
-        "quantity": 79,
-        "price": 20.42,
-        "description": "A pantry staple perfect for quick everyday meals.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4598",
-        "name": "Corner Computer Desk",
-        "category": "furniture",
-        "quantity": 67,
-        "price": 683.57,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5304",
-        "name": "Art Easel Double-Sided",
-        "category": "toys",
-        "quantity": 50,
-        "price": 16.75,
-        "description": "Encourages creativity and hours of screen-free play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9085",
-        "name": "Toy Cash Register",
-        "category": "toys",
-        "quantity": 57,
-        "price": 42.04,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3677",
-        "name": "Industrial TV Stand 60\"",
-        "category": "furniture",
-        "quantity": 63,
-        "price": 985.17,
-        "description": "Premium finish that complements most decor styles.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4527",
-        "name": "Tomato Pasta Sauce Jar",
-        "category": "groceries",
-        "quantity": 37,
-        "price": 1.06,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4582",
-        "name": "Digital Photo Frame 10\"",
-        "category": "electronics",
-        "quantity": 85,
-        "price": 562.32,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6635",
-        "name": "Granola Clusters Honey Nut",
-        "category": "groceries",
-        "quantity": 52,
-        "price": 8.14,
-        "description": "Ideal for snacking, baking, or cooking.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9935",
-        "name": "Fitness Tracker Watch",
-        "category": "electronics",
-        "quantity": 66,
-        "price": 774.38,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7201",
-        "name": "Waterproof Windbreaker Jacket",
-        "category": "apparel",
-        "quantity": 70,
-        "price": 133.09,
-        "description": "Soft, breathable fabric designed for all-day comfort.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6514",
-        "name": "Sparkling Mineral Water 12-Pack",
-        "category": "groceries",
-        "quantity": 52,
-        "price": 9.27,
-        "description": "Great taste and quality at an everyday price.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9751",
-        "name": "Velvet Accent Armchair",
-        "category": "furniture",
-        "quantity": 96,
-        "price": 227.84,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4432",
-        "name": "Solid Oak Coffee Table",
-        "category": "furniture",
-        "quantity": 77,
-        "price": 346.87,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7912",
-        "name": "Portable Power Bank 20000mAh",
-        "category": "electronics",
-        "quantity": 75,
-        "price": 277.47,
-        "description": "A dependable everyday gadget built for modern homes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8527",
-        "name": "Trail Mix Deluxe 750g",
-        "category": "groceries",
-        "quantity": 55,
-        "price": 14.25,
-        "description": "Naturally delicious with no artificial additives.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1409",
-        "name": "4K Ultra HD Smart TV 55\"",
-        "category": "electronics",
-        "quantity": 68,
-        "price": 412.53,
-        "description": "Compact, powerful, and easy to set up in minutes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1916",
-        "name": "Upholstered Dining Chair",
-        "category": "furniture",
-        "quantity": 58,
-        "price": 179.64,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2535",
-        "name": "External SSD 1TB",
-        "category": "electronics",
-        "quantity": 73,
-        "price": 551.28,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9279",
-        "name": "Over-Ear Studio Headphones",
-        "category": "electronics",
-        "quantity": 69,
-        "price": 164.94,
-        "description": "Compact, powerful, and easy to set up in minutes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5422",
-        "name": "Bar Stool Set of 2",
-        "category": "furniture",
-        "quantity": 66,
-        "price": 465.41,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9830",
-        "name": "Stacking Rings Baby Toy",
-        "category": "toys",
-        "quantity": 49,
-        "price": 29.28,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3286",
-        "name": "1080p Webcam with Ring Light",
-        "category": "electronics",
-        "quantity": 92,
-        "price": 973.28,
-        "description": "A dependable everyday gadget built for modern homes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2424",
-        "name": "Wireless Ergonomic Mouse",
-        "category": "electronics",
-        "quantity": 87,
-        "price": 618.99,
-        "description": "Delivers crisp audio and long battery life for everyday use.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3547",
-        "name": "Sea Salt Grinder",
-        "category": "groceries",
-        "quantity": 83,
-        "price": 7.2,
-        "description": "Great taste and quality at an everyday price.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5803",
-        "name": "Athletic Running Shorts",
-        "category": "apparel",
-        "quantity": 64,
-        "price": 103.49,
-        "description": "Soft, breathable fabric designed for all-day comfort.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD9179",
-        "name": "Wooden Train Track Set",
-        "category": "toys",
-        "quantity": 48,
-        "price": 71.16,
-        "description": "Encourages creativity and hours of screen-free play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5506",
-        "name": "Bluetooth Portable Speaker",
-        "category": "electronics",
-        "quantity": 47,
-        "price": 575.55,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6820",
-        "name": "Ergonomic Mesh Office Chair",
-        "category": "furniture",
-        "quantity": 75,
-        "price": 867.07,
-        "description": "Sturdy construction with a clean, modern silhouette.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5040",
-        "name": "Science Experiment Lab Kit",
-        "category": "toys",
-        "quantity": 90,
-        "price": 46.18,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2519",
-        "name": "Peanut Butter Crunchy 1kg",
-        "category": "groceries",
-        "quantity": 64,
-        "price": 29.08,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2654",
-        "name": "Denim Trucker Jacket",
-        "category": "apparel",
-        "quantity": 89,
-        "price": 27.83,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6881",
-        "name": "Maple Syrup Grade A 500ml",
-        "category": "groceries",
-        "quantity": 90,
-        "price": 18.25,
-        "description": "Sourced from trusted farms for fresh, rich flavor.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6155",
-        "name": "Remote Control Off-Road Truck",
-        "category": "toys",
-        "quantity": 95,
-        "price": 21.52,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2291",
-        "name": "Merino Wool Beanie",
-        "category": "apparel",
-        "quantity": 76,
-        "price": 108.49,
-        "description": "Classic style that pairs well with anything.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4456",
-        "name": "Building Blocks 500-Piece Set",
-        "category": "toys",
-        "quantity": 51,
-        "price": 45.38,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3664",
-        "name": "Thermal Base Layer Top",
-        "category": "apparel",
-        "quantity": 80,
-        "price": 119.52,
-        "description": "Durable stitching and a flattering modern fit.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5552",
-        "name": "Rolled Oats 1kg",
-        "category": "groceries",
-        "quantity": 64,
-        "price": 27.86,
-        "description": "Sourced from trusted farms for fresh, rich flavor.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD3045",
-        "name": "Slim Fit Stretch Jeans",
-        "category": "apparel",
-        "quantity": 76,
-        "price": 39.83,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1750",
-        "name": "Plaid Flannel Shirt",
-        "category": "apparel",
-        "quantity": 70,
-        "price": 137.13,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7224",
-        "name": "Whole Wheat Spaghetti 500g",
-        "category": "groceries",
-        "quantity": 44,
-        "price": 10.09,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2679",
-        "name": "Smart Home Security Camera",
-        "category": "electronics",
-        "quantity": 100,
-        "price": 849.58,
-        "description": "A dependable everyday gadget built for modern homes.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1106",
-        "name": "Basmati Rice 5kg Bag",
-        "category": "groceries",
-        "quantity": 86,
-        "price": 22.11,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2489",
-        "name": "Walkie Talkie Kids Pair",
-        "category": "toys",
-        "quantity": 94,
-        "price": 66.55,
-        "description": "Develops motor skills through hands-on play.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4257",
-        "name": "Robot Vacuum Cleaner",
-        "category": "electronics",
-        "quantity": 85,
-        "price": 649.54,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7227",
-        "name": "Linen Button-Down Shirt",
-        "category": "apparel",
-        "quantity": 100,
-        "price": 135.84,
-        "description": "Soft, breathable fabric designed for all-day comfort.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4483",
-        "name": "Plush Teddy Bear 40cm",
-        "category": "toys",
-        "quantity": 97,
-        "price": 60.75,
-        "description": "Safe, durable materials suitable for young children.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1520",
-        "name": "Noise-Isolating Earbuds",
-        "category": "electronics",
-        "quantity": 68,
-        "price": 745.3,
-        "description": "Delivers crisp audio and long battery life for everyday use.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD4593",
-        "name": "Yo-Yo Pro Aluminum",
-        "category": "toys",
-        "quantity": 77,
-        "price": 37.32,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7482",
-        "name": "Jigsaw Puzzle 1000 Pieces",
-        "category": "toys",
-        "quantity": 57,
-        "price": 44.48,
-        "description": "Perfect for solo play or sharing with friends.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD6313",
-        "name": "Floating Wall Shelves Set of 3",
-        "category": "furniture",
-        "quantity": 78,
-        "price": 686.87,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1525",
-        "name": "Full-Length Standing Mirror",
-        "category": "furniture",
-        "quantity": 31,
-        "price": 329.69,
-        "description": "Blends comfort and style for any living space.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5741",
-        "name": "Chino Trousers Regular Fit",
-        "category": "apparel",
-        "quantity": 53,
-        "price": 32.61,
-        "description": "Durable stitching and a flattering modern fit.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD5012",
-        "name": "USB-C Fast Charging Hub",
-        "category": "electronics",
-        "quantity": 41,
-        "price": 763.32,
-        "description": "Engineered for seamless streaming and smart-home integration.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD8573",
-        "name": "Nesting Side Tables Set of 2",
-        "category": "furniture",
-        "quantity": 95,
-        "price": 299.43,
-        "description": "Easy assembly and built to last for years.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD2084",
-        "name": "Console Entry Table",
-        "category": "furniture",
-        "quantity": 40,
-        "price": 818.16,
-        "description": "Easy assembly and built to last for years.",
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD1434",
-        "name": "Mini Projector HD",
-        "category": "electronics",
-        "quantity": 79,
-        "price": 576.22,
-        "description": null,
-        "reserved_quantity": 0
-    },
-    {
-        "sku": "CTD7065",
-        "name": "Silk Scarf Printed",
-        "category": "apparel",
-        "quantity": 67,
-        "price": 47.34,
-        "description": "A versatile wardrobe essential for any season.",
-        "reserved_quantity": 0
-    }
+  {
+    "sku": "CTD5554",
+    "name": "Canvas Sneakers Low-Top",
+    "category": "apparel",
+    "quantity": 70,
+    "available_quantity": 42,
+    "price": 119.21,
+    "description": "Durable stitching and a flattering modern fit.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8019",
+    "name": "Board Game Family Night Edition",
+    "category": "toys",
+    "quantity": 94,
+    "available_quantity": 18,
+    "price": 23.18,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2674",
+    "name": "Dried Mango Slices 250g",
+    "category": "groceries",
+    "quantity": 68,
+    "available_quantity": 55,
+    "price": 20.19,
+    "description": "Ideal for snacking, baking, or cooking.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4150",
+    "name": "Leather Belt Full Grain",
+    "category": "apparel",
+    "quantity": 97,
+    "available_quantity": 81,
+    "price": 49.44,
+    "description": "Durable stitching and a flattering modern fit.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6925",
+    "name": "Oversized Hoodie Fleece",
+    "category": "apparel",
+    "quantity": 46,
+    "available_quantity": 12,
+    "price": 47.02,
+    "description": "A versatile wardrobe essential for any season.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7216",
+    "name": "Storage Ottoman Bench",
+    "category": "furniture",
+    "quantity": 42,
+    "available_quantity": 30,
+    "price": 705.64,
+    "description": "Premium finish that complements most decor styles.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9348",
+    "name": "Marble Run Deluxe Set",
+    "category": "toys",
+    "quantity": 82,
+    "available_quantity": 64,
+    "price": 72.98,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4811",
+    "name": "Smart LED Light Strip",
+    "category": "electronics",
+    "quantity": 39,
+    "available_quantity": 25,
+    "price": 995.38,
+    "description": "Compact, powerful, and easy to set up in minutes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5010",
+    "name": "Queen Platform Bed Frame",
+    "category": "furniture",
+    "quantity": 69,
+    "available_quantity": 50,
+    "price": 620.77,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4814",
+    "name": "Performance Compression Leggings",
+    "category": "apparel",
+    "quantity": 56,
+    "available_quantity": 41,
+    "price": 15.03,
+    "description": "Classic style that pairs well with anything.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2824",
+    "name": "Wireless Noise-Cancelling Headphones",
+    "category": "electronics",
+    "quantity": 85,
+    "available_quantity": 73,
+    "price": 646.06,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3803",
+    "name": "Adjustable Standing Desk",
+    "category": "furniture",
+    "quantity": 95,
+    "available_quantity": 22,
+    "price": 371.27,
+    "description": "Premium finish that complements most decor styles.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9785",
+    "name": "Classic Cotton Crewneck T-Shirt",
+    "category": "apparel",
+    "quantity": 32,
+    "available_quantity": 10,
+    "price": 74.15,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5339",
+    "name": "Foam Dart Blaster",
+    "category": "toys",
+    "quantity": 40,
+    "available_quantity": 33,
+    "price": 41.26,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2584",
+    "name": "Canned Chickpeas 400g",
+    "category": "groceries",
+    "quantity": 45,
+    "available_quantity": 29,
+    "price": 5.56,
+    "description": "Ideal for snacking, baking, or cooking.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3340",
+    "name": "Dollhouse with Furniture",
+    "category": "toys",
+    "quantity": 46,
+    "available_quantity": 14,
+    "price": 31.96,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4733",
+    "name": "Puffer Vest Lightweight",
+    "category": "apparel",
+    "quantity": 64,
+    "available_quantity": 60,
+    "price": 16.16,
+    "description": "Durable stitching and a flattering modern fit.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1488",
+    "name": "Dual-Band WiFi 6 Router",
+    "category": "electronics",
+    "quantity": 73,
+    "available_quantity": 45,
+    "price": 171.96,
+    "description": "Sleek design with fast connectivity and reliable performance.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6930",
+    "name": "Play Kitchen Set",
+    "category": "toys",
+    "quantity": 53,
+    "available_quantity": 20,
+    "price": 85.41,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8517",
+    "name": "Kinetic Sand Play Kit",
+    "category": "toys",
+    "quantity": 52,
+    "available_quantity": 38,
+    "price": 16.32,
+    "description": "Develops motor skills through hands-on play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3287",
+    "name": "Magnetic Tiles 64-Piece",
+    "category": "toys",
+    "quantity": 85,
+    "available_quantity": 51,
+    "price": 43.25,
+    "description": "Develops motor skills through hands-on play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4752",
+    "name": "Shoe Rack 4-Tier",
+    "category": "furniture",
+    "quantity": 99,
+    "available_quantity": 88,
+    "price": 638.57,
+    "description": "Easy assembly and built to last for years.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8359",
+    "name": "Extra Virgin Olive Oil 750ml",
+    "category": "groceries",
+    "quantity": 71,
+    "available_quantity": 19,
+    "price": 3.81,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8428",
+    "name": "Rain Boots Rubber",
+    "category": "apparel",
+    "quantity": 33,
+    "available_quantity": 11,
+    "price": 139.6,
+    "description": "A versatile wardrobe essential for any season.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7543",
+    "name": "Dinosaur Figures 12-Pack",
+    "category": "toys",
+    "quantity": 66,
+    "available_quantity": 40,
+    "price": 10.28,
+    "description": "Develops motor skills through hands-on play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2169",
+    "name": "Convertible Sofa Bed",
+    "category": "furniture",
+    "quantity": 83,
+    "available_quantity": 72,
+    "price": 390.07,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7572",
+    "name": "Kids Bunk Bed Twin",
+    "category": "furniture",
+    "quantity": 85,
+    "available_quantity": 62,
+    "price": 679.31,
+    "description": "Easy assembly and built to last for years.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4611",
+    "name": "Organic Whole Bean Coffee 1kg",
+    "category": "groceries",
+    "quantity": 94,
+    "available_quantity": 84,
+    "price": 8.04,
+    "description": "Great taste and quality at an everyday price.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6574",
+    "name": "Green Tea Bags 100ct",
+    "category": "groceries",
+    "quantity": 47,
+    "available_quantity": 35,
+    "price": 3.84,
+    "description": "Ideal for snacking, baking, or cooking.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5557",
+    "name": "Raw Wildflower Honey Jar",
+    "category": "groceries",
+    "quantity": 34,
+    "available_quantity": 21,
+    "price": 20.52,
+    "description": "Sourced from trusted farms for fresh, rich flavor.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9928",
+    "name": "Electric Kettle with Temperature Control",
+    "category": "electronics",
+    "quantity": 43,
+    "available_quantity": 15,
+    "price": 363.9,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4657",
+    "name": "Mechanical Gaming Keyboard",
+    "category": "electronics",
+    "quantity": 90,
+    "available_quantity": 66,
+    "price": 463.02,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5374",
+    "name": "5-Tier Bookshelf Walnut",
+    "category": "furniture",
+    "quantity": 72,
+    "available_quantity": 48,
+    "price": 680.42,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7924",
+    "name": "Dark Chocolate Bar 85%",
+    "category": "groceries",
+    "quantity": 90,
+    "available_quantity": 82,
+    "price": 14.41,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3615",
+    "name": "Almond Butter Smooth 500g",
+    "category": "groceries",
+    "quantity": 41,
+    "available_quantity": 25,
+    "price": 6.51,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6977",
+    "name": "Baseball Cap Adjustable",
+    "category": "apparel",
+    "quantity": 31,
+    "available_quantity": 19,
+    "price": 133.39,
+    "description": "A versatile wardrobe essential for any season.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5386",
+    "name": "Recliner Chair Faux Leather",
+    "category": "furniture",
+    "quantity": 79,
+    "available_quantity": 53,
+    "price": 147.77,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5333",
+    "name": "Coconut Milk Can 400ml",
+    "category": "groceries",
+    "quantity": 89,
+    "available_quantity": 74,
+    "price": 20.06,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3266",
+    "name": "Stuffed Unicorn Rainbow",
+    "category": "toys",
+    "quantity": 66,
+    "available_quantity": 42,
+    "price": 77.53,
+    "description": "Develops motor skills through hands-on play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7873",
+    "name": "Cordless Handheld Vacuum",
+    "category": "electronics",
+    "quantity": 92,
+    "available_quantity": 80,
+    "price": 562.26,
+    "description": "Sleek design with fast connectivity and reliable performance.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2139",
+    "name": "Ankle Socks 6-Pack",
+    "category": "apparel",
+    "quantity": 69,
+    "available_quantity": 54,
+    "price": 98.78,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2307",
+    "name": "Knit Cardigan Sweater",
+    "category": "apparel",
+    "quantity": 40,
+    "available_quantity": 27,
+    "price": 25.65,
+    "description": "Soft, breathable fabric designed for all-day comfort.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6168",
+    "name": "Filing Cabinet 3-Drawer",
+    "category": "furniture",
+    "quantity": 68,
+    "available_quantity": 52,
+    "price": 497.08,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1711",
+    "name": "Instant Ramen Variety Pack",
+    "category": "groceries",
+    "quantity": 79,
+    "available_quantity": 60,
+    "price": 20.42,
+    "description": "A pantry staple perfect for quick everyday meals.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4598",
+    "name": "Corner Computer Desk",
+    "category": "furniture",
+    "quantity": 67,
+    "available_quantity": 45,
+    "price": 683.57,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5304",
+    "name": "Art Easel Double-Sided",
+    "category": "toys",
+    "quantity": 50,
+    "available_quantity": 31,
+    "price": 16.75,
+    "description": "Encourages creativity and hours of screen-free play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9085",
+    "name": "Toy Cash Register",
+    "category": "toys",
+    "quantity": 57,
+    "available_quantity": 39,
+    "price": 42.04,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3677",
+    "name": "Industrial TV Stand 60\"",
+    "category": "furniture",
+    "quantity": 63,
+    "available_quantity": 41,
+    "price": 985.17,
+    "description": "Premium finish that complements most decor styles.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4527",
+    "name": "Tomato Pasta Sauce Jar",
+    "category": "groceries",
+    "quantity": 37,
+    "available_quantity": 20,
+    "price": 1.06,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4582",
+    "name": "Digital Photo Frame 10\"",
+    "category": "electronics",
+    "quantity": 85,
+    "available_quantity": 71,
+    "price": 562.32,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6635",
+    "name": "Granola Clusters Honey Nut",
+    "category": "groceries",
+    "quantity": 52,
+    "available_quantity": 38,
+    "price": 8.14,
+    "description": "Ideal for snacking, baking, or cooking.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9935",
+    "name": "Fitness Tracker Watch",
+    "category": "electronics",
+    "quantity": 66,
+    "available_quantity": 49,
+    "price": 774.38,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7201",
+    "name": "Waterproof Windbreaker Jacket",
+    "category": "apparel",
+    "quantity": 70,
+    "available_quantity": 58,
+    "price": 133.09,
+    "description": "Soft, breathable fabric designed for all-day comfort.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6514",
+    "name": "Sparkling Mineral Water 12-Pack",
+    "category": "groceries",
+    "quantity": 52,
+    "available_quantity": 34,
+    "price": 9.27,
+    "description": "Great taste and quality at an everyday price.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9751",
+    "name": "Velvet Accent Armchair",
+    "category": "furniture",
+    "quantity": 96,
+    "available_quantity": 83,
+    "price": 227.84,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4432",
+    "name": "Solid Oak Coffee Table",
+    "category": "furniture",
+    "quantity": 77,
+    "available_quantity": 55,
+    "price": 346.87,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7912",
+    "name": "Portable Power Bank 20000mAh",
+    "category": "electronics",
+    "quantity": 75,
+    "available_quantity": 61,
+    "price": 277.47,
+    "description": "A dependable everyday gadget built for modern homes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8527",
+    "name": "Trail Mix Deluxe 750g",
+    "category": "groceries",
+    "quantity": 55,
+    "available_quantity": 40,
+    "price": 14.25,
+    "description": "Naturally delicious with no artificial additives.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1409",
+    "name": "4K Ultra HD Smart TV 55\"",
+    "category": "electronics",
+    "quantity": 68,
+    "available_quantity": 50,
+    "price": 412.53,
+    "description": "Compact, powerful, and easy to set up in minutes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1916",
+    "name": "Upholstered Dining Chair",
+    "category": "furniture",
+    "quantity": 58,
+    "available_quantity": 44,
+    "price": 179.64,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2535",
+    "name": "External SSD 1TB",
+    "category": "electronics",
+    "quantity": 73,
+    "available_quantity": 59,
+    "price": 551.28,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9279",
+    "name": "Over-Ear Studio Headphones",
+    "category": "electronics",
+    "quantity": 69,
+    "available_quantity": 51,
+    "price": 164.94,
+    "description": "Compact, powerful, and easy to set up in minutes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5422",
+    "name": "Bar Stool Set of 2",
+    "category": "furniture",
+    "quantity": 66,
+    "available_quantity": 43,
+    "price": 465.41,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9830",
+    "name": "Stacking Rings Baby Toy",
+    "category": "toys",
+    "quantity": 49,
+    "available_quantity": 30,
+    "price": 29.28,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3286",
+    "name": "1080p Webcam with Ring Light",
+    "category": "electronics",
+    "quantity": 92,
+    "available_quantity": 77,
+    "price": 973.28,
+    "description": "A dependable everyday gadget built for modern homes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2424",
+    "name": "Wireless Ergonomic Mouse",
+    "category": "electronics",
+    "quantity": 87,
+    "available_quantity": 65,
+    "price": 618.99,
+    "description": "Delivers crisp audio and long battery life for everyday use.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3547",
+    "name": "Sea Salt Grinder",
+    "category": "groceries",
+    "quantity": 83,
+    "available_quantity": 70,
+    "price": 7.2,
+    "description": "Great taste and quality at an everyday price.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5803",
+    "name": "Athletic Running Shorts",
+    "category": "apparel",
+    "quantity": 64,
+    "available_quantity": 48,
+    "price": 103.49,
+    "description": "Soft, breathable fabric designed for all-day comfort.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9179",
+    "name": "Wooden Train Track Set",
+    "category": "toys",
+    "quantity": 48,
+    "available_quantity": 29,
+    "price": 71.16,
+    "description": "Encourages creativity and hours of screen-free play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5506",
+    "name": "Bluetooth Portable Speaker",
+    "category": "electronics",
+    "quantity": 47,
+    "available_quantity": 32,
+    "price": 575.55,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6820",
+    "name": "Ergonomic Mesh Office Chair",
+    "category": "furniture",
+    "quantity": 75,
+    "available_quantity": 62,
+    "price": 867.07,
+    "description": "Sturdy construction with a clean, modern silhouette.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5040",
+    "name": "Science Experiment Lab Kit",
+    "category": "toys",
+    "quantity": 90,
+    "available_quantity": 78,
+    "price": 46.18,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2519",
+    "name": "Peanut Butter Crunchy 1kg",
+    "category": "groceries",
+    "quantity": 64,
+    "available_quantity": 49,
+    "price": 29.08,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2654",
+    "name": "Denim Trucker Jacket",
+    "category": "apparel",
+    "quantity": 89,
+    "available_quantity": 71,
+    "price": 27.83,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6881",
+    "name": "Maple Syrup Grade A 500ml",
+    "category": "groceries",
+    "quantity": 90,
+    "available_quantity": 76,
+    "price": 18.25,
+    "description": "Sourced from trusted farms for fresh, rich flavor.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6155",
+    "name": "Remote Control Off-Road Truck",
+    "category": "toys",
+    "quantity": 95,
+    "available_quantity": 83,
+    "price": 21.52,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2291",
+    "name": "Merino Wool Beanie",
+    "category": "apparel",
+    "quantity": 76,
+    "available_quantity": 58,
+    "price": 108.49,
+    "description": "Classic style that pairs well with anything.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4456",
+    "name": "Building Blocks 500-Piece Set",
+    "category": "toys",
+    "quantity": 51,
+    "available_quantity": 33,
+    "price": 45.38,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3664",
+    "name": "Thermal Base Layer Top",
+    "category": "apparel",
+    "quantity": 80,
+    "available_quantity": 64,
+    "price": 119.52,
+    "description": "Durable stitching and a flattering modern fit.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5552",
+    "name": "Rolled Oats 1kg",
+    "category": "groceries",
+    "quantity": 64,
+    "available_quantity": 50,
+    "price": 27.86,
+    "description": "Sourced from trusted farms for fresh, rich flavor.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD3045",
+    "name": "Slim Fit Stretch Jeans",
+    "category": "apparel",
+    "quantity": 76,
+    "available_quantity": 61,
+    "price": 39.83,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1750",
+    "name": "Plaid Flannel Shirt",
+    "category": "apparel",
+    "quantity": 70,
+    "available_quantity": 53,
+    "price": 137.13,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7224",
+    "name": "Whole Wheat Spaghetti 500g",
+    "category": "groceries",
+    "quantity": 44,
+    "available_quantity": 29,
+    "price": 10.09,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2679",
+    "name": "Smart Home Security Camera",
+    "category": "electronics",
+    "quantity": 100,
+    "available_quantity": 85,
+    "price": 849.58,
+    "description": "A dependable everyday gadget built for modern homes.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1106",
+    "name": "Basmati Rice 5kg Bag",
+    "category": "groceries",
+    "quantity": 86,
+    "available_quantity": 72,
+    "price": 22.11,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2489",
+    "name": "Walkie Talkie Kids Pair",
+    "category": "toys",
+    "quantity": 94,
+    "available_quantity": 80,
+    "price": 66.55,
+    "description": "Develops motor skills through hands-on play.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4257",
+    "name": "Robot Vacuum Cleaner",
+    "category": "electronics",
+    "quantity": 85,
+    "available_quantity": 70,
+    "price": 649.54,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7227",
+    "name": "Linen Button-Down Shirt",
+    "category": "apparel",
+    "quantity": 100,
+    "available_quantity": 82,
+    "price": 135.84,
+    "description": "Soft, breathable fabric designed for all-day comfort.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4483",
+    "name": "Plush Teddy Bear 40cm",
+    "category": "toys",
+    "quantity": 97,
+    "available_quantity": 84,
+    "price": 60.75,
+    "description": "Safe, durable materials suitable for young children.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1520",
+    "name": "Noise-Isolating Earbuds",
+    "category": "electronics",
+    "quantity": 68,
+    "available_quantity": 52,
+    "price": 745.3,
+    "description": "Delivers crisp audio and long battery life for everyday use.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD4593",
+    "name": "Yo-Yo Pro Aluminum",
+    "category": "toys",
+    "quantity": 77,
+    "available_quantity": 60,
+    "price": 37.32,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7482",
+    "name": "Jigsaw Puzzle 1000 Pieces",
+    "category": "toys",
+    "quantity": 57,
+    "available_quantity": 41,
+    "price": 44.48,
+    "description": "Perfect for solo play or sharing with friends.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD6313",
+    "name": "Floating Wall Shelves Set of 3",
+    "category": "furniture",
+    "quantity": 78,
+    "available_quantity": 63,
+    "price": 686.87,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1525",
+    "name": "Full-Length Standing Mirror",
+    "category": "furniture",
+    "quantity": 31,
+    "available_quantity": 18,
+    "price": 329.69,
+    "description": "Blends comfort and style for any living space.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5741",
+    "name": "Chino Trousers Regular Fit",
+    "category": "apparel",
+    "quantity": 53,
+    "available_quantity": 39,
+    "price": 32.61,
+    "description": "Durable stitching and a flattering modern fit.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD5012",
+    "name": "USB-C Fast Charging Hub",
+    "category": "electronics",
+    "quantity": 41,
+    "available_quantity": 24,
+    "price": 763.32,
+    "description": "Engineered for seamless streaming and smart-home integration.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD8573",
+    "name": "Nesting Side Tables Set of 2",
+    "category": "furniture",
+    "quantity": 95,
+    "available_quantity": 81,
+    "price": 299.43,
+    "description": "Easy assembly and built to last for years.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD2084",
+    "name": "Console Entry Table",
+    "category": "furniture",
+    "quantity": 40,
+    "available_quantity": 22,
+    "price": 818.16,
+    "description": "Easy assembly and built to last for years.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD1434",
+    "name": "Mini Projector HD",
+    "category": "electronics",
+    "quantity": 79,
+    "available_quantity": 64,
+    "price": 576.22,
+    "description": null,
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD7065",
+    "name": "Silk Scarf Printed",
+    "category": "apparel",
+    "quantity": 67,
+    "available_quantity": 51,
+    "price": 47.34,
+    "description": "A versatile wardrobe essential for any season.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9981",
+    "name": "Stainless Steel Water Bottle 1L",
+    "category": "groceries",
+    "quantity": 88,
+    "available_quantity": 74,
+    "price": 24.50,
+    "description": "Keeps drinks cold for 24 hours or hot for 12 hours.",
+    "reserved_quantity": 0
+  },
+  {
+    "sku": "CTD9982",
+    "name": "LED Desk Lamp with USB Port",
+    "category": "electronics",
+    "quantity": 55,
+    "available_quantity": 38,
+    "price": 45.99,
+    "description": "Adjustable brightness levels and eye-caring light source.",
+    "reserved_quantity": 0
+  }
 ]

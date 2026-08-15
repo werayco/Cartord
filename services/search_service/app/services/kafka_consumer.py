@@ -5,8 +5,8 @@ from confluent_kafka import Consumer, Producer
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from app.services.elasticsearch_client import elasticsearch_client
-from app.config import settings
-from app.utils import deserialize_from_json
+from app.core.config import settings
+from app.core.utils import deserialize_from_json
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +28,16 @@ class KafkaConsumer:
 
         self._running = False
 
+    @staticmethod
+    def _event_type(msg):
+        headers = msg.headers()
+        if not headers:
+            return None
+        for k, v in headers:
+            if k == "eventType":
+                return v.decode() if isinstance(v, bytes) else v
+        return None
+
     async def consume(self):
         self.consumer.subscribe(["inventory"])
         self._running = True
@@ -44,11 +54,11 @@ class KafkaConsumer:
 
                 key_bytes = msg.key()
                 value_bytes = msg.value()
+                event_type = self._event_type(msg)
 
                 try:
-                    key = key_bytes.decode() if key_bytes else None
                     value = deserialize_from_json(value_bytes)
-                    await elasticsearch_client.crud_document(key, value)
+                    await elasticsearch_client.crud_document(event_type, value)
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
                     logger.error(f"Failed to process message at offset {msg.offset()}: {e}")

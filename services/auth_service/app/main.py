@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 import redis
 from app.db.redis_client import redis_client
+from app.services.telemetry import setup_telemetry
 from app.routers import employee_router, user_router
-import asyncio
 
 f = Figlet(font='slant')
 
@@ -27,6 +27,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+setup_telemetry(app, engine)
 app.add_middleware(CORSMiddleware,allow_origins=["*"],allow_credentials=True,allow_methods=["*"],allow_headers=["*"],)
 
 @app.get("/api/v1/health")

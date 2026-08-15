@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.utils import get_current_user
+from app.core.utils import get_current_user
 from app.services.elasticsearch_client import elasticsearch_client
 
 search_router = APIRouter(prefix="/api/v1/search",tags=["search"])

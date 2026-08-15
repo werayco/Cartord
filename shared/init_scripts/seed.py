@@ -2,7 +2,7 @@ import asyncio
 import json
 import os
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 
 from dotenv import load_dotenv
 from sqlalchemy import (
@@ -18,26 +18,28 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import create_async_engine
 
-load_dotenv()
+load_dotenv(dotenv_path="./shared/compose_files/.env")
 
-RAW_DATABASE_URL = os.environ.get("INVENTORY_DATABASE_URL", os.environ["DATABASE_URL"])
+RAW_DATABASE_URL = os.getenv("INVENTORY_DATABASE_URL")
 DATABASE_URL = RAW_DATABASE_URL.replace("@postgres", "@localhost")
 INVENTORY_JSON_PATH = Path(__file__).parent.parent / "inventory.json"
 
 metadata = MetaData()
 
+# Updated to match the Inventory model columns exactly
 inventory = Table(
     "inventory",
     metadata,
-    Column("id", Integer, primary_key=True),
-    Column("name", String, nullable=False),
-    Column("description", String),
-    Column("price", Numeric, nullable=False),
-    Column("sku", String, nullable=False, unique=True),
-    Column("quantity", Integer, nullable=False),
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("name", String(100), nullable=False),
+    Column("description", String(255), nullable=True),
+    Column("unit_price", Numeric(10, 2), nullable=False),
+    Column("sku", String(50), nullable=False, unique=True),
+    Column("available_quantity", Integer, nullable=False, default=0),
+    Column("reserved_quantity", Integer, nullable=False, default=0),
     Column("is_active", Boolean, nullable=False, default=True),
-    Column("created_at", DateTime(timezone=True), nullable=False),
-    Column("updated_at", DateTime(timezone=True), nullable=False),
+    Column("created_at", DateTime, nullable=False),
+    Column("updated_at", DateTime, nullable=False),
 )
 
 
@@ -53,7 +55,7 @@ async def seed() -> None:
 
     engine = create_async_engine(DATABASE_URL)
     inserted, skipped = 0, 0
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     try:
         async with engine.begin() as conn:
@@ -61,8 +63,10 @@ async def seed() -> None:
                 try:
                     sku = item["sku"]
                     name = item["name"]
-                    price = item["price"]
-                    quantity = item["quantity"]
+                    # Match model field: unit_price
+                    unit_price = item["price"]  # Assuming JSON still uses 'price' key
+                    # Match model field: available_quantity (fallback to 'quantity' key if needed)
+                    available_quantity = item.get("available_quantity", item.get("quantity", 0))
                 except KeyError as e:
                     print(f"Skipping item, missing required field {e}: {item}")
                     skipped += 1
@@ -70,13 +74,15 @@ async def seed() -> None:
 
                 description = item.get("description")
                 is_active = item.get("is_active", True)
+                reserved_quantity = item.get("reserved_quantity", 0)
 
                 stmt = pg_insert(inventory).values(
                     name=name,
                     description=description,
-                    price=price,
+                    unit_price=unit_price,
                     sku=sku,
-                    quantity=quantity,
+                    available_quantity=available_quantity,
+                    reserved_quantity=reserved_quantity,
                     is_active=is_active,
                     created_at=now,
                     updated_at=now,
@@ -86,8 +92,8 @@ async def seed() -> None:
                     set_={
                         "name": stmt.excluded.name,
                         "description": stmt.excluded.description,
-                        "price": stmt.excluded.price,
-                        "quantity": stmt.excluded.quantity,
+                        "unit_price": stmt.excluded.unit_price,
+                        "available_quantity": stmt.excluded.available_quantity,
                         "is_active": stmt.excluded.is_active,
                         "updated_at": stmt.excluded.updated_at,
                     },

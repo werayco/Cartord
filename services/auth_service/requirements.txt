@@ -3,8 +3,6 @@ uvicorn[standard]==0.30.6
 pydantic==2.9.2
 pydantic-settings==2.5.2
 sqlalchemy==2.0.35
-uuid6
-pyfiglet
 asyncpg==0.29.0
 alembic==1.13.2
 passlib[bcrypt]==1.7.4
@@ -16,4 +14,9 @@ opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
 sentry-sdk[fastapi]==2.14.0
 opentelemetry-instrumentation-sqlalchemy
+opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-instrumentation-redis
+aiohttp
+pyfiglet
+aiobreaker
+uuid6
