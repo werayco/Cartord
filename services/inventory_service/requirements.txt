@@ -10,12 +10,13 @@ confluent-kafka==2.5.3
 pyfiglet
 python-jose[cryptography]
 redis==5.0.8
+sentry-sdk[fastapi]==2.14.0
+aiohttp
 opentelemetry-api==1.27.0
 opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
-sentry-sdk[fastapi]==2.14.0
 opentelemetry-instrumentation-confluent-kafka
-aiohttp
 opentelemetry-instrumentation-redis
 opentelemetry-instrumentation-aiohttp-client
 opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-sqlalchemy

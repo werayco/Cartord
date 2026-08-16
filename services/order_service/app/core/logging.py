@@ -23,4 +23,6 @@ def get_custom_logger(name: str, level: int = logging.INFO) -> logging.Logger:
         
     return logger
 
-logger = get_custom_logger("Payment-Service", level=logging.DEBUG)
+logger = get_custom_logger("Order-Service", level=logging.DEBUG)
+    
+logger.debug("This is a debug message.")

@@ -1,4 +1,3 @@
-from app.db.session import get_db
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas import WalletCreate
@@ -14,7 +13,6 @@ class PaymentProcessorController:
     @staticmethod
     async def create_wallet(payload: WalletCreate, db: AsyncSession, req: Request):
         incoming_key = req.headers.get("SHARED_API_KEY")
-        print(f"incoming header key is {incoming_key}")
         logger.info(f"incoming header key is {incoming_key}")
 
         if not incoming_key or not secrets.compare_digest(
@@ -33,7 +31,6 @@ class PaymentProcessorController:
         except Exception as e:
             await db.rollback()
             raise e
-
 
     @staticmethod
     async def process_payment(order_event: dict, db: AsyncSession):
@@ -59,12 +56,16 @@ class PaymentProcessorController:
             wallet.balance -= subtotal
             status = PaymentStatus.SUCCEEDED
             event_type = "payment.succeeded"
+            logger.info(f"Payment for order is successful.")
+
         else:
             status = PaymentStatus.FAILED
             event_type = "payment.failed"
+            logger.error(f"Payment for order failed.")
 
         payment = Payment(customer_id=customer_id, order_id=order_id, sku=sku, subtotal=subtotal, status=status)
         db.add(payment)
+        logger.info(f"Added record in the payment table")
         await db.flush()
 
         db.add(OutboxEvent(
@@ -78,5 +79,5 @@ class PaymentProcessorController:
                 "status": status.value,
             },
         ))
-        
+        logger.info(f"Added record in the payment outbox table")
         await db.commit()

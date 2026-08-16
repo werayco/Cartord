@@ -12,7 +12,9 @@ class OrderController:
     @staticmethod
     async def place_order(payload: OrderPayload, current_user: dict[str, Any], db: AsyncSession, idempotency_key: str):
         user_id = current_user.get("id")
+        print(f"user id is: {user_id}")
         operation = partial(OrderController.create_order, payload, str(user_id), db)
+        print("gotten user id")
 
         result = await idempotency(idempotency_key=idempotency_key, user_id=str(user_id), operation=operation)
         if result["status"] == "processing": raise HTTPException(status_code=409, detail=result["message"])
@@ -22,7 +24,10 @@ class OrderController:
     async def create_order(payload: OrderPayload, user_id: str, db: AsyncSession):
         inventory_reserved = False
         try:
+            print("okay")
             reservation = await update_inventory(sku=payload.sku, reserved_quantity=payload.quantity)
+            print("reserve",reservation)
+
             if reservation.get("status") != "successful": raise HTTPException(status_code=409, detail="Unable to reserve inventory for this order")
             inventory_reserved = True
 
@@ -43,6 +48,7 @@ class OrderController:
             raise
         except Exception:
             await db.rollback()
+            print("here")
             if inventory_reserved: await update_inventory(sku=payload.sku, reserved_quantity=-payload.quantity)
             raise HTTPException(status_code=500, detail="Failed to create order")
 

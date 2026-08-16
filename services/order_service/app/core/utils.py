@@ -3,7 +3,6 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
 import json
 import aiohttp
-from jose import JWTError, jwt
 from app.services.circuit_breaker import breaker as inventory_breaker
 
 bearer_scheme = HTTPBearer()
@@ -14,7 +13,9 @@ async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 response.raise_for_status()
-                return await response.json()
+                response_json = await response.json()
+                print(f"User credentials gotten from order --> auth service request is: {response_json}")
+                return response_json
     except aiohttp.ClientResponseError as e:
         raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
 
@@ -28,15 +29,20 @@ async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(
 #     except (JWTError, KeyError):
 #         raise credentials_exception
     
-@inventory_breaker
+# @inventory_breaker
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/reserved_inventory"
+    url = f"{settings.INVENTORY_BASE_URL}/inventory/reserve"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
+    print(f"request header is: {headers}")
 
     async with aiohttp.ClientSession() as session:
-        async with session.patch(url, data={"sku":sku, "reserved_quantity":reserved_quantity}, headers=headers) as response:
+        print("sending request...")
+        async with session.patch(url, json={"sku":sku, "reserved_quantity":reserved_quantity}, headers=headers) as response:
             response.raise_for_status()
-            return await response.json()
+            print(print("here..."))
+            response_json = await response.json()
+            print(f"response from inventory reservsation is {response_json}")
+            return response_json
 
 def seralize_to_json(data):
     try:

@@ -1,10 +1,10 @@
 from sqlalchemy import select, inspect, update
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas import *
 from app.models import Inventory, OutboxEvent
-from app.core.config import settings
-from app.core.utils import to_json_safe
+from app.core import (settings, to_json_safe, logger)
+import secrets
 
 ALLOW_ROLES = (Roles.ADMIN.value, Roles.INVENTORY_MANAGER.value)
 
@@ -93,13 +93,44 @@ class InventoryCRUD:
                 setattr(record, key, value)
 
             payload = inventory.model_dump()
-            payload["id"] = record.id  # was missing before — ES "update" branch needs this
+            payload["id"] = record.id
             db.add(OutboxEvent(event_type="inventory.updated", aggregate_id=str(record.id), payload=payload))
 
             await db.commit()
             await db.refresh(record)
             return {"message": "Inventory item updated successfully"}
 
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def reserve_inventory(inventory: InventoryReserve, req: Request, db: AsyncSession):
+        incoming_key = req.headers.get("SHARED_API_KEY")
+        if not incoming_key or not secrets.compare_digest(incoming_key, settings.SERVICE_SHARED_KEY):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing shared API key")
+
+        result = await db.execute(select(Inventory).where(Inventory.sku == inventory.sku))
+        record = result.scalar_one_or_none()
+
+        if not record:
+            raise HTTPException(status_code=404, detail="Inventory item not found")
+
+        free = record.available_quantity - record.reserved_quantity
+        if free < inventory.reserved_quantity:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Insufficient stock for SKU {inventory.sku}: available {free}, requested {inventory.reserved_quantity}",
+            )
+
+        try:
+            record.reserved_quantity += inventory.reserved_quantity
+            await db.commit()
+            await db.refresh(record)
+            return {
+                "message": "Inventory reserved successfully",
+                "remaining_quantity": record.available_quantity - record.reserved_quantity,
+            }
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=str(e))

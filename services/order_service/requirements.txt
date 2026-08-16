@@ -11,6 +11,7 @@ pybreaker==1.2.0
 pyfiglet
 tenacity==9.0.0
 redis==5.0.8
+
 opentelemetry-api==1.27.0
 opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
@@ -18,6 +19,9 @@ opentelemetry-instrumentation-httpx==0.48b0
 opentelemetry-instrumentation-confluent-kafka
 opentelemetry-instrumentation-redis
 opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-sqlalchemy
+opentelemetry-instrumentation-aiohttp-client
+
 sentry-sdk[fastapi]==2.14.0
 aiohttp
 aiobreaker
