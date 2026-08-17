@@ -19,6 +19,7 @@ async def idempotency(idempotency_key: str, user_id: str, operation: Callable[[]
     try:
         result = await operation()
         print("processing the order request")
+        print(json.dumps(result))
         redis_client.set(redis_key, json.dumps(result), ex=expires)
         return {"status": "completed", "result": result}
 

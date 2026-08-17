@@ -79,22 +79,22 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user:dict):
+    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: dict):
         if current_user.get("role") not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to update the inventory, contact your admin or inventory manager")
 
-        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
+        result = await db.execute(select(Inventory).where(Inventory.sku == inventory.sku))
         record = result.scalar_one_or_none()
         if not record:
             raise HTTPException(status_code=404, detail="Inventory item not found")
 
         try:
-            for key, value in inventory.model_dump().items():
+            update_data = inventory.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
                 setattr(record, key, value)
 
-            payload = inventory.model_dump()
-            payload["id"] = record.id
-            db.add(OutboxEvent(event_type="inventory.updated", aggregate_id=str(record.id), payload=payload))
+            update_data["id"] = record.id
+            db.add(OutboxEvent(event_type="inventory.updated", aggregate_id=str(record.id), payload=update_data))
 
             await db.commit()
             await db.refresh(record)
@@ -130,6 +130,8 @@ class InventoryCRUD:
             return {
                 "message": "Inventory reserved successfully",
                 "remaining_quantity": record.available_quantity - record.reserved_quantity,
+                "status": "successful",
+                "unit_price": record.unit_price
             }
         except Exception as e:
             await db.rollback()

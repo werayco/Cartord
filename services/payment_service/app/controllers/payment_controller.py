@@ -50,10 +50,10 @@ class PaymentProcessorController:
             return
 
         subtotal = unit_price * quantity
-        wallet = (await db.execute(select(UserWallet).where(UserWallet.user_id == customer_id).with_for_update())).scalar_one_or_none()
+        wallet = (await db.execute(select(UserWallet).where(UserWallet.customer_id == customer_id).with_for_update())).scalar_one_or_none()
 
-        if wallet and wallet.balance >= subtotal:
-            wallet.balance -= subtotal
+        if wallet and wallet.current_balance >= subtotal:
+            wallet.current_balance -= subtotal
             status = PaymentStatus.SUCCEEDED
             event_type = "payment.succeeded"
             logger.info(f"Payment for order is successful.")

@@ -36,7 +36,6 @@ def outbox_connector(name, db_name, table_name, slot_name, topic):
         },
     }
 
-
 connector_config_order = outbox_connector(
     name="order-outbox-connector",
     db_name="order_db",
@@ -83,3 +82,4 @@ if __name__ == "__main__":
     register_connector(connector_config_order)
     register_connector(connector_config_inventory)
     register_connector(connector_config_payment)
+    # register_connector(connector_config_payment)

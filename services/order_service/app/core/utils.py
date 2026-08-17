@@ -39,7 +39,6 @@ async def update_inventory(sku: str, reserved_quantity: int) -> dict:
         print("sending request...")
         async with session.patch(url, json={"sku":sku, "reserved_quantity":reserved_quantity}, headers=headers) as response:
             response.raise_for_status()
-            print(print("here..."))
             response_json = await response.json()
             print(f"response from inventory reservsation is {response_json}")
             return response_json

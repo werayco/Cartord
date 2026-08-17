@@ -3,12 +3,12 @@ from enum import Enum
 from typing import Union
 
 class InventorySchema(BaseModel):
-    name: Union[str,None]
-    description: Union[str,None]
-    unit_price: Union[float,None]
-    sku: Union[str,None]
-    available_quantity: Union[int, None]
-    reserved_quantity: Union[int, None]
+    name: Union[str, None] = None
+    description: Union[str, None] = None
+    unit_price: Union[float, None] = None
+    sku: Union[str, None] = None
+    available_quantity: Union[int, None] = None
+    reserved_quantity: Union[int, None] = None
 
 class InventorySchemaList(RootModel[list[InventorySchema]]):
     pass

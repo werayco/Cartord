@@ -46,10 +46,12 @@ build-all: build-auth-service build-inventory-service build-notification-service
 
 init:
 	python -m shared.init_scripts.debezium_setup
-	python -m shared.init_scripts.seed
+# 	python -m shared.init_scripts.seed
 	python -m shared.init_scripts.create_topics --topic inventory --partitions 3 --replication 1
 	python -m shared.init_scripts.create_topics --topic payment --partitions 3 --replication 1
 	python -m shared.init_scripts.create_topics --topic order --partitions 1 --replication 1
+	python -m shared.init_scripts.create_topics --topic order.dlq --partitions 1 --replication 1
+	python -m shared.init_scripts.create_topics --topic inventory.dlq --partitions 1 --replication 1
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d
