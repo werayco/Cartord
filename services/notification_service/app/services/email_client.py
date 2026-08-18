@@ -2,20 +2,21 @@ from email.message import EmailMessage
 from typing import Literal, Optional
 import aiosmtplib
 import resend
+from app.core.config import settings
 
 EmailProvider = Literal["resend", "smtp", "mailpit"]
 
 class EmailService:
-    def __init__(self, provider: EmailProvider, *, resend_api_key: Optional[str] = None, smtp_host: Optional[str] = None, smtp_port: Optional[int] = None, smtp_username: Optional[str] = None, smtp_password: Optional[str] = None, smtp_use_tls: bool = True, mailpit_host: str = "mailpit", mailpit_port: int = 1025):
-        self.provider = provider
-        self.resend_api_key = resend_api_key
-        self.smtp_host = smtp_host
-        self.smtp_port = smtp_port
-        self.smtp_username = smtp_username
-        self.smtp_password = smtp_password
-        self.smtp_use_tls = smtp_use_tls
-        self.mailpit_host = mailpit_host
-        self.mailpit_port = mailpit_port
+    def __init__(self, provider: Optional[EmailProvider] = None, *, resend_api_key: Optional[str] = None, smtp_host: Optional[str] = None, smtp_port: Optional[int] = None, smtp_username: Optional[str] = None, smtp_password: Optional[str] = None, smtp_use_tls: Optional[bool] = None, mailpit_host: Optional[str] = None, mailpit_port: Optional[int] = None):
+        self.provider = provider or settings.EMAIL_PROVIDER
+        self.resend_api_key = resend_api_key or settings.RESEND_API_KEY
+        self.smtp_host = smtp_host or settings.SMTP_HOST
+        self.smtp_port = smtp_port or settings.SMTP_PORT
+        self.smtp_username = smtp_username or settings.SMTP_USERNAME
+        self.smtp_password = smtp_password or settings.SMTP_PASSWORD
+        self.smtp_use_tls = smtp_use_tls if smtp_use_tls is not None else settings.SMTP_USE_TLS
+        self.mailpit_host = mailpit_host or settings.MAILPIT_HOST
+        self.mailpit_port = mailpit_port or settings.MAILPIT_PORT
 
     async def send_email(self, *, to: str, subject: str, html_body: str, from_email: str, from_name: Optional[str] = None) -> None:
         if self.provider == "resend":
@@ -50,31 +51,5 @@ class EmailService:
         msg["Subject"] = subject
         msg.add_alternative(html_body, subtype="html")
         await aiosmtplib.send(msg, hostname=mailpit_host, port=mailpit_port)
-        
-# email_service = EmailService(
-#     provider="resend",
-#     resend_api_key="your_resend_api_key"
-# )
 
-# email_service = EmailService(
-#     provider="smtp",
-#     smtp_host="smtp.gmail.com",
-#     smtp_port=587,
-#     smtp_username="your_email@gmail.com",
-#     smtp_password="your_password",
-#     smtp_use_tls=True
-# )
-
-# email_service = EmailService(
-#     provider="mailpit",
-#     mailpit_host="mailpit",
-#     mailpit_port=1025
-# )
-
-# await email_service.send_email(
-#     to="recipient@example.com",
-#     subject="Hello",
-#     html_body="<h1>Hello World</h1>",
-#     from_email="sender@example.com",
-#     from_name="Sender Name"
-# )
+email_service = EmailService(provider="smtp")

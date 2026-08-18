@@ -222,7 +222,7 @@ services:
       - "8025:8025" # web ui
       - "1025:1025"   # SMTP port your notification_service connects to
     networks:
-      - proxy
+      - mynet
 
 volumes:
   db_data:
