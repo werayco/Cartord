@@ -14,6 +14,6 @@ class Payment(Base):
     order_id: Mapped[UUID] = mapped_column(Uuid, nullable=False, unique=True, index=True)
     sku: Mapped[str] = mapped_column(String(50), nullable=False)
     subtotal: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False)
-    status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus), nullable=False, default=PaymentStatus.PENDING)
+    status: Mapped[PaymentStatus] = mapped_column(Enum(PaymentStatus,name="paymentstatus",values_callable=lambda x: [e.value for e in x],),nullable=False,default=PaymentStatus.PENDING,)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

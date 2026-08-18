@@ -6,6 +6,6 @@ class WalletCreate(BaseModel):
     customer_id: uuid.UUID
 
 class PaymentStatus(Enum):
-    FAILED = "failed"
-    SUCCEEDED = "success"
-    PENDING = "pending"
+    FAILED = "FAILED"
+    SUCCEEDED = "SUCCESS"
+    PENDING = "PENDING"

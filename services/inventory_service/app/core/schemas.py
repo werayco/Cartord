@@ -1,6 +1,7 @@
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, RootModel, ConfigDict
 from enum import Enum
 from typing import Union
+from datetime import datetime
 
 class InventorySchema(BaseModel):
     name: Union[str, None] = None
@@ -27,4 +28,12 @@ class InventoryReserve(BaseModel):
     sku: Union[str,None]
     reserved_quantity: Union[int, None]
 
+class InventoryResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    sku: str
+    unit_price: float
+    available_quantity: int
+    created_at: datetime
 

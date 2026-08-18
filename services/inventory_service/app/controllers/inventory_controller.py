@@ -136,3 +136,9 @@ class InventoryCRUD:
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def get_inventory_item(db: AsyncSession):
+        result = await db.execute(select(Inventory))
+        records = result.scalars().all()
+        return records

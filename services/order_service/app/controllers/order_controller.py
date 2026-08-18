@@ -17,6 +17,7 @@ class OrderController:
 
         result = await idempotency(idempotency_key=idempotency_key, user_id=str(user_id), operation=operation)
         if result["status"] == "processing":
+            print("duplicate order detected...")
             raise HTTPException(status_code=409, detail=result["message"])
         return result["result"]
 
