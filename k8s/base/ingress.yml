@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: notification-service-ingress
+  namespace: default
+  labels:
+    app: notification-service
+    tier: backend
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.tls.certresolver: "myresolver"
+    
+    traefik.ingress.kubernetes.io/router.middlewares: |
+      default-rate-limit@kubernetescrd,
+      default-security-headers@kubernetescrd
+    
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    
+    traefik.ingress.kubernetes.io/redirect-entry-point: "websecure"
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    
+    traefik.ingress.kubernetes.io/service-serverside: "true"
+    traefik.ingress.kubernetes.io/service-upstream: "true"
+    
+spec:
+  tls:
+  - hosts:
+    - api.your-domain.com
+    - notification.your-domain.com
+    secretName: cartord-secrets
+  
+  rules:
+  - host: api.your-domain.com
+    http:
+      paths:
+      - path: /notification
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 9003
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 9003
+  
+  - host: notification.your-domain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 9003
