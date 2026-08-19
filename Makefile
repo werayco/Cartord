@@ -45,11 +45,9 @@ build-user-service:
 build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
 
 init:
-# 	python -m shared.init_scripts.debezium_setup
+	python -m shared.init_scripts.debezium_setup
 	python -m shared.init_scripts.seed
 	python -m shared.init_scripts.create_topics
-
-
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d

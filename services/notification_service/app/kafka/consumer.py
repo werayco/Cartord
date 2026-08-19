@@ -42,40 +42,69 @@ class KafkaConsumer:
             email = event_data.get("email")
             if not email:
                 logger.error(f"No email found in payment data: {event_data}")
+                # Try to get email from customer_id if available
+                customer_id = event_data.get("customer_id")
+                if customer_id:
+                    logger.info(f"Attempting to fetch email for customer_id: {customer_id}")
+                    # You would call a service here to get the customer's email
+                    # For now, we'll just log and skip
+                    return
                 return
 
             payment_id = event_data.get("payment_id", "Unknown")
             order_id = event_data.get("order_id", "Unknown")
             subtotal = event_data.get("subtotal", 0.00)
+            
+            # Convert status to lowercase for consistency
+            status = status.lower()
 
+            # Clean and validate email
+            email = email.strip()
+            if not self._is_valid_email(email):
+                logger.error(f"Invalid email address: {email}")
+                return
+
+            # Email subject and body
             if status == "succeeded":
                 subject = f"Payment Successful - Order #{order_id}"
                 html_body = f"""
-                <h1>Payment Successful!</h1>
-                <p>Dear Customer,</p>
-                <p>Your payment has been successfully processed.</p>
-                <ul>
-                    <li><strong>Payment ID:</strong> {payment_id}</li>
-                    <li><strong>Order ID:</strong> {order_id}</li>
-                    <li><strong>Amount:</strong> ${subtotal:.2f}</li>
-                </ul>
-                <p>Thank you for your purchase!</p>
+                <html>
+                <body>
+                    <h1>Payment Successful!</h1>
+                    <p>Dear Customer,</p>
+                    <p>Your payment has been successfully processed.</p>
+                    <ul>
+                        <li><strong>Payment ID:</strong> {payment_id}</li>
+                        <li><strong>Order ID:</strong> {order_id}</li>
+                        <li><strong>Amount:</strong> ${subtotal:.2f}</li>
+                    </ul>
+                    <p>Thank you for your purchase!</p>
+                </body>
+                </html>
                 """
             else:
                 subject = f"Payment Failed - Order #{order_id}"
                 html_body = f"""
-                <h1>Payment Failed</h1>
-                <p>Dear Customer,</p>
-                <p>We were unable to process your payment.</p>
-                <ul>
-                    <li><strong>Payment ID:</strong> {payment_id}</li>
-                    <li><strong>Order ID:</strong> {order_id}</li>
-                    <li><strong>Amount:</strong> ${subtotal:.2f}</li>
-                </ul>
-                <p>Please try again or contact support.</p>
+                <html>
+                <body>
+                    <h1>Payment Failed</h1>
+                    <p>Dear Customer,</p>
+                    <p>We were unable to process your payment.</p>
+                    <ul>
+                        <li><strong>Payment ID:</strong> {payment_id}</li>
+                        <li><strong>Order ID:</strong> {order_id}</li>
+                        <li><strong>Amount:</strong> ${subtotal:.2f}</li>
+                    </ul>
+                    <p>Please try again or contact support.</p>
+                </body>
+                </html>
                 """
 
-            from_email = settings.EMAIL_FROM
+            from_email = settings.EMAIL_FROM.strip()
+            
+            logger.info(f"Sending {status} email to {email} for order {order_id}")
+            
+            # Send email with proper formatting
             await email_service.send_email(
                 to=email,
                 subject=subject,
@@ -88,12 +117,69 @@ class KafkaConsumer:
             logger.error(f"Failed to send payment email: {e}")
             raise
 
+    def _is_valid_email(self, email: str) -> bool:
+        """Simple email validation"""
+        import re
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(pattern, email))
+
+    async def _process_message(self, msg):
+        """Process a single message with proper context handling"""
+        key_bytes = msg.key()
+        value_bytes = msg.value()
+        event_type = self._event_type(msg)
+
+        try:
+            value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
+            
+            # Determine status from event_type or from the value
+            if event_type == "payment.succeeded" or value.get("status") == "SUCCESS":
+                await self._send_payment_email(value, "succeeded")
+            else:
+                await self._send_payment_email(value, "failed")
+                
+            return True, None  # Success
+        except Exception as e:
+            logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
+            return False, str(e)
+
+    async def _send_to_dlq_async(self, key_bytes, value_bytes, error: str):
+        """Async version of sending to DLQ"""
+        try:
+            # Parse the original value to preserve structure
+            original_value = None
+            if value_bytes:
+                try:
+                    original_value = json.loads(value_bytes.decode("utf-8"))
+                except:
+                    original_value = value_bytes.decode(errors="replace")
+            
+            # Create DLQ message
+            dlq_message = {
+                "original_value": original_value,
+                "error": error,
+                "timestamp": asyncio.get_event_loop().time()
+            }
+            
+            # Produce to DLQ (this is synchronous but we're in async context)
+            self.dlq_producer.produce(
+                topic="payment.dlq",
+                key=key_bytes,
+                value=json.dumps(dlq_message).encode('utf-8'),
+            )
+            self.dlq_producer.flush()
+            logger.info(f"Message sent to DLQ successfully")
+        except Exception as dlq_err:
+            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+
     async def consume(self):
         self.consumer.subscribe(["payment"])
         self._running = True
         loop = asyncio.get_event_loop()
+        
         try:
             while self._running:
+                # Use run_in_executor for blocking Kafka poll
                 msg = await loop.run_in_executor(None, self.consumer.poll, 1.0)
                 if msg is None:
                     continue
@@ -102,41 +188,29 @@ class KafkaConsumer:
                     logger.error(f"Kafka error: {msg.error()}")
                     continue
 
-                key_bytes = msg.key()
-                value_bytes = msg.value()
-                event_type = self._event_type(msg)
-
-                try:
-                    value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
-
-                    if event_type == "payment.succeeded":
-                        await self._send_payment_email(value, "succeeded")
-                    else:
-                        await self._send_payment_email(value, "failed")
-
-                    await loop.run_in_executor(None, self.consumer.commit, msg)
-                except Exception as e:
-                    logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, key_bytes, value_bytes, str(e))
-                    await loop.run_in_executor(None, self.consumer.commit, msg)
+                # Process message
+                success, error = await self._process_message(msg)
+                
+                # Always commit the offset after processing
+                await loop.run_in_executor(None, self.consumer.commit, msg)
+                
+                # If processing failed, send to DLQ (using async version)
+                if not success and error:
+                    key_bytes = msg.key()
+                    value_bytes = msg.value()
+                    await self._send_to_dlq_async(key_bytes, value_bytes, error)
+                    
+        except Exception as e:
+            logger.error(f"Consumer loop error: {e}")
         finally:
             self.consumer.close()
 
     def stop(self):
         self._running = False
 
-    def _send_to_dlq(self, key_bytes, value_bytes, error: str):
-        try:
-            self.dlq_producer.produce(
-                topic="payment.dlq",
-                key=key_bytes,
-                value=json.dumps({
-                    "original_value": value_bytes.decode(errors="replace") if value_bytes else None,
-                    "error": error,
-                }).encode(),
-            )
-            self.dlq_producer.flush()
-        except Exception as dlq_err:
-            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+    async def run(self):
+        """Convenience method to run the consumer"""
+        await self.consume()
 
+# Create singleton instance
 kafka_manager = KafkaConsumer()

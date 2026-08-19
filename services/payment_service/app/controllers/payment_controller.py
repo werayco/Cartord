@@ -39,8 +39,9 @@ class PaymentProcessorController:
         quantity = order_event.get("quantity")
         customer_id = order_event.get("customer_id")
         unit_price = order_event.get("unit_price")
+        email = order_event.get("email")
 
-        if None in (order_id, sku, quantity, customer_id, unit_price):
+        if None in (order_id, sku, quantity, customer_id, unit_price, email):
             logger.error(f"Malformed order event, missing required fields: {order_event}")
             return
 
@@ -77,6 +78,7 @@ class PaymentProcessorController:
                 "customer_id": customer_id,
                 "subtotal": float(subtotal),
                 "status": status.value,
+                "email": email,
             },
         ))
         logger.info(f"Added record in the payment outbox table")

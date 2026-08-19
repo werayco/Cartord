@@ -34,18 +34,21 @@ class OrderController:
             db.add(order_entry)
 
             await db.flush()
-
-            outbox_event = OutboxEvent(
-                event_type="order.created",
-                aggregate_id=str(order_entry.id),
-                payload={
+            payload = {
                     "order_id": str(order_entry.id),
                     "sku": order_entry.sku,
                     "quantity": order_entry.quantity,
                     "customer_id": str(order_entry.customer_id),
                     "unit_price": float(order_entry.unit_price),
                     "email": email,
-                },
+                }
+            print("order outbox entry...")
+            print(payload)
+
+            outbox_event = OutboxEvent(
+                event_type="order.created",
+                aggregate_id=str(order_entry.id),
+                payload=payload,
             )
             db.add(outbox_event)
 
