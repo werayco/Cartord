@@ -84,7 +84,7 @@ services:
     container_name: cartord-jg
     image: jaegertracing/all-in-one:1.60
     ports:
-      - "16686:16686"
+      - "16686:16686" # web ui
     networks:
       - mynet
 
@@ -115,7 +115,7 @@ services:
     container_name: kafka-ui
     restart: unless-stopped
     ports:
-      - "8090:8080"
+      - "8090:8080" # web ui
     environment:
       KAFKA_CLUSTERS_0_NAME: cartord
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
@@ -192,7 +192,7 @@ services:
     image: grafana/grafana:latest
     container_name: cartord-gf
     ports:
-      - "3000:3000"
+      - "3000:3000" # web ui
     env_file:
       - ./.env
     depends_on:
@@ -207,11 +207,20 @@ services:
     volumes:
       - ../bind_volumes/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
     ports:
-      - "4317:4317"
-      - "4318:4318" 
+      - "4317:4317" # gRPC
+      - "4318:4318" # http
     depends_on:
       - jaeger
       - prometheus
+    networks:
+      - mynet
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: cartord-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025" # web ui
+      - "1025:1025"   # SMTP port your notification_service connects to
     networks:
       - mynet
 

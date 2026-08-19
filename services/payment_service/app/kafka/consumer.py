@@ -5,7 +5,8 @@ from confluent_kafka import Consumer, Producer
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from app.core.config import settings
-from app.services.payment_processor import process_payment
+from app.db.session import AsyncSessionLocal
+from app.controllers.payment_controller import PaymentProcessorController
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,8 @@ class KafkaConsumer:
                     value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
 
                     if event_type == "order.created":
-                        await process_payment(value)
+                        async with AsyncSessionLocal() as db:
+                            await PaymentProcessorController.process_payment(value, db)
                     else:
                         logger.info(f"Ignoring event type: {event_type}")
 

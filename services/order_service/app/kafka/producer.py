@@ -3,7 +3,6 @@ from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrume
 from app.core.config import settings
 from confluent_kafka import Producer
 
-
 class KafkaManager:
     def __init__(self):
         producer = Producer({

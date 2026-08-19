@@ -1,10 +1,10 @@
 from sqlalchemy import select, inspect, update
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas import *
 from app.models import Inventory, OutboxEvent
-from app.core.config import settings
-from app.core.utils import to_json_safe
+from app.core import (settings, to_json_safe, logger)
+import secrets
 
 ALLOW_ROLES = (Roles.ADMIN.value, Roles.INVENTORY_MANAGER.value)
 
@@ -79,22 +79,22 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
-    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user:dict):
+    async def update_inventory_item(db: AsyncSession, inventory: InventorySchema, current_user: dict):
         if current_user.get("role") not in ALLOW_ROLES:
             raise HTTPException(status_code=403, detail="You do not have the necessary permission to update the inventory, contact your admin or inventory manager")
 
-        result = (await db.execute(select(Inventory).where(Inventory.sku == inventory.sku)))
+        result = await db.execute(select(Inventory).where(Inventory.sku == inventory.sku))
         record = result.scalar_one_or_none()
         if not record:
             raise HTTPException(status_code=404, detail="Inventory item not found")
 
         try:
-            for key, value in inventory.model_dump().items():
+            update_data = inventory.model_dump(exclude_unset=True)
+            for key, value in update_data.items():
                 setattr(record, key, value)
 
-            payload = inventory.model_dump()
-            payload["id"] = record.id  # was missing before — ES "update" branch needs this
-            db.add(OutboxEvent(event_type="inventory.updated", aggregate_id=str(record.id), payload=payload))
+            update_data["id"] = record.id
+            db.add(OutboxEvent(event_type="inventory.updated", aggregate_id=str(record.id), payload=update_data))
 
             await db.commit()
             await db.refresh(record)
@@ -103,3 +103,42 @@ class InventoryCRUD:
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def reserve_inventory(inventory: InventoryReserve, req: Request, db: AsyncSession):
+        incoming_key = req.headers.get("SHARED_API_KEY")
+        if not incoming_key or not secrets.compare_digest(incoming_key, settings.SERVICE_SHARED_KEY):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing shared API key")
+
+        result = await db.execute(select(Inventory).where(Inventory.sku == inventory.sku))
+        record = result.scalar_one_or_none()
+
+        if not record:
+            raise HTTPException(status_code=404, detail="Inventory item not found")
+
+        free = record.available_quantity - record.reserved_quantity
+        if free < inventory.reserved_quantity:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Insufficient stock for SKU {inventory.sku}: available {free}, requested {inventory.reserved_quantity}",
+            )
+
+        try:
+            record.reserved_quantity += inventory.reserved_quantity
+            await db.commit()
+            await db.refresh(record)
+            return {
+                "message": "Inventory reserved successfully",
+                "remaining_quantity": record.available_quantity - record.reserved_quantity,
+                "status": "successful",
+                "unit_price": record.unit_price
+            }
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
+    async def get_inventory_item(db: AsyncSession):
+        result = await db.execute(select(Inventory))
+        records = result.scalars().all()
+        return records

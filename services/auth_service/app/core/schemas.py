@@ -1,5 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
+from uuid import UUID
 
 class RegisterRequest(BaseModel):
     email: str
@@ -69,6 +70,7 @@ class CustomerOut(BaseModel):
     username: str
     name: str
     shipping_address: str | None
+    id: UUID
 
 class UpdateUser(BaseModel):
     email: str | None = None

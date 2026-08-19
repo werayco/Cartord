@@ -13,6 +13,7 @@ sentry-sdk[fastapi]==2.14.0
 opentelemetry-instrumentation-confluent-kafka
 opentelemetry-instrumentation-redis
 opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-sqlalchemy
 aiohttp
 pyfiglet
 aiobreaker

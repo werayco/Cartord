@@ -62,26 +62,26 @@ services:
     networks:
       - mynet
 
-  # notification_service:
-  #   build:
-  #     context: ../../services/notification_service
-  #     dockerfile: Dockerfile
-  #   container_name: notification_service
-  #   ports:
-  #     - "9003:9003"
-  #   volumes:
-  #     - "../../services/notification_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9003/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  notification_service:
+    build:
+      context: ../../services/notification_service
+      dockerfile: Dockerfile
+    container_name: notification_service
+    ports:
+      - "9003:9003"
+    volumes:
+      - "../../services/notification_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9003/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
   order_service:
     build:

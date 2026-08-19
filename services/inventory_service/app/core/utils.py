@@ -5,9 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
-from app.db.session import get_db
-from sqlalchemy.ext.asyncio import AsyncSession
-from jose import jwt, JWTError
 from app.core.config import settings
 import json
 from app.core.schemas import Roles
