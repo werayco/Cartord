@@ -46,7 +46,7 @@ spec:
         imagePullPolicy: Always
         
         ports:
-        - containerPort: 9003
+        - containerPort: 9004
           protocol: TCP
           name: http
         
@@ -88,7 +88,7 @@ spec:
         startupProbe:
           httpGet:
             path: /health/startup
-            port: 9003
+            port: 9004
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 5
@@ -99,7 +99,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /health/readiness
-            port: 9003
+            port: 9004
           initialDelaySeconds: 5
           periodSeconds: 10
           timeoutSeconds: 5
@@ -110,7 +110,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /health/liveness
-            port: 9003
+            port: 9004
           initialDelaySeconds: 15
           periodSeconds: 20
           timeoutSeconds: 5
@@ -152,8 +152,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - port: 9003
-    targetPort: 9003
+  - port: 9004
+    targetPort: 9004
     protocol: TCP
     name: http
   selector:
