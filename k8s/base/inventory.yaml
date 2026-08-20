@@ -1,0 +1,160 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  namespace: default
+  labels:
+    app: inventory-service
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+        tier: backend
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: inventory-service
+            topologyKey: "kubernetes.io/hostname"
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: inventory-service
+              topologyKey: "topology.kubernetes.io/zone"
+      
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      containers:
+      - name: inventory-service
+        image: werayco/inventory-service:latest
+        imagePullPolicy: Always
+        
+        ports:
+        - containerPort: 9001
+          protocol: TCP
+          name: http
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka-broker:9092"
+        - name: EMAIL_FROM
+          value: "wera**o@gmail.com"
+        - name: SMTP_HOST
+          value: "smtp.gmail.com"
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: email-credentials
+              key: smtp-username
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: email-credentials
+              key: smtp-password
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 9001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 30
+        
+        # Readiness probe - checks if pod is ready to receive traffic
+        readinessProbe:
+          httpGet:
+            path: /health/readiness
+            port: 9001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        # Liveness probe - checks if pod is still alive
+        livenessProbe:
+          httpGet:
+            path: /health/liveness
+            port: 9001
+          initialDelaySeconds: 15
+          periodSeconds: 20
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: logs
+          mountPath: /var/log/app
+      
+      volumes:
+      - name: tmp
+        emptyDir:
+          sizeLimit: 100Mi
+          medium: Memory
+      - name: logs
+        emptyDir:
+          sizeLimit: 200Mi
+      
+      tolerations:
+      - key: "critical-pod"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+  namespace: default
+  labels:
+    app: inventory-service
+    tier: backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9001
+    targetPort: 9001
+    protocol: TCP
+    name: http
+  selector:
+    app: inventory-service
