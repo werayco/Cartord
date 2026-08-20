@@ -8,7 +8,7 @@ metadata:
     tier: database
 spec:
   serviceName: postgres-headless
-  replicas: 1  # Usually 1 primary with read replicas
+  replicas: 1
   selector:
     matchLabels:
       app: postgres
@@ -18,7 +18,6 @@ spec:
         app: postgres
         tier: database
     spec:
-      # Anti-node affinity
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -29,7 +28,6 @@ spec:
                   app: postgres
               topologyKey: "kubernetes.io/hostname"
       
-      # Security context
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -48,10 +46,9 @@ spec:
           protocol: TCP
           name: postgres
         
-        # Security context for the container
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: false  # PostgreSQL needs to write to /var/lib/postgresql
+          readOnlyRootFilesystem: false
           capabilities:
             drop:
             - ALL
@@ -61,28 +58,9 @@ spec:
             - SETGID
             - SETUID
             - FOWNER
-        
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: postgres-credentials
-              key: username
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-credentials
-              key: password
-        - name: POSTGRES_DB
-          valueFrom:
-            secretKeyRef:
-              name: postgres-credentials
-              key: database
-        - name: POSTGRES_INITDB_ARGS
-          value: "--data-checksums"
-        - name: PGDATA
-          value: /var/lib/postgresql/data/pgdata
-        
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
         resources:
           requests:
             memory: "512Mi"

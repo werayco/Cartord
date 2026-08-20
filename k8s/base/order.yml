@@ -6,6 +6,7 @@ metadata:
   labels:
     app: order-service
     tier: backend
+
 spec:
   replicas: 3
   selector:
@@ -56,27 +57,11 @@ spec:
           capabilities:
             drop:
             - ALL
-        
-        env:
-        - name: KAFKA_BOOTSTRAP_SERVERS
-          value: "kafka-broker:9092"
-        - name: EMAIL_FROM
-          value: "wera**o@gmail.com"
-        - name: SMTP_HOST
-          value: "smtp.gmail.com"
-        - name: SMTP_PORT
-          value: "587"
-        - name: SMTP_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: email-credentials
-              key: smtp-username
-        - name: SMTP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: email-credentials
-              key: smtp-password
-        
+                 
+        envFrom:
+          - secretRef:
+              name: cartord-secrets
+
         resources:
           requests:
             memory: "256Mi"

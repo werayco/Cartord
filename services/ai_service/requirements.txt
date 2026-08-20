@@ -13,3 +13,5 @@ sentry-sdk[fastapi]==2.14.0
 aiobreaker
 opentelemetry-instrumentation-confluent-kafka
 opentelemetry-instrumentation-redis
+## AI libraries
+langgraph-checkpoint-postgres

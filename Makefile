@@ -1,6 +1,6 @@
 .PHONY: build-all build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
 
-IMAGE_REPO ?= ordering-system
+IMAGE_REPO ?= werayco
 TOPIC ?= inventory
 PARTITIONS ?= 3
 REPLICATION ?= 1
@@ -25,24 +25,32 @@ kf:
 	docker logs -f cartord-kf
 
 build-auth-service:
-	docker build -t $(IMAGE_REPO)-auth-service:latest ./services/auth-service
+	docker build -t $(IMAGE_REPO)/auth-service:latest ./services/auth_service
 
 build-inventory-service:
-	docker build -t $(IMAGE_REPO)-inventory-service:latest ./services/inventory-service
+	docker build -t $(IMAGE_REPO)/inventory-service:latest ./services/inventory_service
 
 build-notification-service:
-	docker build -t $(IMAGE_REPO)-notification-service:latest ./services/notification-service
+	docker build -t $(IMAGE_REPO)/notification-service:latest ./services/notification_service
 
 build-order-service:
-	docker build -t $(IMAGE_REPO)-order-service:latest ./services/order-service
+	docker build -t $(IMAGE_REPO)/order-service:latest ./services/order_service
 
 build-search-service:
-	docker build -t $(IMAGE_REPO)-search-service:latest ./services/search-service
+	docker build -t $(IMAGE_REPO)/search-service:latest ./services/search_service
 
-build-user-service:
-	docker build -t $(IMAGE_REPO)-user-service:latest ./services/user-service
+build-payment-service:
+	docker build -t $(IMAGE_REPO)/user-service:latest ./services/payment_service
 
-build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
+build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service build-payment-service
+
+push-all:
+	docker push $(IMAGE_REPO)/auth-service:latest
+	docker push $(IMAGE_REPO)/inventory-service:latest
+	docker push $(IMAGE_REPO)/notification-service:latest
+	docker push $(IMAGE_REPO)/order-service:latest
+	docker push $(IMAGE_REPO)/search-service:latest
+	docker push $(IMAGE_REPO)/user-service:latest
 
 init:
 	python -m shared.init_scripts.debezium_setup

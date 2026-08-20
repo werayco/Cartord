@@ -42,7 +42,7 @@ spec:
       
       containers:
       - name: notification-service
-        image: your-registry/notification-service:latest
+        image: werayco/notification-service:latest
         imagePullPolicy: Always
         
         ports:
@@ -57,26 +57,10 @@ spec:
             drop:
             - ALL
         
-        env:
-        - name: KAFKA_BOOTSTRAP_SERVERS
-          value: "kafka-broker:9092"
-        - name: EMAIL_FROM
-          value: "wera**o@gmail.com"
-        - name: SMTP_HOST
-          value: "smtp.gmail.com"
-        - name: SMTP_PORT
-          value: "587"
-        - name: SMTP_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: email-credentials
-              key: smtp-username
-        - name: SMTP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: email-credentials
-              key: smtp-password
-        
+        envFrom:
+          - secretRef:
+              name: cartord-secrets
+
         resources:
           requests:
             memory: "256Mi"
@@ -95,7 +79,6 @@ spec:
           successThreshold: 1
           failureThreshold: 30
         
-        # Readiness probe - checks if pod is ready to receive traffic
         readinessProbe:
           httpGet:
             path: /health/readiness
@@ -106,7 +89,6 @@ spec:
           successThreshold: 1
           failureThreshold: 3
         
-        # Liveness probe - checks if pod is still alive
         livenessProbe:
           httpGet:
             path: /health/liveness

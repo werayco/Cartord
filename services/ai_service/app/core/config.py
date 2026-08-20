@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str
+
+    AI_DATABASE_URL: str
     
     class Config:
         env_file = ".env"
