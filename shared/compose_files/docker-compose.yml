@@ -19,7 +19,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "for db in auth_db inventory_db order_db payment_db notification_db search_db glitchtip; do pg_isready -U rayco -d $$db || exit 1; done",
+          "for db in auth_db inventory_db order_db payment_db notification_db ai_db search_db glitchtip; do pg_isready -U rayco -d $$db || exit 1; done",
         ]
       interval: 10s
       timeout: 5s

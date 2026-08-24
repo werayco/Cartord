@@ -27,3 +27,4 @@ sqlalchemy==2.0.35
 tenacity==9.0.0
 uuid6
 uvicorn[standard]==0.30.6
+pgvector

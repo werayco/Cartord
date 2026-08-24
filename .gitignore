@@ -1,2 +1,3 @@
 shared/compose_files/.env
 .vscode
+services/ai_service/.cache/

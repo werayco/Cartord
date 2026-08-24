@@ -5,5 +5,9 @@ CREATE DATABASE payment_db;
 CREATE DATABASE notification_db;
 CREATE DATABASE search_db;
 CREATE DATABASE glitchtip;
+CREATE DATABASE ai_db;
 
 ALTER ROLE rayco WITH REPLICATION;
+
+\c ai_db
+CREATE EXTENSION IF NOT EXISTS vector;

@@ -23,6 +23,8 @@ db:
 	docker logs -f cartord-pg
 kf:
 	docker logs -f cartord-kf
+ai:
+	docker logs -f ai_service
 
 build-auth-service:
 	docker build -t $(IMAGE_REPO)/auth-service:latest ./services/auth_service
