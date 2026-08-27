@@ -4,6 +4,7 @@ from app.db.session import engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 from app.routers.document import router as document_router
+from app.routers.websocket_router import router as chat_router
 from app.services.telemetry import setup_telemetry
 
 f = Figlet(font='slant')
@@ -30,3 +31,4 @@ async def root():
     return {"message": "Welcome to the AI Service", "version": "1.0.0"}
 
 app.include_router(document_router)
+app.include_router(chat_router)

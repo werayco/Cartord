@@ -21,131 +21,131 @@ services:
     networks:
       - mynet
 
-  # auth_service:
-  #   build:
-  #     context: ../../services/auth_service
-  #     dockerfile: Dockerfile
-  #   container_name: auth_service
-  #   ports:
-  #     - "9001:9001"
-  #   volumes:
-  #     - "../../services/auth_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9001", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9001/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  auth_service:
+    build:
+      context: ../../services/auth_service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "9001:9001"
+    volumes:
+      - "../../services/auth_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9001", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9001/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
-  # inventory_service:
-  #   build:
-  #     context: ../../services/inventory_service
-  #     dockerfile: Dockerfile
-  #   container_name: inventory_service
-  #   ports:
-  #     - "9002:9002"
-  #   volumes:
-  #     - "../../services/inventory_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9002/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  inventory_service:
+    build:
+      context: ../../services/inventory_service
+      dockerfile: Dockerfile
+    container_name: inventory_service
+    ports:
+      - "9002:9002"
+    volumes:
+      - "../../services/inventory_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9002/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
-  # notification_service:
-  #   build:
-  #     context: ../../services/notification_service
-  #     dockerfile: Dockerfile
-  #   container_name: notification_service
-  #   ports:
-  #     - "9003:9003"
-  #   volumes:
-  #     - "../../services/notification_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9003/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  notification_service:
+    build:
+      context: ../../services/notification_service
+      dockerfile: Dockerfile
+    container_name: notification_service
+    ports:
+      - "9003:9003"
+    volumes:
+      - "../../services/notification_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9003/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
-  # order_service:
-  #   build:
-  #     context: ../../services/order_service
-  #     dockerfile: Dockerfile
-  #   container_name: order_service
-  #   ports:
-  #     - "9004:9004"
-  #   volumes:
-  #     - "../../services/order_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9004/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  order_service:
+    build:
+      context: ../../services/order_service
+      dockerfile: Dockerfile
+    container_name: order_service
+    ports:
+      - "9004:9004"
+    volumes:
+      - "../../services/order_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9004/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
-  # payment_service:
-  #   build:
-  #     context: ../../services/payment_service
-  #     dockerfile: Dockerfile
-  #   container_name: payment_service
-  #   ports:
-  #     - "9005:9005"
-  #   volumes:
-  #     - "../../services/payment_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  payment_service:
+    build:
+      context: ../../services/payment_service
+      dockerfile: Dockerfile
+    container_name: payment_service
+    ports:
+      - "9005:9005"
+    volumes:
+      - "../../services/payment_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
-  # search_service:
-  #   build:
-  #     context: ../../services/search_service
-  #     dockerfile: Dockerfile
-  #   container_name: search_service
-  #   ports:
-  #     - "9007:9007"
-  #   volumes:
-  #     - "../../services/search_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9007/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  search_service:
+    build:
+      context: ../../services/search_service
+      dockerfile: Dockerfile
+    container_name: search_service
+    ports:
+      - "9007:9007"
+    volumes:
+      - "../../services/search_service:/app/"
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9007/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
 networks:
   mynet:
