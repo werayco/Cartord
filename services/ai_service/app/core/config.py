@@ -14,7 +14,12 @@ class Settings(BaseSettings):
 
     AI_DATABASE_URL: str
 
-    EMBEDDING_MODEL: str = "Qwen/Qwen3-Embedding-0.6B"
+    LOCAL_EMBEDDING_MODEL: str = "Qwen/Qwen3-Embedding-0.6B"
+
+    USE_LOCAL_EMBEDDING_MODEL: bool = True
+
+    GEMINI_API_KEY: str = ""
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     CHUNK_OVERLAP: int = 50
     CHUNK_SIZE: int = 500

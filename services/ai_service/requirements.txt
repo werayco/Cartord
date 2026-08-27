@@ -30,6 +30,7 @@ langchain
 langgraph
 pgvector
 python-multipart
+google-genai
 
 pypdf
 python-docx

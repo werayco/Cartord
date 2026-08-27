@@ -39,7 +39,7 @@ class RAGPipeline:
             raise
 
         logger.debug("Creating Document database records")
-        documents = [Document(content=chunk, embedding=embedding.tolist()) for chunk, embedding in zip(chunks, embeddings)]
+        documents = [Document(content=chunk, embedding=list(embedding)) for chunk, embedding in zip(chunks, embeddings)]
         logger.debug(f"Created {len(documents)} Document objects")
 
         logger.info(f"Saving {len(documents)} document chunks to database")

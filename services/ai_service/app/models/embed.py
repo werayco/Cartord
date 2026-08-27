@@ -10,4 +10,4 @@ class Document(Base):
 
     id: Mapped[UUID] = mapped_column(Uuid,primary_key=True,default=uuid7)
     content: Mapped[str] = mapped_column(Text)
-    embedding: Mapped[list[float]] = mapped_column(VECTOR(1536))
+    embedding: Mapped[list[float]] = mapped_column(VECTOR(3072))
