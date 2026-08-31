@@ -39,6 +39,7 @@ jobs:
           - payment
           - search
           - notification
+          - ai
 
     steps:
       - name: Checkout
@@ -60,5 +61,5 @@ jobs:
           file: ./services/${{ matrix.service }}/Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}-service:${{ github.sha }}
