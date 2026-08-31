@@ -1,2 +1,2 @@
-from app.models.employee import Employee
-from app.models.customer import Customer
+from app.models.buyer import Buyer
+from app.models.seller import Seller

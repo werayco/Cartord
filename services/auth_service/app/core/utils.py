@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
-from app.models.customer import Customer
+from app.models.seller import Seller
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt, JWTError

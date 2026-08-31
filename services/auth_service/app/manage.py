@@ -3,7 +3,7 @@ import argparse
 from sqlalchemy import select, or_
 from sqlalchemy.exc import IntegrityError
 from app.db.session import AsyncSessionLocal
-from app.models import Employee
+from app.models import Seller
 from app.core.utils import hash_password
 from app.core.schemas import Roles
 
@@ -20,7 +20,7 @@ def parse_args():
 async def update_admin(email: str, password: str | None, name: str | None, username: str | None):
     async with AsyncSessionLocal() as db:
         result = await db.execute(
-            select(Employee).where(Employee.email == email, Employee.role == Roles.ADMIN.value)
+            select(Seller).where(Seller.email == email, Seller.role == Roles.ADMIN.value)
         )
         admin = result.scalars().first()
         if not admin:
@@ -29,7 +29,7 @@ async def update_admin(email: str, password: str | None, name: str | None, usern
 
         if username and username != admin.username:
             existing = await db.execute(
-                select(Employee).where(Employee.username == username, Employee.id != admin.id)
+                select(Seller).where(Seller.username == username, Seller.id != admin.id)
             )
             if existing.scalars().first():
                 print(f"Username '{username}' is already taken")

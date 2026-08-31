@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.session import engine, Base
-from app.controllers.employee_controller import EmployeeController
+from app.controllers.seller_controller import SellerController
 from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 import redis
 from app.db.redis_client import redis_client
 from app.services.telemetry import setup_telemetry
-from app.routers import employee_router, user_router
+from app.routers import seller_router, buyer_router
 
 f = Figlet(font='slant')
 
@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    response = await EmployeeController.run()
+    response = await SellerController.run()
     print(response)
     
     yield
@@ -45,5 +45,5 @@ async def root():
     }
 
 
-app.include_router(employee_router)
-app.include_router(user_router)
+app.include_router(seller_router)
+app.include_router(buyer_router)

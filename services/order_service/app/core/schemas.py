@@ -1,7 +1,6 @@
 from pydantic import BaseModel
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel
 from enum import Enum
-from typing import Union
 
 class OrderPayload(BaseModel):
     sku: str
@@ -9,8 +8,7 @@ class OrderPayload(BaseModel):
 
 class Roles(Enum):
     ADMIN = "admin"
-    CUSTOMER = "customer"
-    EMPLOYEE = "employee"
+    SELLER = "seller"
 
 class OrderStatus(Enum):
     PENDING = "pending"

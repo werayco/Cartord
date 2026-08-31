@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
-    
+
     REDIS_HOST: str
     REDIS_PORT: int
 
@@ -25,7 +25,9 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
 
     AUTH_BASE_URL: str = "http://auth_service:9001"
-    
+    ORDER_BASE_URL: str = "http://order_service:9004"
+    INVENTORY_BASE_URL: str = "http://inventory_service:9002"
+
     class Config:
         env_file = ".env"
 

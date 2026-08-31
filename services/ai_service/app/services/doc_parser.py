@@ -3,7 +3,6 @@ from fastapi import UploadFile
 from pypdf import PdfReader
 from docx import Document
 
-
 async def extract_text(file: UploadFile) -> str:
     content = await file.read()
 

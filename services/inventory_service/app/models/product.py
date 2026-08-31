@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, Integer, Numeric, DateTime, Boolean
+from uuid import UUID
+from sqlalchemy import String, Integer, Numeric, DateTime, Boolean, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
@@ -15,6 +16,8 @@ class Inventory(Base):
     sku: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     available_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     reserved_quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+    seller_id: Mapped[Optional[UUID]] = mapped_column(Uuid, nullable=True, index=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

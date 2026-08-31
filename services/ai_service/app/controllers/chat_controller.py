@@ -1,4 +1,5 @@
 import uuid
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.conversation import Conversation
 from app.models.message import Message
@@ -21,37 +22,52 @@ class ChatController:
             if conversation_id:
                 conversation_id = uuid.UUID(conversation_id)
 
-            if conversation_id is None:
+                result = await db.execute(
+                    select(Conversation).where(Conversation.id == conversation_id)
+                )
+                conversation = result.scalar_one_or_none()
+
+                if conversation is None:
+                    await websocket.send_json({
+                        "type": "error",
+                        "error": "Conversation not found",
+                    })
+                    return
+
+                if conversation.user_id != user_id:
+                    logger.warning(
+                        f"User {user_id} attempted to post to conversation {conversation_id} owned by {conversation.user_id}"
+                    )
+                    await websocket.send_json({
+                        "type": "error",
+                        "error": "Conversation not found",
+                    })
+                    return
+            else:
                 conversation = Conversation(user_id=user_id)
                 db.add(conversation)
                 await db.flush()
                 conversation_id = conversation.id
-
-                message = Message(
-                    id=message_id,
-                    conversation_id=conversation_id,
-                    role="user",
-                    content=content
-                )
-                db.add(message)
-
-                event = OutboxEvent(
-                    event_type="message.created",
-                    conversation_id=conversation_id,
-                    payload={
-                        "message_id": str(message_id),
-                        "conversation_id": str(conversation_id),
-                        "user_id": str(user_id),
-                        "content": content,
-                    },
-                )
-                db.add(event)
-
-                await db.commit()
                 logger.info(f"Created new conversation {conversation_id} for user {user_id}")
 
+            message = Message(id=message_id,conversation_id=conversation_id,role="user",content=content)
+            db.add(message)
+            event = OutboxEvent(
+                event_type="message.created",
+                conversation_id=conversation_id,
+                payload={
+                    "message_id": str(message_id),
+                    "conversation_id": str(conversation_id),
+                    "user_id": str(user_id),
+                    "content": content,
+                },
+            )
+            db.add(event)
+
+            await db.commit()
+
             await websocket.send_json({
-                "type": "message_ack",
+                "ack": "200",
                 "message_id": str(message_id),
                 "conversation_id": str(conversation_id),
             })

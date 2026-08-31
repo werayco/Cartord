@@ -80,7 +80,8 @@ services-all:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build -d
 rebuild:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build $(SERVICE_NAME) -d
-recreate-services:
+recreate:
+	docker-compose -f shared/compose_files/docker-compose.yml up --force-recreate -d
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --force-recreate -d
 
 stop:
