@@ -51,12 +51,12 @@ build-search-service:
 	docker build -t $(IMAGE_REPO)/search-service:latest ./services/search_service
 
 build-payment-service:
-	docker build -t $(IMAGE_REPO)/user-service:latest ./services/payment_service
+	docker build -t $(IMAGE_REPO)/payment-service:latest ./services/payment_service
 
 build-ai-service:
 	docker build -t $(IMAGE_REPO)/ai-service:latest ./services/ai_service
 
-build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service build-payment-service
+build-all: build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-payment-service build-ai-service
 
 push-all:
 	docker push $(IMAGE_REPO)/auth-service:latest
@@ -66,7 +66,6 @@ push-all:
 	docker push $(IMAGE_REPO)/search-service:latest
 	docker push $(IMAGE_REPO)/ai-service:latest
 	docker push $(IMAGE_REPO)/payment-service:latest
-
 init:
 	python -m shared.init_scripts.debezium_setup
 	python -m shared.init_scripts.seed
