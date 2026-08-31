@@ -6,7 +6,7 @@ from app.models import Inventory, OutboxEvent
 from app.core import (settings, to_json_safe, logger)
 import secrets
 
-ALLOW_ROLES = (Roles.ADMIN.value, Roles.INVENTORY_MANAGER.value)
+ALLOW_ROLES = (Roles.ADMIN.value, Roles.SELLER.value)
 
 class InventoryCRUD:
     @staticmethod
@@ -16,10 +16,11 @@ class InventoryCRUD:
 
         try:
             payload = inventory.model_dump()
+            payload["seller_id"] = current_user.get("id")
             record = Inventory(**payload)
 
             db.add(record)
-            await db.flush()  # assigns record.id without committing yet
+            await db.flush()
 
             payload["id"] = record.id
             db.add(OutboxEvent(event_type="inventory.created", aggregate_id=str(record.id), payload=payload))
@@ -39,6 +40,8 @@ class InventoryCRUD:
 
         try:
             payloads: list = inventory.model_dump()
+            for item in payloads:
+                item["seller_id"] = current_user.get("id")
             records = [Inventory(**item) for item in payloads]
 
             db.add_all(records)

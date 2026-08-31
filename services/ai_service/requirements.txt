@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 pydantic==2.9.2
@@ -6,10 +7,30 @@ sqlalchemy==2.0.35
 asyncpg==0.29.0
 alembic==1.13.2
 confluent-kafka==2.5.3
+pyfiglet
+sentry-sdk[fastapi]==2.14.0
+aiobreaker
+uuid6
+redis==5.0.8
+aiohttp
 opentelemetry-api==1.27.0
 opentelemetry-sdk==1.27.0
 opentelemetry-instrumentation-fastapi==0.48b0
-sentry-sdk[fastapi]==2.14.0
-aiobreaker
 opentelemetry-instrumentation-confluent-kafka
 opentelemetry-instrumentation-redis
+opentelemetry-instrumentation-aiohttp-client
+opentelemetry-exporter-otlp-proto-grpc
+opentelemetry-instrumentation-sqlalchemy
+
+## AI libraries
+langgraph-checkpoint-postgres
+sentence-transformers
+langchain-text-splitters
+langchain
+langgraph
+pgvector
+python-multipart
+google-genai
+
+pypdf
+python-docx

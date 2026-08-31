@@ -60,6 +60,14 @@ connector_config_payment = outbox_connector(
     topic="payment",
 )
 
+connector_config_chat = outbox_connector(
+    name="chat-outbox-connector",
+    db_name="chat_db",
+    table_name="outbox_events",
+    slot_name="chat_outbox_slot",
+    topic="chat",
+)
+
 def register_connector(connector_config):
     name = connector_config["name"]
     config = connector_config["config"]
@@ -82,4 +90,4 @@ if __name__ == "__main__":
     register_connector(connector_config_order)
     register_connector(connector_config_inventory)
     register_connector(connector_config_payment)
-    # register_connector(connector_config_payment)
+    register_connector(connector_config_chat)

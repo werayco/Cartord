@@ -30,15 +30,13 @@ class AccessTokenResponse(BaseModel):
 
 class Roles(Enum):
     ADMIN = "admin"
-    CUSTOMER = "customer"
-    EMPLOYEE = "employee"
-    INVENTORY_MANAGER = "inventory_manager"
+    SELLER = "seller"
 
-class RegisterEmployee(BaseModel):
+class RegisterSeller(BaseModel):
     email: str
     name: str
-    role: Roles = "employee"
     password: str
+    username: str
 
 class RegisterAdmin(BaseModel):
     email: str
@@ -46,24 +44,19 @@ class RegisterAdmin(BaseModel):
     password: str
     username: str
 
-class EmployeeOut(BaseModel):
+class SellerOut(BaseModel):
+    id: UUID
     email: str
     name: str
     username: str
     role: str
     model_config = {"from_attributes": True}
-
-class RegisterEmployee(BaseModel):
-    email: str
-    name: str
-    password: str
-    username: str
-
+    
 class DeleteUser(BaseModel):
     username: str
     password: str
 
-class CustomerOut(BaseModel):
+class BuyerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     email: str

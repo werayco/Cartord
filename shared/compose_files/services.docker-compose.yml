@@ -1,24 +1,25 @@
 services:
-  # ai_service:
-  #   build:
-  #     context: ../../services/ai_service
-  #     dockerfile: Dockerfile
-  #   container_name: ai_service
-  #   ports:
-  #     - "9000:9000"
-  #   volumes:
-  #     - "../../services/ai_service:/app/"
-  #   env_file:
-  #     - ./.env
-  #   command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "curl -f http://localhost:9000/api/v1/health || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   networks:
-  #     - mynet
+  ai_service:
+    build:
+      context: ../../services/ai_service
+      dockerfile: Dockerfile
+    container_name: ai_service
+    ports:
+      - "9000:9000"
+    volumes:
+      - "../../services/ai_service:/app/"
+      - hf_cache:/home/appuser/.cache/huggingface
+    env_file:
+      - ./.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynet
 
   auth_service:
     build:
@@ -124,6 +125,7 @@ services:
       retries: 5
     networks:
       - mynet
+
   search_service:
     build:
       context: ../../services/search_service
@@ -148,3 +150,6 @@ services:
 networks:
   mynet:
     external: true
+
+volumes:
+  hf_cache:

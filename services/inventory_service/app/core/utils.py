@@ -17,7 +17,7 @@ def to_json_safe(data: dict) -> dict:
     return json.loads(json.dumps(data, default=str))
 
 async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/employee/me"
+    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/seller/me"
     headers = {"Authorization": f"Bearer {access_token.credentials}"}
     try:
         async with aiohttp.ClientSession() as session:

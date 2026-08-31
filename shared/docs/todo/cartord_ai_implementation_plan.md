@@ -143,15 +143,13 @@ A client can open a socket, send a message, get an immediate ack with a `convers
 Turn the AI worker from Phase 0 into an actual tool-calling agent, with authentication, authorization, and a registry of typed tools it's allowed to call — instead of a bare LLM wrapper.
 
 ## Deliverables
-
-- [ ] AI gateway layer sitting in front of the LLM call inside the AI worker
-- [ ] Authentication context threaded through from the WebSocket connection into every tool call (the LLM never gets to decide who a user is)
-- [ ] Tool registry: strongly typed tool definitions, each mapped to a real Cartord service call
-- [ ] Per-tool authorization checks (ownership, role, order state) enforced in the tool implementation, never inferred by the LLM
-- [ ] Conversation state management (message history windowing/summarization as conversations grow long)
-- [ ] Structured tool response contracts (the LLM explains structured data, it doesn't invent it)
-- [ ] Confirmation step for any destructive tool call (cancel, create, refund, modify)
-
+- [ ] AI gateway layer sitting in front of the LLM call inside the AI worker.
+- [ ] Authentication context threaded through from the WebSocket connection into every tool call (the LLM never gets to decide who a user is).
+- [ ] Tool registry: strongly typed tool definitions, each mapped to a real Cartord service call.
+- [ ] Per-tool authorization checks (ownership, role, order state) enforced in the tool implementation, never inferred by the LLM.
+- [ ] Conversation state management (message history windowing/summarization as conversations grow long).
+- [ ] Structured tool response contracts (the LLM explains structured data, it doesn't invent it).
+- [ ] Confirmation step for any destructive tool call (cancel, create, refund, modify).
 ## Guardrails carried over from the roadmap
 
 ```text
@@ -179,7 +177,6 @@ LLM  --->  Raw SQL  --->  Production DB
 The LLM calls tools. The tools enforce the rules. This applies to every phase from here on.
 
 ## Exit criteria
-
 The AI worker can call at least one real tool end-to-end (e.g. `faq()` against a knowledge base) with full auth context, and refuses to call any tool the authenticated user isn't allowed to invoke.
 
 ---

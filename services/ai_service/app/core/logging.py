@@ -1,14 +1,6 @@
 import logging
 
 def get_custom_logger(name: str, level: int = logging.INFO) -> logging.Logger:
-    """    
-    Log levels integer mapping reference:
-    - logging.DEBUG = 10
-    - logging.INFO = 20
-    - logging.WARNING = 30
-    - logging.ERROR = 40
-    - logging.CRITICAL = 50
-    """
     logger = logging.getLogger(name)
     logger.setLevel(level)
     

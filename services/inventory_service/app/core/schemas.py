@@ -19,10 +19,7 @@ class InventoryDeleteSchema(BaseModel):
 
 class Roles(Enum):
     ADMIN = "admin"
-    CUSTOMER = "customer"
-    EMPLOYEE = "employee"
-    INVENTORY_MANAGER = "inventory_manager"
-
+    SELLER = "seller"
 
 class InventoryReserve(BaseModel):
     sku: Union[str,None]
