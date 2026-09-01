@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.session import engine, Base
@@ -6,6 +7,7 @@ from pyfiglet import Figlet
 from app.routers.document import router as document_router
 from app.routers.websocket_router import router as chat_router
 from app.services.telemetry import setup_telemetry
+from app.kafka.consumer import kafka_manager
 
 f = Figlet(font='slant')
 
@@ -14,7 +16,14 @@ async def lifespan(app: FastAPI):
     print(f.renderText('AI Service'))
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    consumer_task = asyncio.create_task(kafka_manager.consume())
     yield
+    kafka_manager.stop()
+    consumer_task.cancel()
+    try:
+        await consumer_task
+    except asyncio.CancelledError:
+        pass
 
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app, engine)

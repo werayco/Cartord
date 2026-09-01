@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     REDIS_HOST: str
     REDIS_PORT: int
 
+    KAFKA_BOOTSTRAP_SERVERS: str
+
     SECRET_KEY: str
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str
