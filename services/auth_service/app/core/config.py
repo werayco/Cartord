@@ -3,11 +3,11 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     AUTH_DATABASE_URL: str
-
     REDIS_HOST: str
     REDIS_PORT: int
 
-    SECRET_KEY: str
+    JWT_PRIVATE_KEY: str
+    JWT_PUBLIC_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
 

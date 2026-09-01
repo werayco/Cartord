@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
-from app.core.config import settings
+from jose import jwt, JWTError
 import json
 from app.core.schemas import Roles
 import redis
@@ -16,17 +16,16 @@ bearer_scheme = HTTPBearer()
 def to_json_safe(data: dict) -> dict:
     return json.loads(json.dumps(data, default=str))
 
-async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/seller/me"
-    headers = {"Authorization": f"Bearer {access_token.credentials}"}
+async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
+    credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                response.raise_for_status()
-                return await response.json()
-    except aiohttp.ClientResponseError as e:
-        raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
-
+        payload = jwt.decode(token.credentials, settings.JWT_PUBLIC_KEY, algorithms=["RS256"])
+        if payload.get("type") != "access":
+            raise credentials_exception
+        return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
+    except (JWTError, KeyError):
+        raise credentials_exception
+    
 def seralize_to_json(data):
     try:
         return json.dumps(data).encode("utf-8")

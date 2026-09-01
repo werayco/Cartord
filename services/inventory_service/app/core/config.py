@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     INVENTORY_DATABASE_URL: str
-    SECRET_KEY: str
+    JWT_PUBLIC_KEY: str
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str
     SERVICE_SHARED_KEY: str

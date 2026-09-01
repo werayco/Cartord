@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     AUTH_BASE_URL: str = "http://auth_service:9001"
     INVENTORY_BASE_URL: str = "http://inventory_service:9002/api/v1"
 
-    SECRET_KEY: str
+    JWT_PUBLIC_KEY: str
     SERVICE_SHARED_KEY: str
 
     REDIS_HOST: str

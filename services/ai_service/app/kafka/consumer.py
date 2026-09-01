@@ -15,8 +15,7 @@ from app.db.redis_client import redis_client
 from app.models.message import Message
 from app.nodes.entry_point import node_registry
 from app.services.socket_registry import conversation_channel
-
-logger = logging.getLogger(__name__)
+from app.core.logging import logger
 
 IDEMPOTENCY_TTL_SECONDS = 60 * 60
 

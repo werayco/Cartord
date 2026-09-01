@@ -7,7 +7,6 @@ from app.nodes.intent_classifier import Agent
 from app.nodes.tool_node import tool_node
 
 async def node_registry():
-    "Register the nodes here"
     graph_builder = StateGraph(AgentState)
 
     graph_builder.add_node("agent", Agent)

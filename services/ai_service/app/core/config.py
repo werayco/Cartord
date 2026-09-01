@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     KAFKA_BOOTSTRAP_SERVERS: str
 
-    SECRET_KEY: str
+    JWT_PUBLIC_KEY: str
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str
 

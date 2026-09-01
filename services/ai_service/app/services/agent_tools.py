@@ -5,10 +5,12 @@ from langchain_core.tools import tool
 from langgraph.prebuilt import InjectedState
 from app.core.config import settings
 from app.core.logging import logger
+from app.db.session import AsyncSessionLocal
 from app.services.agent_state import AgentState
+from app.services.rag_pipeline import RAGPipeline
 
 
-async def _call_service(method: str,url: str,access_token: str,json: Optional[dict] = None,params: Optional[dict] = None) -> dict:
+async def call_service(method: str, url: str, access_token: str, json: Optional[dict] = None, params: Optional[dict] = None) -> dict:
     headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
     try:
         async with aiohttp.ClientSession() as session:
@@ -31,97 +33,96 @@ def _require_admin(state: AgentState) -> Optional[dict]:
 # NOTE: Customer Tools
 
 @tool
-async def make_order(product_id: str,quantity: int,state: Annotated[AgentState, InjectedState],delivery_address_id: Optional[str] = None,) -> dict:
+async def make_order(product_id: str, quantity: int, state: Annotated[AgentState, InjectedState], delivery_address_id: Optional[str] = None) -> dict:
     idempotency_key = str(uuid4())
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/place/{idempotency_key}"
     payload = {"sku": product_id, "quantity": quantity}
     if delivery_address_id:
-        payload["delivery_address_id"] = delivery_address_id ## update this
-    return await _call_service("POST", url, state["access_token"], json=payload)
-
+        payload["delivery_address_id"] = delivery_address_id  ## still needs order_service to accept this field
+    return await call_service("POST", url, state["access_token"], json=payload)
 
 @tool
 async def reorder(order_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
     idempotency_key = str(uuid4())
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/reorder/{idempotency_key}"
-    return await _call_service("POST", url, state["access_token"])
-
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/reorder/{idempotency_key}" ## endpoint doesn't exist yet
+    return await call_service("POST", url, state["access_token"])
 
 @tool
 async def change_delivery_address(order_id: str, address_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address"
-    return await _call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address" ## endpoint doesn't exist yet
+    return await call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
 
 @tool
 async def change_order_quantity(order_id: str, item_id: str, quantity: int, state: Annotated[AgentState, InjectedState]) -> dict:
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/items/{item_id}"
-    return await _call_service("PATCH", url, state["access_token"], json={"quantity": quantity})
+    return await call_service("PATCH", url, state["access_token"], json={"quantity": quantity})
 
 @tool
 async def get_order_analytics(state: Annotated[AgentState, InjectedState]) -> dict:
     """Get the signed-in customer's own order analytics: order count, total spend, most-ordered products."""
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/analytics"
-    return await _call_service("GET", url, state["access_token"])
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/analytics" ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"])
+
+@tool
+async def get_faq_response(question: str) -> dict:
+    """Answer a general store/product FAQ question using the store's knowledge base."""
+    async with AsyncSessionLocal() as db:
+        documents = await RAGPipeline.retrieve_documents(question, db)
+        return {"document_text": [doc.content for doc in documents]}
 
 # NOTE: Admin Tools
 
 @tool
 async def get_user_count(state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get the total number of registered users (admin only)."""
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/users/count" ## change this url
-    return await _call_service("GET", url, state["access_token"])
-
+    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/users/count"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"])
 
 @tool
 async def get_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/statistics"
-    return await _call_service("GET", url, state["access_token"], params={"period": period})
-
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/statistics"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"], params={"period": period})
 
 @tool
 async def get_customer_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/customers/statistics" ## create this endpoint
-    return await _call_service("GET", url, state["access_token"], params={"period": period})
+    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/customers/statistics"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"], params={"period": period})
 
 @tool
 async def get_low_stock_products(state: Annotated[AgentState, InjectedState]) -> dict:
     """List products whose stock has fallen below the low-stock threshold (admin only)."""
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/low-stock"
-    return await _call_service("GET", url, state["access_token"])
-
+    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/low-stock"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"])
 
 @tool
 async def get_out_of_stock_products(state: Annotated[AgentState, InjectedState]) -> dict:
     """List products that are completely out of stock (admin only)."""
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/out-of-stock"
-    return await _call_service("GET", url, state["access_token"])
-
+    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/out-of-stock"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"])
 
 @tool
 async def get_inventory_summary(state: Annotated[AgentState, InjectedState]) -> dict:
     """Get a store-wide inventory summary: total SKUs, total units, total inventory value (admin only)."""
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/summary"
-    return await _call_service("GET", url, state["access_token"])
-
+    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/summary"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"])
 
 @tool
 async def get_failed_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
     if denial := _require_admin(state):
         return denial
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/failed-statistics"
-    return await _call_service("GET", url, state["access_token"], params={"period": period})
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/failed-statistics"  ## endpoint doesn't exist yet
+    return await call_service("GET", url, state["access_token"], params={"period": period})
 
 
 CUSTOMER_TOOLS = [
@@ -130,6 +131,7 @@ CUSTOMER_TOOLS = [
     change_delivery_address,
     change_order_quantity,
     get_order_analytics,
+    get_faq_response,
 ]
 
 ADMIN_TOOLS = [

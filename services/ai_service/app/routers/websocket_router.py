@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.db.session import get_db
-from app.core.utils import get_current_buyer, authenticate
+from app.core.utils import get_current_user, authenticate
 from app.controllers.chat_controller import ChatController
 from app.services.socket_registry import ConversationBridge
 
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api/v1")
 async def chat_socket(websocket: WebSocket):
     try:
         access_token = await authenticate(websocket)
-        buyer_cred = await get_current_buyer(websocket)
+        buyer_cred = await get_current_user(websocket)
     except Exception as e:
         logger.error(f"Authentication failed: {e}")
         await websocket.close(code=1008, reason=str(e))
