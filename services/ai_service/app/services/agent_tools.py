@@ -9,7 +9,6 @@ from app.db.session import AsyncSessionLocal
 from app.services.agent_state import AgentState
 from app.services.rag_pipeline import RAGPipeline
 
-
 async def call_service(method: str, url: str, access_token: str, json: Optional[dict] = None, params: Optional[dict] = None) -> dict:
     headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
     try:
@@ -34,6 +33,7 @@ def _require_admin(state: AgentState) -> Optional[dict]:
 
 @tool
 async def make_order(product_id: str, quantity: int, state: Annotated[AgentState, InjectedState], delivery_address_id: Optional[str] = None) -> dict:
+    """Place an order for a product on behalf of the signed-in customer."""
     idempotency_key = str(uuid4())
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/place/{idempotency_key}"
     payload = {"sku": product_id, "quantity": quantity}
@@ -43,17 +43,20 @@ async def make_order(product_id: str, quantity: int, state: Annotated[AgentState
 
 @tool
 async def reorder(order_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Reorder a previous order, identified by its order ID, for the signed-in customer."""
     idempotency_key = str(uuid4())
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/reorder/{idempotency_key}" ## endpoint doesn't exist yet
     return await call_service("POST", url, state["access_token"])
 
 @tool
 async def change_delivery_address(order_id: str, address_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Change the delivery address for an existing order belonging to the signed-in customer."""
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address" ## endpoint doesn't exist yet
     return await call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
 
 @tool
 async def change_order_quantity(order_id: str, item_id: str, quantity: int, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Change the quantity of a specific item within an existing order."""
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/items/{item_id}"
     return await call_service("PATCH", url, state["access_token"], json={"quantity": quantity})
 
@@ -74,6 +77,7 @@ async def get_faq_response(question: str) -> dict:
 
 @tool
 async def get_user_count(state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get the total number of registered users on the platform (admin only)."""
     if denial := _require_admin(state):
         return denial
     url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/users/count"  ## endpoint doesn't exist yet
@@ -81,6 +85,7 @@ async def get_user_count(state: Annotated[AgentState, InjectedState]) -> dict:
 
 @tool
 async def get_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get store-wide order statistics for a given period (admin only)."""
     if denial := _require_admin(state):
         return denial
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/statistics"  ## endpoint doesn't exist yet
@@ -88,6 +93,7 @@ async def get_order_statistics(period: str, state: Annotated[AgentState, Injecte
 
 @tool
 async def get_customer_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get store-wide customer statistics for a given period (admin only)."""
     if denial := _require_admin(state):
         return denial
     url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/customers/statistics"  ## endpoint doesn't exist yet
@@ -119,11 +125,11 @@ async def get_inventory_summary(state: Annotated[AgentState, InjectedState]) -> 
 
 @tool
 async def get_failed_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get statistics on failed orders for a given period (admin only)."""
     if denial := _require_admin(state):
         return denial
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/failed-statistics"  ## endpoint doesn't exist yet
     return await call_service("GET", url, state["access_token"], params={"period": period})
-
 
 CUSTOMER_TOOLS = [
     make_order,

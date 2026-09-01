@@ -68,15 +68,9 @@ async def issue_access_token(user) -> str:
     return _build_token(user, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
 async def get_tokens(user):
-    access = await issue_access_token(user)          # now takes the full user object, not just .id
+    access = await issue_access_token(user)          # pass the whole object, not user.id
     refresh = await issue_refresh_token()
     redis_client.set(f"refresh:{user.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
-    return {"access_token": access, "refresh_token": refresh}
-
-async def get_tokens(user_id):
-    access = await issue_access_token(user_id.id)
-    refresh = await issue_refresh_token()
-    redis_client.set(f"refresh:{user_id.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
     return {"access_token": access, "refresh_token": refresh}
 
 async def issue_refresh_token() -> str:

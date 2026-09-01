@@ -9,14 +9,7 @@ from fastapi import WebSocket
 
 class ChatController:
     @staticmethod
-    async def handle_message(
-        websocket: WebSocket,
-        data: dict,
-        db: AsyncSession,
-        user_id: uuid.UUID,
-        access_token: str | None = None,
-        is_admin: bool = False,
-    ) -> str | None:
+    async def handle_message(websocket: WebSocket,data: dict,db: AsyncSession,user_id: uuid.UUID,access_token: str,is_admin: bool = False,) -> str:
         try:
             conversation_id = data.get("conversation_id")
             message_id = data.get("message_id")
@@ -55,14 +48,13 @@ class ChatController:
                 conversation = Conversation(user_id=user_id)
                 db.add(conversation)
                 await db.flush()
+
                 conversation_id = conversation.id
                 logger.info(f"Created new conversation {conversation_id} for user {user_id}")
 
             message = Message(id=message_id, conversation_id=conversation_id, role="user", content=content)
             db.add(message)
-            event = OutboxEvent(
-                event_type="message.created",
-                conversation_id=conversation_id,
+            event = OutboxEvent(event_type="message.created",conversation_id=conversation_id,
                 payload={
                     "message_id": str(message_id),
                     "conversation_id": str(conversation_id),

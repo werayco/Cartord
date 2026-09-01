@@ -5,8 +5,17 @@ TOPIC ?= inventory
 PARTITIONS ?= 3
 REPLICATION ?= 1
 
+gen:
+	python -c "import secrets; print(secrets.token_urlsafe(64))"
+
+KEYS_DIR := shared/keys
+
 gen-secret:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
+	openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out $(KEYS_DIR)/private_key.pem
+	openssl rsa -pubout -in $(KEYS_DIR)/private_key.pem -out $(KEYS_DIR)/public_key.pem
+	openssl base64 -A -in $(KEYS_DIR)/private_key.pem -out $(KEYS_DIR)/private_key.b64
+	openssl base64 -A -in $(KEYS_DIR)/public_key.pem -out $(KEYS_DIR)/public_key.b64
 
 auth:
 	docker logs -f auth_service
@@ -79,10 +88,11 @@ services-all:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build -d
 rebuild:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build $(SERVICE_NAME) -d
-recreate:
+recreate-all:
 	docker-compose -f shared/compose_files/docker-compose.yml up --force-recreate -d
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --force-recreate -d
-
+recreate:
+	docker-compose -f shared/compose_files/services.docker-compose.yml up $(SERVICE_NAME) --force-recreate -d 
 stop:
 	docker-compose -f shared/compose_files/docker-compose.yml down
 	docker-compose -f shared/compose_files/services.docker-compose.yml down
@@ -96,3 +106,4 @@ git:
 	git push
 %:
 	@:
+

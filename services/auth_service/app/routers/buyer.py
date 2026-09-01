@@ -18,7 +18,7 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 @buyer_router.post("/refresh")
 async def refresh(payload: RefreshRequest, current_user: Buyer = Depends(get_current_user_dep(Buyer))):
-    tokens = await cache_refresh_tokens(current_user.id, payload.refresh_token)
+    tokens = await cache_refresh_tokens(current_user.id, payload.refresh_token, current_user)
     return tokens
 
 @buyer_router.get("/me", response_model=BuyerOut)
