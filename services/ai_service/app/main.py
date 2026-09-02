@@ -8,7 +8,7 @@ from app.routers.document import router as document_router
 from app.routers.websocket_router import router as chat_router
 from app.services.telemetry import setup_telemetry
 from app.kafka.consumer import kafka_manager
-
+from app.core.config import settings
 f = Figlet(font='slant')
 
 @asynccontextmanager
@@ -30,7 +30,7 @@ setup_telemetry(app, engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[settings.ALLOW_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"])

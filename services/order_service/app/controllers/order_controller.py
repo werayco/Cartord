@@ -8,6 +8,9 @@ from app.core.schemas import OrderPayload
 from app.services.idempotency import idempotency
 import aiohttp
 from app.core.utils import update_inventory
+from uuid import UUID
+from app.core.schemas import OrderStatus
+from app.core.logging import logger
 
 class OrderController:
     @staticmethod
@@ -79,5 +82,42 @@ class OrderController:
             raise HTTPException(status_code=500, detail="Failed to create order")
 
     @staticmethod
-    async def cancel_order(payload: OrderPayload, user: dict[str, Any], db: AsyncSession):
-        ...
+    async def confirm_order(payment_event: dict, db: AsyncSession):
+        order_id = payment_event.get("order_id")
+        if not order_id:
+            logger.error(f"Malformed payment event, missing order_id: {payment_event}")
+            return
+
+        order = await db.get(Order, UUID(order_id))
+        if not order:
+            logger.error(f"Received payment.succeeded for unknown order {order_id}")
+            return
+        if order.status != OrderStatus.PENDING:
+            logger.info(f"Order {order_id} already in status {order.status}, skipping")
+            return
+
+        order.status = OrderStatus.CONFIRMED
+        await db.commit()
+
+    @staticmethod
+    async def fail_order(payment_event: dict, db: AsyncSession):
+        order_id = payment_event.get("order_id")
+        if not order_id:
+            logger.error(f"Malformed failure event, missing order_id: {payment_event}")
+            return
+
+        order = await db.get(Order, UUID(order_id))
+        if not order:
+            logger.error(f"Received failure event for unknown order {order_id}")
+            return
+        if order.status != OrderStatus.PENDING:
+            logger.info(f"Order {order_id} already in status {order.status}, skipping")
+            return
+
+        order.status = OrderStatus.CANCELLED
+        await db.commit()
+
+        try:
+            await update_inventory(sku=order.sku, reserved_quantity=-order.quantity)
+        except Exception as e:
+            logger.critical(f"Order {order_id} cancelled but failed to release inventory reservation: {e}")

@@ -5,6 +5,7 @@ pydantic==2.9.2
 pydantic-settings==2.5.2
 sqlalchemy==2.0.35
 asyncpg==0.29.0
+psycopg[binary]>=3.1
 alembic==1.13.2
 confluent-kafka==2.5.3
 pyfiglet
@@ -22,6 +23,8 @@ opentelemetry-instrumentation-aiohttp-client
 opentelemetry-exporter-otlp-proto-grpc
 opentelemetry-instrumentation-sqlalchemy
 
+python-jose[cryptography]==3.3.0
+
 ## AI libraries
 langgraph-checkpoint-postgres
 sentence-transformers
@@ -30,6 +33,7 @@ langchain
 langgraph
 pgvector
 python-multipart
+langchain-groq
 google-genai
 
 pypdf

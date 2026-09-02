@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = "*"
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
 
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
 
     KAFKA_BOOTSTRAP_SERVERS: str
 
-    SECRET_KEY: str
+    JWT_PRIVATE_KEY: str
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str
 

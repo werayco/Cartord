@@ -70,3 +70,10 @@ class UpdateUser(BaseModel):
     name: str | None = None
     username: str | None = None
     shipping_address: str | None = None
+
+class UserCountResponse(BaseModel):
+    total_users: int
+
+class CustomerStatisticsResponse(BaseModel):
+    period: str
+    new_customers: int

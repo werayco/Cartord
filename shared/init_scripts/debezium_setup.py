@@ -62,7 +62,7 @@ connector_config_payment = outbox_connector(
 
 connector_config_chat = outbox_connector(
     name="chat-outbox-connector",
-    db_name="chat_db",
+    db_name="ai_db",
     table_name="chat_outbox_events",
     slot_name="chat_outbox_slot",
     topic="chat",

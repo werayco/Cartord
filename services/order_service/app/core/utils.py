@@ -3,33 +3,27 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
 import json
 import aiohttp
+from jose import jwt, JWTError
 from app.services.circuit_breaker import breaker as inventory_breaker
 
 bearer_scheme = HTTPBearer()
-async def get_current_user(access_token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/user/me"
-    headers = {"Authorization": f"Bearer {access_token.credentials}"}
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                response.raise_for_status()
-                response_json = await response.json()
-                print(f"User credentials gotten from order --> auth service request is: {response_json}")
-                return response_json
-    except aiohttp.ClientResponseError as e:
-        raise HTTPException(status_code=e.status, detail=f"Failed to fetch user details: {e.message}")
 
-# async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-#     credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
-#     try:
-#         payload = jwt.decode(token.credentials, settings.SECRET_KEY, algorithms=["HS256"])
-#         if payload.get("type") != "access":
-#             raise credentials_exception
-#         return payload
-#     except (JWTError, KeyError):
-#         raise credentials_exception
+async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
+    credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
+    try:
+        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
+        if payload.get("type") != "access":
+            raise credentials_exception
+        return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
+    except (JWTError, KeyError):
+        raise credentials_exception
+
+async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
     
-# @inventory_breaker
+@inventory_breaker
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
     url = f"{settings.INVENTORY_BASE_URL}/inventory/reserve"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}

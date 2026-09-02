@@ -50,36 +50,50 @@ class PaymentProcessorController:
             logger.info(f"Payment for order {order_id} already processed, skipping")
             return
 
-        subtotal = unit_price * quantity
-        wallet = (await db.execute(select(UserWallet).where(UserWallet.customer_id == customer_id).with_for_update())).scalar_one_or_none()
+        try:
+            subtotal = unit_price * quantity
+            wallet = (await db.execute(select(UserWallet).where(UserWallet.customer_id == customer_id).with_for_update())).scalar_one_or_none()
 
-        if wallet and wallet.current_balance >= subtotal:
-            wallet.current_balance -= subtotal
-            status = PaymentStatus.SUCCEEDED
-            event_type = "payment.succeeded"
-            logger.info(f"Payment for order is successful.")
+            if wallet and wallet.current_balance >= subtotal:
+                wallet.current_balance -= subtotal
+                status = PaymentStatus.SUCCEEDED
+                event_type = "payment.succeeded"
+                logger.info("Payment for order is successful.")
+            else:
+                status = PaymentStatus.FAILED
+                event_type = "payment.failed"
+                logger.error("Payment for order failed: insufficient balance.")
 
-        else:
-            status = PaymentStatus.FAILED
-            event_type = "payment.failed"
-            logger.error(f"Payment for order failed.")
+            payment = Payment(customer_id=customer_id, order_id=order_id, sku=sku, subtotal=subtotal, status=status)
+            db.add(payment)
+            await db.flush()
 
-        payment = Payment(customer_id=customer_id, order_id=order_id, sku=sku, subtotal=subtotal, status=status)
-        db.add(payment)
-        logger.info(f"Added record in the payment table")
-        await db.flush()
+            db.add(OutboxEvent(
+                event_type=event_type,
+                aggregate_id=str(payment.id),
+                payload={
+                    "payment_id": str(payment.id),
+                    "order_id": order_id,
+                    "customer_id": customer_id,
+                    "subtotal": float(subtotal),
+                    "status": status.value,
+                    "email": email,
+                },
+            ))
+            await db.commit()
 
-        db.add(OutboxEvent(
-            event_type=event_type,
-            aggregate_id=str(payment.id),
-            payload={
-                "payment_id": str(payment.id),
-                "order_id": order_id,
-                "customer_id": customer_id,
-                "subtotal": float(subtotal),
-                "status": status.value,
-                "email": email,
-            },
-        ))
-        logger.info(f"Added record in the payment outbox table")
-        await db.commit()
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Unexpected error processing payment for order {order_id}: {e}")
+            try:
+                db.add(OutboxEvent(
+                    event_type="order.failed",
+                    aggregate_id=order_id,
+                    payload={"order_id": order_id, "customer_id": customer_id, "reason": str(e)},
+                ))
+                await db.commit()
+                logger.info(f"Published order.failed for order {order_id}")
+            except Exception as publish_err:
+                await db.rollback()
+                logger.critical(f"Failed to publish order.failed for order {order_id}: {publish_err}")
+            raise

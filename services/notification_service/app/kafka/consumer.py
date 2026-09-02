@@ -131,14 +131,15 @@ class KafkaConsumer:
 
         try:
             value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
-            
-            # Determine status from event_type or from the value
-            if event_type == "payment.succeeded" or value.get("status") == "SUCCESS":
+
+            if event_type == "payment.succeeded":
                 await self._send_payment_email(value, "succeeded")
-            else:
+            elif event_type == "payment.failed":
                 await self._send_payment_email(value, "failed")
-                
-            return True, None  # Success
+            else:
+                logger.info(f"Ignoring event type: {event_type}")
+
+            return True, None
         except Exception as e:
             logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
             return False, str(e)
@@ -146,7 +147,6 @@ class KafkaConsumer:
     async def _send_to_dlq_async(self, key_bytes, value_bytes, error: str):
         """Async version of sending to DLQ"""
         try:
-            # Parse the original value to preserve structure
             original_value = None
             if value_bytes:
                 try:
@@ -161,7 +161,6 @@ class KafkaConsumer:
                 "timestamp": asyncio.get_event_loop().time()
             }
             
-            # Produce to DLQ (this is synchronous but we're in async context)
             self.dlq_producer.produce(
                 topic="payment.dlq",
                 key=key_bytes,
@@ -179,7 +178,6 @@ class KafkaConsumer:
         
         try:
             while self._running:
-                # Use run_in_executor for blocking Kafka poll
                 msg = await loop.run_in_executor(None, self.consumer.poll, 1.0)
                 if msg is None:
                     continue
@@ -188,13 +186,10 @@ class KafkaConsumer:
                     logger.error(f"Kafka error: {msg.error()}")
                     continue
 
-                # Process message
                 success, error = await self._process_message(msg)
                 
-                # Always commit the offset after processing
                 await loop.run_in_executor(None, self.consumer.commit, msg)
                 
-                # If processing failed, send to DLQ (using async version)
                 if not success and error:
                     key_bytes = msg.key()
                     value_bytes = msg.value()
@@ -209,8 +204,6 @@ class KafkaConsumer:
         self._running = False
 
     async def run(self):
-        """Convenience method to run the consumer"""
         await self.consume()
 
-# Create singleton instance
 kafka_manager = KafkaConsumer()

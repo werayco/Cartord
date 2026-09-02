@@ -1,13 +1,15 @@
-from pydantic import Field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings
+import base64
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = "*"
     AUTH_DATABASE_URL: str
-
     REDIS_HOST: str
     REDIS_PORT: int
 
-    SECRET_KEY: str
+    JWT_PRIVATE_KEY: str
+    
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
 

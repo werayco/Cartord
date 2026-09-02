@@ -7,3 +7,7 @@ class AIRequest(BaseModel):
 
 class Conversation(BaseModel):
     user_id: UUID
+
+class Roles(Enum):
+    ADMIN = "admin"
+    SELLER = "seller"

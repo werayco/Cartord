@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
+from app.core.schemas import Roles
 from app.models.seller import Seller
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,7 +39,7 @@ def get_current_user_dep(table_name):
     ):
         credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
         try:
-            payload = jwt.decode(token.credentials, settings.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(token.credentials, settings.JWT_PUBLIC_KEY, algorithms=["RS256"])
             if payload.get("type") != "access":
                 raise credentials_exception
             user_id = UUID(payload["sub"])
@@ -51,27 +52,35 @@ def get_current_user_dep(table_name):
         return user
     return _get_current_user
 
-def _build_token(user_id, token_type: str, expires_delta: timedelta) -> str:
+async def get_admin_user(current_user: Seller = Depends(get_current_user_dep(Seller))) -> Seller:
+    if current_user.role != Roles.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+def _build_token(user, token_type: str, expires_delta: timedelta) -> str:
     now = datetime.now(timezone.utc)
+    role = getattr(user, "role", None)
     payload = {
-        "sub": str(user_id),
+        "sub": str(user.id),
+        "email": user.email,
+        "role": role.value if role is not None else "buyer",
         "iat": now,
         "exp": now + expires_delta,
-        "type": token_type
+        "type": token_type,
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, settings.JWT_PRIVATE_KEY, algorithm="HS256")
 
-async def issue_access_token(user_id) -> str:
-    return _build_token(user_id, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+async def issue_access_token(user) -> str:
+    return _build_token(user, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+async def get_tokens(user):
+    access = await issue_access_token(user)
+    refresh = await issue_refresh_token()
+    redis_client.set(f"refresh:{user.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
+    return {"access_token": access, "refresh_token": refresh}
 
 async def issue_refresh_token() -> str:
     return secrets.token_urlsafe(64)
-
-async def get_tokens(user_id):
-    access = await issue_access_token(user_id.id)
-    refresh = await issue_refresh_token()
-    redis_client.set(f"refresh:{user_id.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
-    return {"access_token": access, "refresh_token": refresh}
 
 def hash_password(password: str) -> str:
     password_bytes = password.encode('utf-8')
@@ -87,7 +96,8 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
-async def cache_refresh_tokens(user_id: UUID,refresh_token: str):
+async def cache_refresh_tokens(user_id: UUID, refresh_token: str, user):  # pass the loaded row in from the router
+
     key = f"refresh:{user_id}"
     stored_hash = redis_client.get(key)
 
@@ -97,7 +107,7 @@ async def cache_refresh_tokens(user_id: UUID,refresh_token: str):
     if stored_hash != hash_token(refresh_token):
         raise Exception("Invalid refresh token")
 
-    new_access_token = await issue_access_token(user_id)
+    new_access_token = await issue_access_token(user)
     new_refresh_token = await issue_refresh_token()
 
     redis_client.set(
