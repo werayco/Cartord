@@ -3,7 +3,7 @@ from langchain_core.messages import SystemMessage
 
 from app.core.config import settings
 from app.services.agent_state import AgentState
-from app.services.agent_tools import CUSTOMER_TOOLS, ADMIN_TOOLS
+from app.services.agent_tools import CUSTOMER_TOOLS
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",

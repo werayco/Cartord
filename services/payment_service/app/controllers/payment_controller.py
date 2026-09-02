@@ -1,5 +1,4 @@
 from sqlalchemy import or_, select
-from app.kafka.producer import kafka_manager
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.schemas import WalletCreate
 from app.models import Payment, UserWallet, OutboxEvent
