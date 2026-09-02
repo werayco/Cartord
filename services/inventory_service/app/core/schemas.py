@@ -34,3 +34,13 @@ class InventoryResponse(BaseModel):
     available_quantity: int
     created_at: datetime
 
+class InventoryAdminItem(InventoryResponse):
+    description: str | None = None
+    reserved_quantity: int
+    sellable_quantity: int
+
+class InventorySummaryResponse(BaseModel):
+    total_skus: int
+    total_units: int
+    total_inventory_value: float
+

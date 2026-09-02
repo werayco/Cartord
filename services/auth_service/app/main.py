@@ -7,7 +7,7 @@ from pyfiglet import Figlet
 import redis
 from app.db.redis_client import redis_client
 from app.services.telemetry import setup_telemetry
-from app.routers import seller_router, buyer_router
+from app.routers import seller_router, buyer_router, admin_router
 
 f = Figlet(font='slant')
 
@@ -47,3 +47,4 @@ async def root():
 
 app.include_router(seller_router)
 app.include_router(buyer_router)
+app.include_router(admin_router)

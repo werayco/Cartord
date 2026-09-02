@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
+from app.core.schemas import Roles
 from app.models.seller import Seller
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,6 +52,11 @@ def get_current_user_dep(table_name):
         return user
     return _get_current_user
 
+async def get_admin_user(current_user: Seller = Depends(get_current_user_dep(Seller))) -> Seller:
+    if current_user.role != Roles.ADMIN:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
 def _build_token(user, token_type: str, expires_delta: timedelta) -> str:
     now = datetime.now(timezone.utc)
     role = getattr(user, "role", None)
@@ -62,13 +68,13 @@ def _build_token(user, token_type: str, expires_delta: timedelta) -> str:
         "exp": now + expires_delta,
         "type": token_type,
     }
-    return jwt.encode(payload, settings.JWT_PRIVATE_KEY, algorithm="RS256")
+    return jwt.encode(payload, settings.JWT_PRIVATE_KEY, algorithm="HS256")
 
 async def issue_access_token(user) -> str:
     return _build_token(user, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
 
 async def get_tokens(user):
-    access = await issue_access_token(user)          # pass the whole object, not user.id
+    access = await issue_access_token(user)
     refresh = await issue_refresh_token()
     redis_client.set(f"refresh:{user.id}", hash_token(refresh), ex=REFRESH_TOKEN_EXPIRE_DAYS * 86400)
     return {"access_token": access, "refresh_token": refresh}

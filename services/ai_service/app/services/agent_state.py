@@ -8,5 +8,4 @@ class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
     user_id: UUID
     access_token: str
-    is_admin: bool
     users_name: str

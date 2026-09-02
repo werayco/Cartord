@@ -92,7 +92,6 @@ class KafkaConsumer:
         content = payload["content"]
         user_id = payload.get("user_id")
         access_token = payload.get("access_token")
-        is_admin = payload.get("is_admin", False)
 
         dedup_key = f"processed:{message_id}"
         was_new = await redis_client.set(dedup_key, "1", nx=True, ex=IDEMPOTENCY_TTL_SECONDS)
@@ -107,7 +106,6 @@ class KafkaConsumer:
             "messages": [HumanMessage(content=content)],
             "user_id": user_id,
             "access_token": access_token,
-            "is_admin": is_admin,
         }
 
         full_reply = ""

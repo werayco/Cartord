@@ -23,14 +23,6 @@ async def call_service(method: str, url: str, access_token: str, json: Optional[
         logger.error(f"{method} {url} connection error: {e}")
         return {"error": True, "status": 503, "message": "Service unavailable"}
 
-
-def _require_admin(state: AgentState) -> Optional[dict]:
-    if not state.get("is_admin"):
-        return {"error": True, "status": 403, "message": "This action requires admin access."}
-    return None
-
-# NOTE: Customer Tools
-
 @tool
 async def make_order(product_id: str, quantity: int, state: Annotated[AgentState, InjectedState], delivery_address_id: Optional[str] = None) -> dict:
     """Place an order for a product on behalf of the signed-in customer."""
@@ -73,64 +65,6 @@ async def get_faq_response(question: str) -> dict:
         documents = await RAGPipeline.retrieve_documents(question, db)
         return {"document_text": [doc.content for doc in documents]}
 
-# NOTE: Admin Tools
-
-@tool
-async def get_user_count(state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get the total number of registered users on the platform (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/users/count"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"])
-
-@tool
-async def get_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get store-wide order statistics for a given period (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/statistics"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"], params={"period": period})
-
-@tool
-async def get_customer_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get store-wide customer statistics for a given period (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/admin/customers/statistics"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"], params={"period": period})
-
-@tool
-async def get_low_stock_products(state: Annotated[AgentState, InjectedState]) -> dict:
-    """List products whose stock has fallen below the low-stock threshold (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/low-stock"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"])
-
-@tool
-async def get_out_of_stock_products(state: Annotated[AgentState, InjectedState]) -> dict:
-    """List products that are completely out of stock (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/out-of-stock"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"])
-
-@tool
-async def get_inventory_summary(state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get a store-wide inventory summary: total SKUs, total units, total inventory value (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.INVENTORY_BASE_URL}/api/v1/inventory/admin/summary"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"])
-
-@tool
-async def get_failed_order_statistics(period: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get statistics on failed orders for a given period (admin only)."""
-    if denial := _require_admin(state):
-        return denial
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/admin/failed-statistics"  ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"], params={"period": period})
-
 CUSTOMER_TOOLS = [
     make_order,
     reorder,
@@ -140,14 +74,5 @@ CUSTOMER_TOOLS = [
     get_faq_response,
 ]
 
-ADMIN_TOOLS = [
-    get_user_count,
-    get_order_statistics,
-    get_customer_statistics,
-    get_low_stock_products,
-    get_out_of_stock_products,
-    get_inventory_summary,
-    get_failed_order_statistics,
-]
 
-tools = CUSTOMER_TOOLS + ADMIN_TOOLS
+tools = CUSTOMER_TOOLS

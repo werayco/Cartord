@@ -4,7 +4,7 @@ class Settings(BaseSettings):
     ELASTICSEARCH_HOST: str
     ELASTICSEARCH_PORT: int
 
-    JWT_PUBLIC_KEY: str
+    JWT_PRIVATE_KEY: str
 
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str

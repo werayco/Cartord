@@ -19,7 +19,7 @@ async def get_current_user(websocket: WebSocket) -> dict:
     if not token:
         raise HTTPException(status_code=401, detail="Missing authentication token")
     try:
-        payload = jwt.decode(token, settings.JWT_PUBLIC_KEY, algorithms=["RS256"])
+        payload = jwt.decode(token, settings.JWT_PRIVATE_KEY, algorithms=["RS256"])
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Invalid or expired token")
     except JWTError:

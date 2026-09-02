@@ -13,7 +13,6 @@ llm = ChatGroq(
 )
 
 llm_customer = llm.bind_tools(CUSTOMER_TOOLS)
-llm_admin = llm.bind_tools(CUSTOMER_TOOLS + ADMIN_TOOLS)
 
 CUSTOMER_SYSTEM_PROMPT = (
     "You are Cartord's shopping assistant. Help the customer place and manage "
@@ -22,18 +21,8 @@ CUSTOMER_SYSTEM_PROMPT = (
     "not fetched with a tool."
 )
 
-ADMIN_SYSTEM_PROMPT = (
-    "You are Cartord's assistant for an admin user. Alongside the customer "
-    "tools, you may pull store-wide analytics (users, orders, customers, "
-    "inventory) with the admin tools available to you. Never invent numbers; "
-    "always call the relevant tool."
-)
 
 async def Agent(state: AgentState) -> AgentState:
-    is_admin = state.get("is_admin", False)
-    llm_with_tools = llm_admin if is_admin else llm_customer
-    system_prompt = ADMIN_SYSTEM_PROMPT if is_admin else CUSTOMER_SYSTEM_PROMPT
-
-    messages = [SystemMessage(content=system_prompt), *state["messages"]]
-    response = await llm_with_tools.ainvoke(messages)
+    messages = [SystemMessage(content=CUSTOMER_SYSTEM_PROMPT), *state["messages"]]
+    response = await llm_customer.ainvoke(messages)
     return {"messages": [response]}

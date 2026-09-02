@@ -20,8 +20,6 @@ async def chat_socket(websocket: WebSocket):
 
     await websocket.accept()
     user_id = buyer_cred.get("id")
-    is_admin = buyer_cred.get("is_admin", False)
-
     bridge = ConversationBridge(websocket)
 
     try:
@@ -34,7 +32,6 @@ async def chat_socket(websocket: WebSocket):
                     db=db,
                     user_id=user_id,
                     access_token=access_token,
-                    is_admin=is_admin,
                 )
                 if conversation_id:
                     await bridge.ensure_subscribed(conversation_id) # this subs to the conversation id channel
