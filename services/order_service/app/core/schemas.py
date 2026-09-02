@@ -16,6 +16,7 @@ class OrderStatus(Enum):
     SHIPPED = "shipped"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+    FAILED = "failed"
 
 class OrderStatisticsResponse(BaseModel):
     period: str

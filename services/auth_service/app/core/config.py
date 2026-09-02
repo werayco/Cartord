@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings
 import base64
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = "*"
     AUTH_DATABASE_URL: str
     REDIS_HOST: str
     REDIS_PORT: int

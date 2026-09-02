@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = "*"
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
 

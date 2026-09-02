@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    ALLOW_ORIGINS: str = "*"
     ORDER_DATABASE_URL: str
 
     KAFKA_CLIENT_ID: str

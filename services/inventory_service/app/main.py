@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 from app.routers import inventory_router, admin_router
 from app.services.telemetry import setup_telemetry
+from app.core.config import settings
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,7 +21,7 @@ setup_telemetry(app, engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[settings.ALLOW_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"])

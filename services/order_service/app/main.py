@@ -11,6 +11,7 @@ from confluent_kafka.admin import AdminClient
 from confluent_kafka import KafkaException
 import asyncio
 from app.core.config import settings
+from app.kafka.consumer import kafka_manager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,7 +23,14 @@ async def lifespan(app: FastAPI):
     })
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    consumer_task = asyncio.create_task(kafka_manager.consume())
     yield
+    kafka_manager.stop()
+    consumer_task.cancel()
+    try:
+        await consumer_task
+    except asyncio.CancelledError:
+        pass
     app.state.redis.close()
 
 app = FastAPI(lifespan=lifespan)
@@ -30,7 +38,7 @@ setup_telemetry(app, engine)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[settings.ALLOW_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
