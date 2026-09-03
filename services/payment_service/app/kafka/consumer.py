@@ -39,7 +39,7 @@ class KafkaConsumer:
         return None
 
     async def consume(self):
-        self.consumer.subscribe(["order"])
+        self.consumer.subscribe(["order", "auth"])
         self._running = True
         loop = asyncio.get_event_loop()
         try:
@@ -62,13 +62,19 @@ class KafkaConsumer:
                     if event_type == "order.created":
                         async with AsyncSessionLocal() as db:
                             await PaymentProcessorController.process_payment(value, db)
+                    elif event_type == "buyer.registered":
+                        async with AsyncSessionLocal() as db:
+                            await PaymentProcessorController.create_buyer_wallet_from_event(value, db)
+                    elif event_type == "seller.registered":
+                        async with AsyncSessionLocal() as db:
+                            await PaymentProcessorController.create_seller_wallet_from_event(value, db)
                     else:
                         logger.info(f"Ignoring event type: {event_type}")
 
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
                     logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, key_bytes, value_bytes, str(e))
+                    await loop.run_in_executor(None, self._send_to_dlq, msg.topic(), key_bytes, value_bytes, str(e))
                     await loop.run_in_executor(None, self.consumer.commit, msg)
         finally:
             self.consumer.close()
@@ -76,10 +82,10 @@ class KafkaConsumer:
     def stop(self):
         self._running = False
 
-    def _send_to_dlq(self, key_bytes, value_bytes, error: str):
+    def _send_to_dlq(self, source_topic: str, key_bytes, value_bytes, error: str):
         try:
             self.dlq_producer.produce(
-                topic="order.dlq",
+                topic=f"{source_topic}.dlq",
                 key=key_bytes,
                 value=json.dumps({
                     "original_value": value_bytes.decode(errors="replace") if value_bytes else None,

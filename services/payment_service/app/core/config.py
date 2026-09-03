@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     SERVICE_SHARED_KEY: str
     OTEL_EXPORTER_OTLP_ENDPOINT: str
 
+    JWT_PRIVATE_KEY: str
+
     KAFKA_BOOTSTRAP_SERVERS: str
 
     AUTH_BASE_URL: str = "http://localhost:9001/api/v1"

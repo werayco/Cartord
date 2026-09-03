@@ -1,6 +1,6 @@
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.schemas import WalletCreate
+from app.core.schemas import Roles, WalletCreate
 from app.models import Payment, UserWallet, OutboxEvent
 from app.core.config import settings
 from fastapi import Request, status
@@ -8,29 +8,52 @@ from fastapi.exceptions import HTTPException
 import secrets
 from app.core.logging import logger
 from app.core.schemas import PaymentStatus
+from app.models import Payment, UserWallet, SellerWallet, OutboxEvent  # add SellerWallet to the import
 
 class PaymentProcessorController:
     @staticmethod
-    async def create_wallet(payload: WalletCreate, db: AsyncSession, req: Request):
-        incoming_key = req.headers.get("SHARED_API_KEY")
-        logger.info(f"incoming header key is {incoming_key}")
+    async def create_buyer_wallet_from_event(event: dict, db: AsyncSession):
+        customer_id = event.get("customer_id")
+        if not customer_id:
+            logger.error(f"Malformed buyer.registered event, missing customer_id: {event}")
+            return
 
-        if not incoming_key or not secrets.compare_digest(
-            incoming_key, settings.SERVICE_SHARED_KEY
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or missing shared API key",)
+        existing = (await db.execute(
+            select(UserWallet).where(UserWallet.customer_id == customer_id)
+        )).scalar_one_or_none()
+        if existing:
+            logger.info(f"Buyer wallet for {customer_id} already exists, skipping")
+            return
 
         try:
-            result = UserWallet(customer_id=payload.customer_id)
-            db.add(result)
+            db.add(UserWallet(customer_id=customer_id))
             await db.commit()
-            await db.refresh(result)
-            return result
-        except Exception as e:
+            logger.info(f"Buyer wallet created for {customer_id}")
+        except Exception:
             await db.rollback()
-            raise e
+            raise
+
+    @staticmethod
+    async def create_seller_wallet_from_event(event: dict, db: AsyncSession):
+        seller_id = event.get("customer_id")
+        if not seller_id:
+            logger.error(f"Malformed seller.registered event, missing customer_id: {event}")
+            return
+
+        existing = (await db.execute(
+            select(SellerWallet).where(SellerWallet.seller_id == seller_id)
+        )).scalar_one_or_none()
+        if existing:
+            logger.info(f"Seller wallet for {seller_id} already exists, skipping")
+            return
+
+        try:
+            db.add(SellerWallet(seller_id=seller_id))
+            await db.commit()
+            logger.info(f"Seller wallet created for {seller_id}")
+        except Exception:
+            await db.rollback()
+            raise
 
     @staticmethod
     async def process_payment(order_event: dict, db: AsyncSession):
@@ -97,3 +120,27 @@ class PaymentProcessorController:
                 await db.rollback()
                 logger.critical(f"Failed to publish order.failed for order {order_id}: {publish_err}")
             raise
+
+    @staticmethod
+    async def get_seller_wallet(db: AsyncSession, current_user: dict):
+        if current_user["role"] != Roles.SELLER:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        try:
+            result = await db.execute(select(SellerWallet).where(SellerWallet.seller_id == current_user["id"]))
+            wallets = result.scalar_one_or_none()
+            return wallets
+        except Exception as e:
+            logger.error(f"Error retrieving seller wallets: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error retrieving seller wallets")
+
+    @staticmethod
+    async def get_buyer_wallet(db: AsyncSession, current_user: dict):
+        if current_user["role"] != Roles.BUYER:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+        try:
+            result = await db.execute(select(UserWallet).where(UserWallet.customer_id == current_user["id"]))
+            wallets = result.scalar_one_or_none()
+            return wallets
+        except Exception as e:
+            logger.error(f"Error retrieving buyer wallets: {e}")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error retrieving buyer wallets")

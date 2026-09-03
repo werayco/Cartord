@@ -30,12 +30,13 @@ def create_all_topics():
         {"name": "inventory", "partitions": 3, "replication": 1},
         {"name": "payment", "partitions": 3, "replication": 1},
         {"name": "order", "partitions": 1, "replication": 1},
+        {"name": "auth", "partitions": 1, "replication": 1},
         {"name": "chat", "partitions": 1, "replication": 1},
         {"name": "order.dlq", "partitions": 1, "replication": 1},
         {"name": "inventory.dlq", "partitions": 1, "replication": 1},
         {"name": "payment.dlq", "partitions": 1, "replication": 1},
         {"name": "chat.dlq", "partitions": 1, "replication": 1},
-    ]
+        {"name": "auth.dlq", "partitions": 1, "replication": 1}]
     
     print(f"Creating Kafka topics on {BOOTSTRAP_SERVERS}...")
     
