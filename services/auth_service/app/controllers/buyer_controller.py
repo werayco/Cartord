@@ -1,10 +1,10 @@
 from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from aiobreaker import CircuitBreakerError
 from app.core.schemas import (ChangePasswordRequest, LoginRequest, RegisterRequest)
 from app.models.buyer import Buyer
-from app.core.utils import (get_tokens, hash_password, verify_password, create_wallet)
+from app.models.outbox import OutboxEvent
+from app.core.utils import get_tokens, hash_password, verify_password
 
 class BuyerController:
     @staticmethod
@@ -27,22 +27,12 @@ class BuyerController:
         )
         db.add(buyer_data)
         await db.flush()
-        await db.refresh(buyer_data)
 
-        try:
-            await create_wallet(buyer_data.id)
-        except CircuitBreakerError:
-            await db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Payment service temporarily unavailable, please try again",
-            )
-        except Exception:
-            await db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_502_BAD_GATEWAY,
-                detail="Failed to create wallet for new buyer",
-            )
+        db.add(OutboxEvent(
+            event_type="buyer.registered",
+            aggregate_id=str(buyer_data.id),
+            payload={"customer_id": str(buyer_data.id), "email": buyer_data.email},
+        ))
 
         await db.commit()
         await db.refresh(buyer_data)

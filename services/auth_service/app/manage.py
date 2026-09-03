@@ -7,7 +7,6 @@ from app.models import Seller
 from app.core.utils import hash_password
 from app.core.schemas import Roles
 
-
 def parse_args():
     parser = argparse.ArgumentParser(description="Update an Admin")
     parser.add_argument("--email", type=str, required=True, help="Admin Email (to find the admin)")

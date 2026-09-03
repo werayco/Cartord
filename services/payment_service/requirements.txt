@@ -18,3 +18,4 @@ aiohttp
 pyfiglet
 aiobreaker
 uuid6
+python-jose[cryptography]

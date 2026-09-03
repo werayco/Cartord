@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.core.schemas import LoginRequest, RegisterSeller, RegisterAdmin, Roles
 from app.db.session import AsyncSessionLocal
 from app.core.utils import hash_password, verify_password, get_tokens
+from app.models.outbox import OutboxEvent
 
 class SellerController:
     @staticmethod
@@ -44,10 +45,7 @@ class SellerController:
             data = payload.model_dump()
             result = await db.execute(
                 select(Seller).where(
-                    or_(
-                        Seller.email == payload.email,
-                        Seller.username == payload.username,
-                    )
+                    or_(Seller.email == payload.email, Seller.username == payload.username)
                 )
             )
             if result.scalars().first():
@@ -58,6 +56,14 @@ class SellerController:
 
             add_seller = Seller(**data)
             db.add(add_seller)
+            await db.flush()
+
+            db.add(OutboxEvent(
+                event_type="seller.registered",
+                aggregate_id=str(add_seller.id),
+                payload={"customer_id": str(add_seller.id), "email": add_seller.email},
+            ))
+
             await db.commit()
             await db.refresh(add_seller)
             return {"message": "Seller registered successfully"}
