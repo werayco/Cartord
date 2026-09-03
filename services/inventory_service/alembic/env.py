@@ -5,13 +5,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load env vars FIRST, before importing anything from app.*
-# (app.core.config.Settings() validates required env vars at import time)
-# Anchored to this file's location so it works regardless of CWD.
 ENV_PATH = Path(__file__).resolve().parents[3] / "shared" / "compose_files" / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
-from sqlalchemy import pool  # noqa: E402
+from sqlalchemy import pool
 from sqlalchemy.engine import Connection  # noqa: E402
 from sqlalchemy.ext.asyncio import async_engine_from_config  # noqa: E402
 from app.models.product import Inventory  # noqa: E402
@@ -19,21 +16,15 @@ from app.models.outbox import OutboxEvent  # noqa: E402
 from app.db.session import Base  # noqa: E402
 from alembic import context  # noqa: E402
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Use the DB URL from env, swapping the Docker service hostname for
-# localhost so Alembic can run from the host shell (outside mynet).
 db_url = os.getenv("INVENTORY_DATABASE_URL", "").replace("@postgres:", "@localhost:")
 config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = Base.metadata
-
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
@@ -46,7 +37,6 @@ def run_migrations_offline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
-
 
 def do_run_migrations(connection: Connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)

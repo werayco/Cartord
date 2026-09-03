@@ -134,7 +134,8 @@ class InventoryCRUD:
                 "message": "Inventory reserved successfully",
                 "remaining_quantity": record.available_quantity - record.reserved_quantity,
                 "status": "successful",
-                "unit_price": record.unit_price
+                "unit_price": record.unit_price,
+                "seller_id": record.seller_id,
             }
         except Exception as e:
             await db.rollback()

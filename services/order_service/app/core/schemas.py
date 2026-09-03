@@ -6,6 +6,12 @@ class OrderPayload(BaseModel):
     sku: str
     quantity: int
 
+class OrderResponse(BaseModel):
+    order_id: str
+    quantity: int
+    unit_price: float
+    status: str
+
 class Roles(Enum):
     ADMIN = "admin"
     SELLER = "seller"

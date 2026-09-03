@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from uuid import UUID
 from sqlalchemy import String, Uuid, Integer, Numeric, Enum, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
@@ -13,6 +14,8 @@ class Order(Base):
     sku: Mapped[str] = mapped_column(String, nullable=False)
     customer_id: Mapped[UUID] = mapped_column(Uuid, nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    seller_id: Mapped[Optional[UUID]] = mapped_column(Uuid, nullable=True, index=True)
 
     unit_price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     status: Mapped[OrderStatus] = mapped_column(Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING)
