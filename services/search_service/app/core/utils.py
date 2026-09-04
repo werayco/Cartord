@@ -11,7 +11,8 @@ bearer_scheme = HTTPBearer()
 async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
     credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
     try:
-        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["RS256"])
+        print("Decoding token...", token.credentials)
+        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
         if payload.get("type") != "access":
             raise credentials_exception
         return payload

@@ -11,11 +11,9 @@ class PaymentStatus(Enum):
     PENDING = "PENDING"
 
 class Roles(Enum):
-    buyer = "buyer"
+    BUYER = "buyer"
     SELLER = "seller"
 
 class WalletResponse(BaseModel):
-    id: uuid.UUID
-    customer_id: uuid.UUID
-    initial_amount: int
-    current_balance: int
+    initial_amount: float
+    current_balance: float

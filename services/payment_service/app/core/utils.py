@@ -18,6 +18,7 @@ async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_
         return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
     except (JWTError, KeyError):
         raise credentials_exception
+    
 def seralize_to_json(data):
     try:
         return json.dumps(data).encode("utf-8")

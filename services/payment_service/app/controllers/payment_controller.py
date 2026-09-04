@@ -63,8 +63,9 @@ class PaymentProcessorController:
         customer_id = order_event.get("customer_id")
         unit_price = order_event.get("unit_price")
         email = order_event.get("email")
+        seller_id = order_event.get("seller_id")  # Get seller_id from the order event
 
-        if None in (order_id, sku, quantity, customer_id, unit_price, email):
+        if None in (order_id, sku, quantity, customer_id, unit_price, email, seller_id):
             logger.error(f"Malformed order event, missing required fields: {order_event}")
             return
 
@@ -81,11 +82,13 @@ class PaymentProcessorController:
                 wallet.current_balance -= subtotal
                 status = PaymentStatus.SUCCEEDED
                 event_type = "payment.succeeded"
-                logger.info("Payment for order is successful.")
+                logger.info(f"Payment for order {order_id} is successful.")
+                await PaymentProcessorController.increase_seller_wallet(seller_id, subtotal, db)
+                logger.info(f"Seller wallet for {seller_id} increased by {subtotal}.")
             else:
                 status = PaymentStatus.FAILED
                 event_type = "payment.failed"
-                logger.error("Payment for order failed: insufficient balance.")
+                logger.error(f"Payment for order {order_id} failed: insufficient balance.")
 
             payment = Payment(customer_id=customer_id, order_id=order_id, sku=sku, subtotal=subtotal, status=status)
             db.add(payment)
@@ -101,6 +104,7 @@ class PaymentProcessorController:
                     "subtotal": float(subtotal),
                     "status": status.value,
                     "email": email,
+                    "seller_id": seller_id,
                 },
             ))
             await db.commit()
@@ -112,7 +116,7 @@ class PaymentProcessorController:
                 db.add(OutboxEvent(
                     event_type="order.failed",
                     aggregate_id=order_id,
-                    payload={"order_id": order_id, "customer_id": customer_id, "reason": str(e)},
+                    payload={"order_id": order_id, "customer_id": customer_id, "reason": str(e), "seller_id": seller_id},
                 ))
                 await db.commit()
                 logger.info(f"Published order.failed for order {order_id}")
@@ -123,7 +127,7 @@ class PaymentProcessorController:
 
     @staticmethod
     async def get_seller_wallet(db: AsyncSession, current_user: dict):
-        if current_user["role"] != Roles.SELLER:
+        if current_user["role"] != Roles.SELLER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         try:
             result = await db.execute(select(SellerWallet).where(SellerWallet.seller_id == current_user["id"]))
@@ -135,7 +139,7 @@ class PaymentProcessorController:
 
     @staticmethod
     async def get_buyer_wallet(db: AsyncSession, current_user: dict):
-        if current_user["role"] != Roles.BUYER:
+        if current_user["role"] != Roles.BUYER.value:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         try:
             result = await db.execute(select(UserWallet).where(UserWallet.customer_id == current_user["id"]))
@@ -144,3 +148,13 @@ class PaymentProcessorController:
         except Exception as e:
             logger.error(f"Error retrieving buyer wallets: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error retrieving buyer wallets")
+
+@staticmethod
+async def increase_seller_wallet(seller_id: str, amount, db: AsyncSession):
+    wallet = (await db.execute(
+        select(SellerWallet).where(SellerWallet.seller_id == seller_id).with_for_update()
+    )).scalar_one_or_none()
+    if not wallet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seller wallet not found")
+    wallet.current_balance += amount
+    return wallet

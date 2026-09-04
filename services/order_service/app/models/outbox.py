@@ -5,7 +5,6 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.session import Base
 
-
 class OutboxEvent(Base):
     __tablename__ = "outbox_events"
 

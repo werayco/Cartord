@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: search-service
+  name: auth-service
   namespace: default
   labels:
     app: auth-service
@@ -10,11 +10,11 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: search-service
+      app: auth-service
   template:
     metadata:
       labels:
-        app: search-service
+        app: auth-service
         tier: backend
     spec:
       affinity:
@@ -22,14 +22,14 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchLabels:
-                app: search-service
+                app: auth-service
             topologyKey: "kubernetes.io/hostname"
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
             podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app: search-service
+                  app: auth-service
               topologyKey: "topology.kubernetes.io/zone"
       
       securityContext:
@@ -41,8 +41,8 @@ spec:
           type: RuntimeDefault
       
       containers:
-      - name: search-service
-        image: werayco/search-service:latest
+      - name: auth-service
+        image: werayco/auth-service:latest
         imagePullPolicy: Always
         
         ports:
@@ -128,10 +128,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: search-service
+  name: auth-service
   namespace: default
   labels:
-    app: search-service
+    app: auth-service
     tier: backend
 spec:
   type: ClusterIP
@@ -141,4 +141,4 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: search-service
+    app: auth-service
