@@ -12,10 +12,6 @@ KEYS_DIR := shared/keys
 
 gen-secret:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
-	openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out $(KEYS_DIR)/private_key.pem
-	openssl rsa -pubout -in $(KEYS_DIR)/private_key.pem -out $(KEYS_DIR)/public_key.pem
-	openssl base64 -A -in $(KEYS_DIR)/private_key.pem -out $(KEYS_DIR)/private_key.b64
-	openssl base64 -A -in $(KEYS_DIR)/public_key.pem -out $(KEYS_DIR)/public_key.b64
 
 auth:
 	docker logs -f auth_service

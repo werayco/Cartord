@@ -1,40 +1,76 @@
 # Service API Endpoint Map
 
-This document lists the API endpoints currently exposed by the active FastAPI services in this project.
+This document lists the API endpoints currently exposed by the FastAPI services in this project.
 
 ## Service Ports
 
-The running services are configured in the Docker Compose setup:
+The running services are configured in `shared/compose_files/services.docker-compose.yml`:
 
-- Auth Service: http://localhost:9068
+- AI Service: http://localhost:9000
+- Auth Service: http://localhost:9001
 - Inventory Service: http://localhost:9002
+- Notification Service: http://localhost:9003
 - Order Service: http://localhost:9004
+- Payment Service: http://localhost:9005
 - Search Service: http://localhost:9007
-
-> The notification, AI, and payment services are present in the repository but are not currently active in the service compose configuration.
 
 ## Common Auth Pattern
 
-Protected routes typically require an Authorization header:
+Protected HTTP routes require an Authorization header:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
+The AI WebSocket uses the token query parameter instead:
+
+```text
+ws://localhost:9000/api/v1/ws/chat?token=<access_token>
+```
+
 ---
 
-## 1) Auth Service
+## 1) AI Service
 
-Base URL: http://localhost:9068
+Base URL: http://localhost:9000
 
 ### Health
 
-- GET /api/v1/health
+- GET `/api/v1/health`
   - No payload
 
-### Customer APIs
+### Documents
 
-- POST /api/v1/auth/user/register
+- POST `/api/v1/documents/upload`
+  - Requires an admin bearer token
+  - Multipart form field: `file`
+
+- GET `/api/v1/documents/query/{question}`
+  - Requires a bearer token
+  - Path parameter: `question`
+  - Example: `/api/v1/documents/query/how do I return an item`
+
+### Chat
+
+- WebSocket `/api/v1/ws/chat?token=<access_token>`
+  - Requires an access token query parameter
+  - Receives JSON messages and returns JSON responses
+
+---
+
+## 2) Auth Service
+
+Base URL: http://localhost:9001
+
+### Health
+
+- GET `/api/v1/health`
+  - No payload
+
+### Buyer APIs
+
+- POST `/api/v1/auth/buyer/register`
+
 ```json
 {
   "email": "jane@example.com",
@@ -45,7 +81,8 @@ Base URL: http://localhost:9068
 }
 ```
 
-- POST /api/v1/auth/user/login
+- POST `/api/v1/auth/buyer/login`
+
 ```json
 {
   "username": "janedoe",
@@ -53,18 +90,21 @@ Base URL: http://localhost:9068
 }
 ```
 
-- POST /api/v1/auth/user/refresh
+- POST `/api/v1/auth/buyer/refresh`
+  - Requires a bearer token
+
 ```json
 {
   "refresh_token": "<refresh_token>"
 }
 ```
 
-- GET /api/v1/auth/user/me
-  - No payload
-  - Requires bearer token
+- GET `/api/v1/auth/buyer/me`
+  - Requires a bearer token
 
-- POST /api/v1/auth/user/change-password
+- POST `/api/v1/auth/buyer/change-password`
+  - Requires a bearer token
+
 ```json
 {
   "old_password": "Secret123!",
@@ -72,7 +112,10 @@ Base URL: http://localhost:9068
 }
 ```
 
-- PATCH /api/v1/auth/user/update
+- PATCH `/api/v1/auth/buyer/update`
+  - Requires a bearer token
+  - All fields are optional
+
 ```json
 {
   "email": "jane.new@example.com",
@@ -82,7 +125,9 @@ Base URL: http://localhost:9068
 }
 ```
 
-- DELETE /api/v1/auth/user/delete
+- DELETE `/api/v1/auth/buyer/delete`
+  - Requires a bearer token
+
 ```json
 {
   "username": "janedoe",
@@ -90,95 +135,70 @@ Base URL: http://localhost:9068
 }
 ```
 
-### Employee APIs
+### Seller APIs
 
-- POST /api/v1/auth/employee/register-employee
+- POST `/api/v1/auth/seller/register`
+
 ```json
 {
-  "email": "employee@example.com",
-  "name": "Alex Staff",
-  "username": "alexstaff",
+  "email": "seller@example.com",
+  "name": "Alex Seller",
+  "username": "alexseller",
   "password": "Secret123!"
 }
 ```
 
-- POST /api/v1/auth/employee/register-inventory-manager
-```json
-{
-  "email": "manager@example.com",
-  "name": "Morgan Manager",
-  "username": "morganmgr",
-  "password": "Secret123!"
-}
-```
-
-- DELETE /api/v1/auth/employee/{username}
-  - Path parameter: username
-  - Example: /api/v1/auth/employee/alexstaff
+- DELETE `/api/v1/auth/seller/{username}`
+  - Requires a seller bearer token
+  - Example: `/api/v1/auth/seller/alexseller`
   - No request body
 
-- GET /api/v1/auth/employee/employees
-  - No payload
-  - Requires bearer token
+- GET `/api/v1/auth/seller/sellers`
+  - Requires a seller bearer token
 
-- GET /api/v1/auth/employee/inventory-managers
-  - No payload
-  - Requires bearer token
+- POST `/api/v1/auth/seller/login`
+  - Same payload as buyer login
 
-- POST /api/v1/auth/employee/login
-```json
-{
-  "username": "alexstaff",
-  "password": "Secret123!"
-}
-```
+- POST `/api/v1/auth/seller/refresh`
+  - Requires a seller bearer token
+  - Same payload as buyer refresh
 
-- POST /api/v1/auth/employee/refresh
-```json
-{
-  "refresh_token": "<refresh_token>"
-}
-```
+- GET `/api/v1/auth/seller/me`
+  - Requires a seller bearer token
 
-- GET /api/v1/auth/employee/me
-  - No payload
-  - Requires bearer token
+- POST `/api/v1/auth/seller/change-password`
+  - Requires a seller bearer token
+  - Same payload as buyer change-password
 
-- POST /api/v1/auth/employee/change-password
-```json
-{
-  "old_password": "Secret123!",
-  "new_password": "NewSecret456!"
-}
-```
+### Admin APIs
+
+- GET `/api/v1/auth/admin/users/count`
+  - Requires an admin bearer token
+
+- GET `/api/v1/auth/admin/customers/statistics?period=all`
+  - Requires an admin bearer token
+  - Query parameter: `period` (default: `all`)
 
 ---
 
-## 2) Inventory Service
+## 3) Inventory Service
 
 Base URL: http://localhost:9002
 
 ### Health
 
-- GET /api/v1/health
+- GET `/api/v1/health`
   - No payload
 
 ### Inventory APIs
 
-- POST /api/v1/inventory/
-```json
-{
-  "name": "Wireless Mouse",
-  "description": "Ergonomic wireless mouse",
-  "unit_price": 25.5,
-  "sku": "CTD001",
-  "quantity": 120,
-  "reserved_quantity": 0
-}
-```
-
-- GET /api/v1/inventory/
-  - Request body/filter example:
+- POST `/api/v1/inventory/`
+  - Requires a bearer token
+- PUT `/api/v1/inventory/`
+  - Requires a bearer token
+- DELETE `/api/v1/inventory/`
+  - Requires a bearer token
+  - Request body uses the inventory schema; `sku` identifies the item
 
 ```json
 {
@@ -186,31 +206,18 @@ Base URL: http://localhost:9002
   "description": "Ergonomic wireless mouse",
   "unit_price": 25.5,
   "sku": "CTD001",
-  "quantity": 120,
+  "available_quantity": 120,
   "reserved_quantity": 0
 }
 ```
 
-- PUT /api/v1/inventory/
-```json
-{
-  "name": "Wireless Mouse Pro",
-  "description": "Updated ergonomic mouse",
-  "unit_price": 29.99,
-  "sku": "CTD001",
-  "quantity": 150,
-  "reserved_quantity": 10
-}
-```
+- GET `/api/v1/inventory/`
+  - Requires a bearer token
+  - No request body
 
-- DELETE /api/v1/inventory/
-```json
-{
-  "sku": "CTD001"
-}
-```
+- PATCH `/api/v1/inventory/reserve`
+  - No bearer dependency in the route
 
-- PATCH /api/v1/inventory/reserve
 ```json
 {
   "sku": "CTD001",
@@ -218,22 +225,45 @@ Base URL: http://localhost:9002
 }
 ```
 
+### Admin APIs
+
+All admin endpoints require an admin bearer token:
+
+- GET `/api/v1/inventory/admin/low-stock`
+- GET `/api/v1/inventory/admin/out-of-stock`
+- GET `/api/v1/inventory/admin/summary`
+
 ---
 
-## 3) Order Service
+## 4) Notification Service
+
+Base URL: http://localhost:9003
+
+### Health
+
+- GET `/api/v1/health`
+  - No payload
+
+The service currently exposes no additional HTTP routes.
+
+---
+
+## 5) Order Service
 
 Base URL: http://localhost:9004
 
 ### Health
 
-- GET /api/v1/health
+- GET `/api/v1/health`
   - No payload
 
 ### Order APIs
 
-- POST /api/v1/order/place/{idempotency_key}
-  - Path parameter: idempotency_key
-  - Example: /api/v1/order/place/order-001
+- POST `/api/v1/order/place/{idempotency_key}`
+  - Requires a bearer token
+  - Path parameter: `idempotency_key`
+  - Example: `/api/v1/order/place/order-001`
+
 ```json
 {
   "sku": "CTD001",
@@ -241,30 +271,58 @@ Base URL: http://localhost:9004
 }
 ```
 
+### Admin APIs
+
+All admin endpoints require an admin bearer token:
+
+- GET `/api/v1/order/admin/statistics?period=all`
+- GET `/api/v1/order/admin/failed-statistics?period=all`
+
+Both endpoints accept the optional `period` query parameter, which defaults to `all`.
+
 ---
 
-## 4) Search Service
+## 6) Payment Service
+
+Base URL: http://localhost:9005
+
+### Health
+
+- GET `/api/v1/health`
+  - No payload
+
+### Wallet APIs
+
+- GET `/api/v1/wallets/seller`
+  - Requires a bearer token
+
+- GET `/api/v1/wallets/buyer`
+  - Requires a bearer token
+
+---
+
+## 7) Search Service
 
 Base URL: http://localhost:9007
 
 ### Health
 
-- GET /api/v1/health
+- GET `/api/v1/health`
   - No payload
 
 ### Search APIs
 
-- GET /api/v1/search/items
-  - Query parameter: query
-  - Example: /api/v1/search/items?query=mouse
+- GET `/api/v1/search/items?query=mouse`
+  - Requires a bearer token
+  - Query parameter: `query`
   - No request body
 
 ---
 
 ## Notes
 
-- All services expose a health check at /api/v1/health.
-- Auth endpoints are split into customer and employee router groups under /api/v1/auth/user and /api/v1/auth/employee.
-- Inventory and order routes use the /api/v1/\* namespace to isolate service-specific APIs.
-- Search uses a keyword query parameter on /api/v1/search/items, for example: /api/v1/search/items?query=phone
-- Some protected endpoints are currently implemented with request body payloads for update and deletion flows, while several read-only endpoints are auth-protected and require only a bearer token.
+- All seven services are enabled in the service compose configuration.
+- Every service exposes a health check at `/api/v1/health`.
+- Auth routes are split into buyer, seller, and admin groups.
+- Inventory and order admin routes require an admin role.
+- The AI chat endpoint is a WebSocket and authenticates with `?token=`.

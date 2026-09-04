@@ -15,5 +15,5 @@ class Roles(Enum):
     SELLER = "seller"
 
 class WalletResponse(BaseModel):
-    initial_amount: int
-    current_balance: int
+    initial_amount: float
+    current_balance: float

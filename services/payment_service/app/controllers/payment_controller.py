@@ -149,17 +149,12 @@ class PaymentProcessorController:
             logger.error(f"Error retrieving buyer wallets: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error retrieving buyer wallets")
 
-    @staticmethod
-    async def increase_seller_wallet(seller_id: str, amount: float, db: AsyncSession):
-        try:
-            wallet = (await db.execute(select(SellerWallet).where(SellerWallet.seller_id == seller_id).with_for_update())).scalar_one_or_none()
-            if not wallet:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seller wallet not found")
-            wallet.current_balance += amount
-            await db.commit()
-            await db.refresh(wallet)
-            return wallet
-        except Exception as e:
-            await db.rollback()
-            logger.error(f"Error increasing seller wallet balance: {e}")
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error increasing seller wallet balance")
+@staticmethod
+async def increase_seller_wallet(seller_id: str, amount, db: AsyncSession):
+    wallet = (await db.execute(
+        select(SellerWallet).where(SellerWallet.seller_id == seller_id).with_for_update()
+    )).scalar_one_or_none()
+    if not wallet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seller wallet not found")
+    wallet.current_balance += amount
+    return wallet

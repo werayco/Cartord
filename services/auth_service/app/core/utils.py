@@ -39,7 +39,7 @@ def get_current_user_dep(table_name):
     ):
         credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
         try:
-            payload = jwt.decode(token.credentials, settings.JWT_PUBLIC_KEY, algorithms=["RS256"])
+            payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
             if payload.get("type") != "access":
                 raise credentials_exception
             user_id = UUID(payload["sub"])
