@@ -1,7 +1,7 @@
 <div align="center">
  <img src="shared/images/cartord-logo-1.png" alt="Cartord Logo" width="700"/>
 
- <sub>Logo designed by <a href="shared/images/cartord logo.ai">Ayodeji Olanrewaju</a></sub>
+ <sub>The Cartord logo was designed by me, Using Adobe Illustrator, click<a href="shared/images/cartord logo.ai"> Here</a> to view the editable file</sub>
 
  <br/>
 
