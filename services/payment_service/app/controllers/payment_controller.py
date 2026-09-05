@@ -63,9 +63,9 @@ class PaymentProcessorController:
         customer_id = order_event.get("customer_id")
         unit_price = order_event.get("unit_price")
         email = order_event.get("email")
-        seller_id = order_event.get("seller_id")  # Get seller_id from the order event
+        seller_id = order_event.get("seller_id")
 
-        if None in (order_id, sku, quantity, customer_id, unit_price, email, seller_id):
+        if None in (order_id, sku, quantity, customer_id, unit_price, email):
             logger.error(f"Malformed order event, missing required fields: {order_event}")
             return
 
@@ -83,8 +83,11 @@ class PaymentProcessorController:
                 status = PaymentStatus.SUCCEEDED
                 event_type = "payment.succeeded"
                 logger.info(f"Payment for order {order_id} is successful.")
-                await PaymentProcessorController.increase_seller_wallet(seller_id, subtotal, db)
-                logger.info(f"Seller wallet for {seller_id} increased by {subtotal}.")
+                if seller_id:
+                    await PaymentProcessorController.increase_seller_wallet(seller_id, subtotal, db)
+                    logger.info(f"Seller wallet for {seller_id} increased by {subtotal}.")
+                else:
+                    logger.info(f"Order {order_id} has no seller_id, skipping seller wallet credit.")
             else:
                 status = PaymentStatus.FAILED
                 event_type = "payment.failed"
@@ -149,12 +152,12 @@ class PaymentProcessorController:
             logger.error(f"Error retrieving buyer wallets: {e}")
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error retrieving buyer wallets")
 
-@staticmethod
-async def increase_seller_wallet(seller_id: str, amount, db: AsyncSession):
-    wallet = (await db.execute(
-        select(SellerWallet).where(SellerWallet.seller_id == seller_id).with_for_update()
-    )).scalar_one_or_none()
-    if not wallet:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seller wallet not found")
-    wallet.current_balance += amount
-    return wallet
+    @staticmethod
+    async def increase_seller_wallet(seller_id: str, amount, db: AsyncSession):
+        wallet = (await db.execute(
+            select(SellerWallet).where(SellerWallet.seller_id == seller_id).with_for_update()
+        )).scalar_one_or_none()
+        if not wallet:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Seller wallet not found")
+        wallet.current_balance += amount
+        return wallet
