@@ -5,7 +5,6 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from app.core.config import settings
 
@@ -20,4 +19,3 @@ def setup_telemetry(app, engine: AsyncEngine):
     FastAPIInstrumentor.instrument_app(app)
     SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
 
-    RedisInstrumentor().instrument()

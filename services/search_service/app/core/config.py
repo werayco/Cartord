@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    SENTRY_DSN: str = ""
     ELASTICSEARCH_HOST: str
     ELASTICSEARCH_PORT: int
 

@@ -9,6 +9,14 @@ from app.db.redis_client import redis_client
 from app.services.telemetry import setup_telemetry
 from app.routers import seller_router, buyer_router, admin_router
 from app.core.config import settings
+import sentry_sdk
+
+if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=0.01,
+        auto_session_tracking=False,
+    )
 
 f = Figlet(font='slant')
 

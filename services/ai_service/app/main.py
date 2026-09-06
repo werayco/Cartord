@@ -9,6 +9,15 @@ from app.routers.websocket_router import router as chat_router
 from app.services.telemetry import setup_telemetry
 from app.kafka.consumer import kafka_manager
 from app.core.config import settings
+import sentry_sdk
+
+if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=0.01,
+        auto_session_tracking=False,
+    )
+
 f = Figlet(font='slant')
 
 @asynccontextmanager

@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    SENTRY_DSN: str = ""
     PAYMENT_DATABASE_URL: str
     SERVICE_SHARED_KEY: str
     OTEL_EXPORTER_OTLP_ENDPOINT: str

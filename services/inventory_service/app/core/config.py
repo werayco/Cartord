@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     ALLOW_ORIGINS: str = "*"
+    SENTRY_DSN: str = ""
     INVENTORY_DATABASE_URL: str
     JWT_PRIVATE_KEY: str
     KAFKA_CLIENT_ID: str

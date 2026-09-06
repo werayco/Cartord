@@ -128,7 +128,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: inventory-service
+  name: inventory_service
   namespace: default
   labels:
     app: inventory-service

@@ -40,6 +40,11 @@ kf:
 ai:
 	docker logs -f ai_service
 
+dz:
+	docker logs -f cartord-dz
+
+
+
 build-auth-service:
 	docker build -t $(IMAGE_REPO)/auth-service:latest ./services/auth_service
 
@@ -82,20 +87,25 @@ run:
 
 services-all:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build -d
+
 rebuild:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build $(SERVICE_NAME) -d
+
+recreate:
+	docker-compose -f shared/compose_files/services.docker-compose.yml up $(SERVICE_NAME) --force-recreate -d 
+
 recreate-all:
 	docker-compose -f shared/compose_files/docker-compose.yml up --force-recreate -d
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --force-recreate -d
-recreate:
-	docker-compose -f shared/compose_files/services.docker-compose.yml up $(SERVICE_NAME) --force-recreate -d 
-stop:
-	docker-compose -f shared/compose_files/docker-compose.yml down
-	docker-compose -f shared/compose_files/services.docker-compose.yml down
-stop-v:
-	docker-compose -f shared/compose_files/docker-compose.yml down -v
-	docker-compose -f shared/compose_files/services.docker-compose.yml down -v
 	
+stop:
+	docker compose -f shared/compose_files/docker-compose.yml down --remove-orphans
+	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans
+
+stop-v:
+	docker compose -f shared/compose_files/docker-compose.yml down --remove-orphans -v
+	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans -v
+
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"

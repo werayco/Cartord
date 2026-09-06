@@ -4,6 +4,16 @@ from app.routers import search_router
 from pyfiglet import Figlet
 from app.services import elasticsearch_client, kafka_manager
 from contextlib import asynccontextmanager
+from app.services.telemetry import setup_telemetry
+from app.core.config import settings
+import sentry_sdk
+
+if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=0.01,
+        auto_session_tracking=False,
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,6 +31,7 @@ async def lifespan(app: FastAPI):
         pass
 
 app = FastAPI(lifespan=lifespan)
+setup_telemetry(app)
 app.include_router(search_router)
 
 @app.get("/api/v1/health")

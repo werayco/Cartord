@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     ALLOW_ORIGINS: str = "*"
+    SENTRY_DSN: str = ""
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
 

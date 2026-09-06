@@ -12,6 +12,14 @@ from confluent_kafka import KafkaException
 import asyncio
 from app.core.config import settings
 from app.kafka.consumer import kafka_manager
+import sentry_sdk
+
+if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=0.01,
+        auto_session_tracking=False,
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
