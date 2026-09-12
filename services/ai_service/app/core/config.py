@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "ai_service"
     ALLOW_ORIGINS: str = "*"
     SENTRY_DSN: str = ""
     LLM_API_KEY: str = ""

@@ -2,6 +2,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "notification_service"
     SENTRY_DSN: str = ""
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str

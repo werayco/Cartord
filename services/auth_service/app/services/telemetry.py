@@ -7,18 +7,20 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 from app.db.redis_client import redis_client
 from app.core.config import settings
 
 
 def setup_telemetry(app, engine: AsyncEngine):
-    resource = Resource.create({SERVICE_NAME: "auth_service"})
+    resource = Resource.create({SERVICE_NAME: settings.OTEL_SERVICE_NAME})
     provider = TracerProvider(resource=resource)
     exporter = OTLPSpanExporter(endpoint=settings.OTEL_EXPORTER_OTLP_ENDPOINT)
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
 
     FastAPIInstrumentor.instrument_app(app)
+    Instrumentator().instrument(app).expose(app, endpoint="/api/v1/metrics", include_in_schema=False)
     SQLAlchemyInstrumentor().instrument(engine=engine.sync_engine)
 
     RedisInstrumentor().instrument()

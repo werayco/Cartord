@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings
 import base64
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "auth_service"
     ALLOW_ORIGINS: str = "*"
     SENTRY_DSN: str = ""
     AUTH_DATABASE_URL: str
