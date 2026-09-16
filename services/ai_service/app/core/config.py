@@ -31,7 +31,13 @@ class Settings(BaseSettings):
 
     AUTH_BASE_URL: str = "http://auth_service:9001"
     ORDER_BASE_URL: str = "http://order_service:9004"
+    SEARCH_BASE_URL: str = "http://search_service:9007"
     INVENTORY_BASE_URL: str = "http://inventory_service:9002"
+
+    PAYMENT_BASE_URL: str = "http://payment_service:9003"
+
+    CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
+    CIRCUIT_BREAKER_FAIL_MAX: int = 5
 
     class Config:
         env_file = ".env"

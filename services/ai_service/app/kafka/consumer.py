@@ -1,13 +1,9 @@
 import asyncio
 import json
-import logging
-from datetime import datetime, timezone
-
 from confluent_kafka import Consumer, Producer
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from langchain_core.messages import HumanMessage
-
 from app.core.config import settings
 from app.core.utils import deserialize_from_json
 from app.db.session import AsyncSessionLocal
@@ -47,11 +43,6 @@ class KafkaConsumer:
             if k == "eventType":
                 return v.decode() if isinstance(v, bytes) else v
         return None
-
-    async def get_graph(self):
-        if self._graph is None:
-            self._graph = await node_registry()
-        return self._graph
 
     async def consume(self):
         self.consumer.subscribe(["chat"])
@@ -100,7 +91,8 @@ class KafkaConsumer:
             return
 
         channel = conversation_channel(conversation_id)
-        graph = await self.get_graph()
+        graph = await node_registry()
+
         config = {"configurable": {"thread_id": conversation_id}}
         inputs = {
             "messages": [HumanMessage(content=content)],
@@ -110,36 +102,38 @@ class KafkaConsumer:
 
         full_reply = ""
         try:
-            async for event in graph.astream_events(inputs, version="v2", config=config):
-                if event["event"] != "on_chat_model_stream":
-                    continue
-                chunk = event["data"].get("chunk")
-                delta = getattr(chunk, "content", None) if chunk else None
-                if not delta:
-                    continue
-                full_reply += delta
-                await redis_client.publish(channel, json.dumps({
-                    "type": "token",
-                    "conversation_id": conversation_id,
-                    "reply_to_message_id": message_id,
-                    "delta": delta,
-                }))
+            async for mode, data in graph.astream(inputs, stream_mode=["messages", "custom"], config=config):
+                if mode == "custom":
+                    await redis_client.publish(channel, json.dumps({
+                        **data, # {"type": "thought"} -- this is the tought
+                        "conversation_id": conversation_id,
+                        "message_id": message_id}))
+                    
+                elif mode == "messages":
+                    message, metadata = data
+                    if isinstance(message.content, str) and message.content:
+                        full_reply += message.content
+                        await redis_client.publish(channel, json.dumps({
+                            "type": "token",
+                            "conversation_id": conversation_id,
+                            "message_id": message_id,
+                            "delta": message.content,
+                        }))
         except Exception:
             await redis_client.publish(channel, json.dumps({
                 "type": "error",
                 "conversation_id": conversation_id,
-                "reply_to_message_id": message_id,
+                "message_id": message_id,
                 "error": "Something went wrong generating a reply, try again.",
             }))
             raise
 
         assistant_message_id = await self.persist_reply(conversation_id, full_reply)
-
         await redis_client.publish(channel, json.dumps({
             "type": "done",
             "conversation_id": conversation_id,
-            "reply_to_message_id": message_id,
-            "message_id": assistant_message_id,
+            "user_message_id": message_id,
+            "assistant_message_id": assistant_message_id,
         }))
 
     @staticmethod
@@ -149,7 +143,6 @@ class KafkaConsumer:
                 conversation_id=conversation_id,
                 role="assistant",
                 content=content,
-                created_at=datetime.now(timezone.utc),
             )
             db.add(message)
             await db.commit()

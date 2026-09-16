@@ -14,7 +14,7 @@ GlitchTip runs as two services sharing the existing Postgres instance plus a new
 - `glitchtip-worker` - Celery worker + beat scheduler, handles grouping, notifications, and cleanup
 - `redis` - message broker between web and worker
 
-All services run on the existing `chatdome_network` bridge network and resolve each other via Docker's internal DNS using their service names (`postgres`, `redis`, `glitchtip-web`, `backend`).
+All services run on the existing `mynet` bridge network and resolve each other via Docker's internal DNS using their service names (`postgres`, `redis`, `glitchtip-web`, `backend`).
 
 
 

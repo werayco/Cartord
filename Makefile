@@ -43,8 +43,6 @@ ai:
 dz:
 	docker logs -f cartord-dz
 
-
-
 build-auth-service:
 	docker build -t $(IMAGE_REPO)/auth-service:latest ./services/auth_service
 
@@ -105,6 +103,12 @@ stop:
 stop-v:
 	docker compose -f shared/compose_files/docker-compose.yml down --remove-orphans -v
 	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans -v
+
+glitchtip-migrate:
+	docker exec chatdome-glitchtip-web ./manage.py migrate
+
+glitchtip-superuser:
+	docker exec -it chatdome-glitchtip-web ./manage.py createsuperuser
 
 git:
 	git add .

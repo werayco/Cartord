@@ -2,6 +2,7 @@ from typing import Annotated, Optional
 from uuid import uuid4
 import aiohttp
 from langchain_core.tools import tool
+from langgraph.config import get_stream_writer
 from langgraph.prebuilt import InjectedState
 from app.core.config import settings
 from app.core.logging import logger
@@ -18,61 +19,75 @@ async def call_service(method: str, url: str, access_token: str, json: Optional[
                 return await response.json()
     except aiohttp.ClientResponseError as e:
         logger.error(f"{method} {url} failed: {e.status} - {e.message}")
-        return {"error": True, "status": e.status, "message": e.message}
+        return {"error": True, "thought": e.status, "message": e.message}
     except aiohttp.ClientError as e:
         logger.error(f"{method} {url} connection error: {e}")
-        return {"error": True, "status": 503, "message": "Service unavailable"}
+        return {"error": True, "thought": 503, "message": "Service unavailable"}
 
 @tool
-async def make_order(product_id: str, quantity: int, state: Annotated[AgentState, InjectedState], delivery_address_id: Optional[str] = None) -> dict:
-    """Place an order for a product on behalf of the signed-in customer."""
-    idempotency_key = str(uuid4())
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/place/{idempotency_key}"
-    payload = {"sku": product_id, "quantity": quantity}
-    if delivery_address_id:
-        payload["delivery_address_id"] = delivery_address_id  ## still needs order_service to accept this field
-    return await call_service("POST", url, state["access_token"], json=payload)
+async def fetch_item_details(query: str, access_token: str) -> dict:
+    """Search the catalog by product name; return ranked matches with their SKUs."""
+    url = f"{settings.SEARCH_BASE_URL}/api/v1/search/items"
+    return await call_service("GET", url, access_token, params={"query": query})
 
 @tool
-async def reorder(order_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Reorder a previous order, identified by its order ID, for the signed-in customer."""
-    idempotency_key = str(uuid4())
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/reorder/{idempotency_key}" ## endpoint doesn't exist yet
-    return await call_service("POST", url, state["access_token"])
+async def fetch_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get the signed-in customer's current wallet balance."""
+    writer = get_stream_writer()
+    writer({"type": "thought", "message": "Checking your wallet balance..."})
+    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallet/buyer"
+    writer({"type": "thought", "message": "Retrieved your wallet balance."})
+    return await call_service("GET", url, state["access_token"])
 
 @tool
 async def change_delivery_address(order_id: str, address_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
     """Change the delivery address for an existing order belonging to the signed-in customer."""
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address" ## endpoint doesn't exist yet
-    return await call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
-
-@tool
-async def change_order_quantity(order_id: str, item_id: str, quantity: int, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Change the quantity of a specific item within an existing order."""
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/items/{item_id}"
-    return await call_service("PATCH", url, state["access_token"], json={"quantity": quantity})
+    writer = get_stream_writer()
+    writer({"type": "thought", "message": "Updating your delivery address..."})
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address"
+    result = await call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
+    writer({"type": "thought", "message": "Your delivery address has been updated." if not result.get("error") else "I couldn't update your delivery address."})
+    return result
 
 @tool
 async def get_order_analytics(state: Annotated[AgentState, InjectedState]) -> dict:
     """Get the signed-in customer's own order analytics: order count, total spend, most-ordered products."""
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/analytics" ## endpoint doesn't exist yet
-    return await call_service("GET", url, state["access_token"])
+    writer = get_stream_writer()
+    writer({"type": "thought", "message": "Analyzing your order history..."})
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/analytics"
+    result = await call_service("GET", url, state["access_token"])
+    writer({"type": "thought", "message": "Your order analytics are ready." if not result.get("error") else "I couldn't retrieve your order analytics."})
+    return result
+
+@tool
+async def get_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dict:
+    """Get the signed-in customer's current wallet balance."""
+    writer = get_stream_writer()
+    writer({"type": "thought", "message": "Checking your wallet balance..."})
+    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallets/buyer"
+    result = await call_service("GET", url, state["access_token"])
+    writer({"type": "thought", "message": "Here's your wallet balance." if not result.get("error") else "I couldn't check your wallet balance."})
+    if result.get("error"):
+        return {"error": result.get("message", "Wallet balance unavailable.")}
+    return {"current_balance": result["current_balance"]}
 
 @tool
 async def get_faq_response(question: str) -> dict:
     """Answer a general store/product FAQ question using the store's knowledge base."""
+    writer = get_stream_writer()
+    writer({"type": "thought", "message": "Looking that up in the store knowledge base..."})
     async with AsyncSessionLocal() as db:
         documents = await RAGPipeline.retrieve_documents(question, db)
-        return {"document_text": [doc.content for doc in documents]}
+        result = {"document_text": [doc.content for doc in documents]}
+    writer({"type": "thought", "message": "I found the relevant information."})
+    return result
 
 CUSTOMER_TOOLS = [
-    make_order,
-    reorder,
     change_delivery_address,
-    change_order_quantity,
     get_order_analytics,
+    get_wallet_balance,
     get_faq_response,
+    fetch_wallet_balance,
 ]
-
 
 tools = CUSTOMER_TOOLS

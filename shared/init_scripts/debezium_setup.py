@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path="./shared/compose_files/.env")
 DEBEZIUM_URL = "http://localhost:8083/connectors"
 
-def outbox_connector(name, db_name, table_name, slot_name, topic):
+def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="aggregate_id"):
     return {
         "name": name,
         "config": {
@@ -26,7 +26,7 @@ def outbox_connector(name, db_name, table_name, slot_name, topic):
             "transforms": "outbox",
             "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
             "transforms.outbox.table.field.event.id": "id",
-            "transforms.outbox.table.field.event.key": "aggregate_id",
+            "transforms.outbox.table.field.event.key": key_field,
             # "transforms.outbox.table.field.event.timestamp": "created_at",
             "transforms.outbox.table.field.event.payload": "payload",
             "transforms.outbox.table.expand.json.payload": "true",
@@ -66,6 +66,7 @@ connector_config_chat = outbox_connector(
     table_name="chat_outbox_events",
     slot_name="chat_outbox_slot",
     topic="chat",
+    key_field="conversation_id",
 )
 
 connector_config_auth = outbox_connector(
