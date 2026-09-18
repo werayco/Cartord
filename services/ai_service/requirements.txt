@@ -16,18 +16,24 @@ aiobreaker
 uuid6
 redis==5.0.8
 aiohttp
-opentelemetry-api==1.27.0
-opentelemetry-sdk==1.27.0
-opentelemetry-instrumentation-fastapi==0.49b0
-opentelemetry-instrumentation-confluent-kafka
-opentelemetry-instrumentation-redis
-opentelemetry-instrumentation-aiohttp-client
-opentelemetry-exporter-otlp-proto-grpc
-opentelemetry-instrumentation-sqlalchemy
+
+opentelemetry-api==1.44.0
+opentelemetry-sdk==1.44.0
+opentelemetry-proto==1.44.0
+opentelemetry-semantic-conventions==0.65b0
+opentelemetry-instrumentation==0.65b0
+opentelemetry-instrumentation-fastapi==0.65b0
+opentelemetry-instrumentation-asgi==0.65b0
+opentelemetry-instrumentation-confluent-kafka==0.65b0
+opentelemetry-instrumentation-redis==0.65b0
+opentelemetry-instrumentation-aiohttp-client==0.65b0
+opentelemetry-instrumentation-sqlalchemy==0.65b0
+opentelemetry-exporter-otlp-proto-grpc==1.44.0
 
 python-jose[cryptography]==3.3.0
 
 ## AI libraries
+psycopg[binary,pool]
 langgraph-checkpoint-postgres
 sentence-transformers
 langchain-text-splitters

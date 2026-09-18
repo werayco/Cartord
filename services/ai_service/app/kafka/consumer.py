@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.core.utils import deserialize_from_json
 from app.db.session import AsyncSessionLocal
 from app.db.redis_client import redis_client
+from langgraph.types import Command
 from app.models.message import Message
 from app.nodes.entry_point import node_registry
 from app.services.socket_registry import conversation_channel
@@ -94,15 +95,16 @@ class KafkaConsumer:
         graph = await node_registry()
 
         config = {"configurable": {"thread_id": conversation_id}}
-        inputs = {
-            "messages": [HumanMessage(content=content)],
-            "user_id": user_id,
-            "access_token": access_token,
-        }
+
+        state = await graph.aget_state(config) # using the thread_id to return the snapshot of the checkpoint
+        if state.next:
+            resume_input=Command(resume=content)
+        else:
+            resume_input = {"messages": [HumanMessage(content=content)], "user_id": user_id, "access_token": access_token}
 
         full_reply = ""
         try:
-            async for mode, data in graph.astream(inputs, stream_mode=["messages", "custom"], config=config):
+            async for mode, data in graph.astream(resume_input, stream_mode=["messages", "custom", "updates"], config=config):
                 if mode == "custom":
                     await redis_client.publish(channel, json.dumps({
                         **data, # {"type": "thought"} -- this is the tought
@@ -119,6 +121,18 @@ class KafkaConsumer:
                             "message_id": message_id,
                             "delta": message.content,
                         }))
+                elif mode == "updates":
+                    print("the astream returned a 'updates' stream mode")
+                    print(f"the data is {data}")
+                    if "__interrupt__" in data:
+                        interrupt_obj = data["__interrupt__"][0]
+                        await redis_client.publish(channel, json.dumps({
+                            "type": "question",
+                            "conversation_id": conversation_id,
+                            "message_id": message_id,
+                            "question": interrupt_obj.value["question"],
+                        }))
+                        return
         except Exception:
             await redis_client.publish(channel, json.dumps({
                 "type": "error",

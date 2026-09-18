@@ -33,4 +33,4 @@ class IntentClassification(BaseModel):
 
 class OrderSlots(BaseModel):
     product_query: Optional[str] = Field(default=None, description="Product name or SKU, if mentioned.")
-    quantity: Optional[int] = Field(default=None, description="Quantity, if mentioned.")
+    quantity: Optional[int] = Field(default=None, description="Quantity (it is an integer), if mentioned.")

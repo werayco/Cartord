@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     SEARCH_BASE_URL: str = "http://search_service:9007"
     INVENTORY_BASE_URL: str = "http://inventory_service:9002"
 
-    PAYMENT_BASE_URL: str = "http://payment_service:9003"
+    PAYMENT_BASE_URL: str
 
     CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
     CIRCUIT_BREAKER_FAIL_MAX: int = 5

@@ -125,3 +125,10 @@ class OrderController:
             await update_inventory(sku=order.sku, reserved_quantity=-order.quantity)
         except Exception as e:
             logger.critical(f"Order {order_id} cancelled but failed to release inventory reservation: {e}")
+
+    @staticmethod
+    async def get_summary(current_user, db):
+        result = (await db.execute(Order).where(Order.customer_id==current_user.id))
+        orders = result.scalars().all()
+        if orders:
+            ...

@@ -103,19 +103,15 @@ async def check_wallet(state: AgentState) -> Command[Literal["confirm_order", "_
     writer({"type": "thought", "node": "check_wallet", "message": "Checking whether your wallet can cover this order..."})
     draft = dict(state.get("order_draft") or {})
     total = draft["price"] * draft["quantity"]
-    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallet/buyer"
+    url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     wallet = await call_service("GET", url, state["access_token"])
 
     if wallet.get("error"):
-        return Command(
-            goto=END,
-            update={"messages": [AIMessage(content="I couldn't check your wallet balance right now, so I've paused the order.")]},
-        )
+        return Command(goto=END,update={"messages": [AIMessage(content="I couldn't check your wallet balance right now, so I've paused the order.")]},)
 
     balance = wallet["balance"]
     if balance < total:
-        return Command(
-            goto=END,
+        return Command(goto=END,
             update={
                 "order_draft": {},
                 "messages": [AIMessage(
@@ -169,10 +165,12 @@ async def place_order_node(state: AgentState) -> Command[Literal["__end__"]]:
 async def wallet_balance_node(state: AgentState) -> Command[Literal["__end__"]]:
     writer = get_stream_writer()
     writer({"type": "thought", "node": "wallet_balance_node", "message": "Retrieving your wallet balance..."})
-    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallet/buyer"
+    writer({"type": "thought", "node": "wallet_balance_node", "message": "Hold on a sec..."})
+    url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     wallet = await call_service("GET", url, state["access_token"])
     if wallet.get("error"):
+        writer({"type": "thought", "node": "wallet_balance_node", "message": "Oops! Something is going on..."})
         message = "I couldn't check your wallet balance right now."
     else:
-        message = f"Your wallet balance is {wallet['balance']:.2f}."
+        message = f"Your wallet balance is {wallet['current_balance']:.2f}."
     return Command(goto=END, update={"messages": [AIMessage(content=message)]})

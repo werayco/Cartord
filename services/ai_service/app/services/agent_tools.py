@@ -9,22 +9,30 @@ from app.core.logging import logger
 from app.db.session import AsyncSessionLocal
 from app.services.agent_state import AgentState
 from app.services.rag_pipeline import RAGPipeline
+from datetime import timedelta
+from aiobreaker import CircuitBreaker, CircuitBreakerError
+
+breaker = CircuitBreaker(fail_max=5, timeout_duration=timedelta(seconds=30))
 
 async def call_service(method: str, url: str, access_token: str, json: Optional[dict] = None, params: Optional[dict] = None) -> dict:
     headers = {"Authorization": f"Bearer {access_token}"} if access_token else {}
-    try:
+    async def _do_request():
         async with aiohttp.ClientSession() as session:
             async with session.request(method, url, json=json, params=params, headers=headers) as response:
                 response.raise_for_status()
                 return await response.json()
+    try:
+        return await breaker.call_async(_do_request)
+    except CircuitBreakerError:
+        logger.error(f"{method} {url} short-circuited - breaker open")
+        return {"error": True, "status": 503, "message": "Service temporarily unavailable, please try again shortly."}
     except aiohttp.ClientResponseError as e:
         logger.error(f"{method} {url} failed: {e.status} - {e.message}")
-        return {"error": True, "thought": e.status, "message": e.message}
+        return {"error": True, "status": e.status, "message": e.message}
     except aiohttp.ClientError as e:
         logger.error(f"{method} {url} connection error: {e}")
-        return {"error": True, "thought": 503, "message": "Service unavailable"}
+        return {"error": True, "status": 503, "message": "Service unavailable"}
 
-@tool
 async def fetch_item_details(query: str, access_token: str) -> dict:
     """Search the catalog by product name; return ranked matches with their SKUs."""
     url = f"{settings.SEARCH_BASE_URL}/api/v1/search/items"
@@ -35,7 +43,7 @@ async def fetch_wallet_balance(state: Annotated[AgentState, InjectedState]) -> d
     """Get the signed-in customer's current wallet balance."""
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Checking your wallet balance..."})
-    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallet/buyer"
+    url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     writer({"type": "thought", "message": "Retrieved your wallet balance."})
     return await call_service("GET", url, state["access_token"])
 
@@ -64,9 +72,10 @@ async def get_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dic
     """Get the signed-in customer's current wallet balance."""
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Checking your wallet balance..."})
-    url = f"{settings.PAYMENT_BASE_URL}/api/v1/wallets/buyer"
+    url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
+    writer({"type": "thought", "message": "Hold on a sec..."})
+    writer({"type": "thought", "message": "Working on it..."})
     result = await call_service("GET", url, state["access_token"])
-    writer({"type": "thought", "message": "Here's your wallet balance." if not result.get("error") else "I couldn't check your wallet balance."})
     if result.get("error"):
         return {"error": result.get("message", "Wallet balance unavailable.")}
     return {"current_balance": result["current_balance"]}
