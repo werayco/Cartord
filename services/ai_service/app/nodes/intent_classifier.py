@@ -8,7 +8,7 @@ from app.core.config import settings
 from app.core.schemas import IntentClassification
 from app.services.agent_state import AgentState
 
-classifier_llm = ChatGroq(model="openai/gpt-oss-120b",api_key=settings.LLM_API_KEY,temperature=0).with_structured_output(IntentClassification)
+classifier_llm = ChatGroq(model="openai/gpt-oss-safeguard-20b",api_key=settings.LLM_API_KEY,temperature=0).with_structured_output(IntentClassification)
 
 INTENT_SYSTEM_PROMPT = (
     "Classify the customer's latest message into exactly one intent: "

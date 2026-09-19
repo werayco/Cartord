@@ -40,15 +40,6 @@ async def fetch_item_details(query: str, access_token: str) -> dict:
     return await call_service("GET", url, access_token, params={"query": query})
 
 @tool
-async def fetch_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get the signed-in customer's current wallet balance."""
-    writer = get_stream_writer()
-    writer({"type": "thought", "message": "Checking your wallet balance..."})
-    url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
-    writer({"type": "thought", "message": "Retrieved your wallet balance."})
-    return await call_service("GET", url, state["access_token"])
-
-@tool
 async def change_delivery_address(access_token: Annotated[str, InjectedState("access_token")],shipping_address: Optional[str] = None) -> dict:
     """Update the signed-in customer's default shipping address on their account.
     Pass shipping_address only if the customer already stated the new address in
@@ -79,17 +70,17 @@ async def get_order_summary(access_token: Annotated[str, InjectedState("access_t
     return result
 
 @tool
-async def get_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dict:
+async def get_wallet_balance(access_token: Annotated[str, InjectedState("access_token")]) -> dict:
     """Get the signed-in customer's current wallet balance."""
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Checking your wallet balance..."})
     url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     writer({"type": "thought", "message": "Hold on a sec..."})
     writer({"type": "thought", "message": "Working on it..."})
-    result = await call_service("GET", url, state["access_token"])
+    result = await call_service("GET", url, access_token)
     if result.get("error"):
         return {"error": result.get("message", "Wallet balance unavailable.")}
-    return {"current_balance": result["current_balance"]}
+    return f"Current_balance of the user is {result['current_balance']}"
 
 @tool
 async def get_faq_response(question: str) -> dict:
@@ -107,7 +98,6 @@ CUSTOMER_TOOLS = [
     get_order_summary,
     get_wallet_balance,
     get_faq_response,
-    fetch_wallet_balance,
 ]
 
 tools = CUSTOMER_TOOLS

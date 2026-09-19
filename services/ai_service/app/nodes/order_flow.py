@@ -15,7 +15,7 @@ from app.core.schemas import OrderSlots
 CANCEL_WORDS = {"cancel", "never mind", "nevermind", "stop", "no thanks", "no"}
 CONFIRM_WORDS = {"yes", "y", "confirm", "yeah", "yep", "sure", "go ahead"}
 
-slot_llm = ChatGroq(model="openai/gpt-oss-120b",api_key=settings.LLM_API_KEY,temperature=0,).with_structured_output(OrderSlots)
+slot_llm = ChatGroq(model="openai/gpt-oss-safeguard-20b",api_key=settings.LLM_API_KEY,temperature=0,).with_structured_output(OrderSlots)
 
 async def collect_order_details(state: AgentState, config: RunnableConfig) -> Command[Literal["validate_item", "collect_order_details", "__end__"]]:
     writer = get_stream_writer()
@@ -59,7 +59,7 @@ async def validate_item(state: AgentState) -> Command[Literal["validate_item", "
 
     else:
         writer({"type": "thought", "node": "validate_item", "message": "Searching the catalog for matching products..."})
-        result = await fetch_item_details.ainvoke({"query": query, "access_token": state["access_token"]})
+        result = await fetch_item_details(query,  state["access_token"])
         
         if not result.get("error") and len(result.get("response") or []) > 1:
             draft["search_matches"] = result["response"]
@@ -71,6 +71,7 @@ async def validate_item(state: AgentState) -> Command[Literal["validate_item", "
     items = result.get("response") or []
     if not items:
         return Command(goto="collect_order_details",update={"order_draft": {"quantity": draft.get("quantity")},"messages": [AIMessage(content=f'I couldn\'t find a match for "{query}".'"Could you describe the product or try another name?")],},)
+    
     if len(items) > 1:
         writer({"type": "thought", "node": "validate_item", "message": "Several products match. Please choose one from the options."})
         answer = interrupt({
@@ -78,9 +79,8 @@ async def validate_item(state: AgentState) -> Command[Literal["validate_item", "
             "options": [
                 {"number": i, "name": item["name"], "price": item["unit_price"],
                  "description": item.get("description", "")}
-                for i, item in enumerate(items, 1)
-            ],
-        })
+                for i, item in enumerate(items, 1)]})
+
         if isinstance(answer, str) and answer.strip().lower() in CANCEL_WORDS:
             return Command(goto=END, update={"order_draft": {}, "messages": [AIMessage(content="No problem, I've cancelled that. What would you like to do next?")]})
 
@@ -109,7 +109,7 @@ async def check_wallet(state: AgentState) -> Command[Literal["confirm_order", "_
     if wallet.get("error"):
         return Command(goto=END,update={"messages": [AIMessage(content="I couldn't check your wallet balance right now, so I've paused the order.")]},)
 
-    balance = wallet["balance"]
+    balance = wallet["current_balance"]
     if balance < total:
         return Command(goto=END,
             update={
@@ -160,7 +160,6 @@ async def place_order_node(state: AgentState) -> Command[Literal["__end__"]]:
         message = f"Done! I've placed your order for {draft['quantity']} x {draft.get('product_name', draft['sku'])}."
 
     return Command(goto=END, update={"order_draft": {}, "messages": [AIMessage(content=message)]})
-
 
 async def wallet_balance_node(state: AgentState) -> Command[Literal["__end__"]]:
     writer = get_stream_writer()

@@ -6,7 +6,7 @@ from app.services.agent_state import AgentState
 from app.services.agent_tools import CUSTOMER_TOOLS
 
 llm = ChatGroq(
-    model="openai/gpt-oss-120b",
+    model="openai/gpt-oss-safeguard-20b",
     api_key=settings.LLM_API_KEY,
     temperature=settings.TEMPERATURE,
     streaming=True,
