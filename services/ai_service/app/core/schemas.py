@@ -14,16 +14,7 @@ class Roles(Enum):
     SELLER = "seller"
 
 class IntentClassification(BaseModel):
-    intent: Literal[
-        "place_order",
-        "check_balance",
-        "reorder",
-        "change_address",
-        "change_quantity",
-        "order_analytics",
-        "faq",
-        "chitchat",
-    ] = Field(description="The single best-matching intent for the customer's latest message.")
+    intent: Literal["place_order", "check_balance", "general"] = Field(description="The single best-matching intent for the customer's latest message.")
     product_query: Optional[str] = Field(
         default=None, description="Product name or SKU the customer explicitly mentioned, if any."
     )

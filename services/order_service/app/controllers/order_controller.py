@@ -11,6 +11,8 @@ from app.core.utils import update_inventory
 from uuid import UUID
 from app.core.schemas import OrderStatus
 from app.core.logging import logger
+from sqlalchemy import select, func
+from uuid import UUID
 
 class OrderController:
     @staticmethod
@@ -128,7 +130,109 @@ class OrderController:
 
     @staticmethod
     async def get_summary(current_user, db):
-        result = (await db.execute(Order).where(Order.customer_id==current_user.id))
-        orders = result.scalars().all()
-        if orders:
-            ...
+        try:
+            if not current_user or not current_user.get("id"):
+                return {
+                    "error": "INVALID_USER",
+                    "message": "Unable to identify the signed-in customer."
+                }
+
+            try:
+                customer_id = UUID(current_user["id"])
+            except (ValueError, TypeError):
+                return {
+                    "error": "INVALID_USER_ID",
+                    "message": "The signed-in customer's ID is invalid."
+                }
+
+            result = await db.execute(
+                select(Order)
+                .where(Order.customer_id == customer_id)
+                .order_by(Order.created_at.desc())
+            )
+            orders = result.scalars().all()
+
+            successful = []
+            failed = []
+            delivered = []
+
+            for order in orders:
+                order_info = (
+                    f"Order {order.id}: "
+                    f"{order.quantity} units, "
+                    f"status: {order.status.value}"
+                )
+
+                if order.status == OrderStatus.DELIVERED:
+                    successful.append(order_info)
+                    delivered.append(order)
+
+                elif order.status in {
+                    OrderStatus.CANCELLED,
+                    OrderStatus.FAILED,
+                }:
+                    failed.append(order_info)
+
+                else:
+                    successful.append(order_info)
+
+            total_spend = sum(
+                order.quantity * order.unit_price
+                for order in delivered
+            )
+
+            product_quantities = {}
+
+            for order in delivered:
+                product_quantities[order.sku] = (
+                    product_quantities.get(order.sku, 0) + order.quantity
+                )
+
+            most_ordered_products = sorted(
+                product_quantities.items(),
+                key=lambda item: item[1],
+                reverse=True,
+            )
+
+            lines = [
+                "Order summary for the signed-in customer:",
+                "",
+                f"Total orders: {len(orders)}",
+                f"Delivered orders: {len(delivered)}",
+                f"Total spend: {total_spend:.2f}",
+                "",
+                "Successful/active orders:",
+            ]
+
+            if successful:
+                lines.extend(f"- {order}" for order in successful)
+            else:
+                lines.append("- None")
+
+            lines.extend(["", "Failed/cancelled orders:"])
+
+            if failed:
+                lines.extend(f"- {order}" for order in failed)
+            else:
+                lines.append("- None")
+
+            lines.extend(["", "Most-ordered products:"])
+
+            if most_ordered_products:
+                lines.extend(
+                    f"- {sku}: {quantity} units"
+                    for sku, quantity in most_ordered_products
+                )
+            else:
+                lines.append("- No delivered orders.")
+
+            return {
+                "message": "\n".join(lines),
+                "status": "successful",
+            }
+
+        except Exception:
+            return {
+                "error": "SUMMARY_ERROR",
+                "message": "Unable to retrieve the order summary at this time."
+            }

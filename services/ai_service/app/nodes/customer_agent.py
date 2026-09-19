@@ -28,5 +28,4 @@ async def Agent(state: AgentState, config: RunnableConfig) -> AgentState:
         *state["messages"]]
 
     response = await llm_customer.ainvoke(messages, config)
-
     return {"messages": [response]}

@@ -2,6 +2,7 @@ from typing import Annotated, Optional
 from uuid import uuid4
 import aiohttp
 from langchain_core.tools import tool
+from langgraph.types import interrupt
 from langgraph.config import get_stream_writer
 from langgraph.prebuilt import InjectedState
 from app.core.config import settings
@@ -48,22 +49,32 @@ async def fetch_wallet_balance(state: Annotated[AgentState, InjectedState]) -> d
     return await call_service("GET", url, state["access_token"])
 
 @tool
-async def change_delivery_address(order_id: str, address_id: str, state: Annotated[AgentState, InjectedState]) -> dict:
-    """Change the delivery address for an existing order belonging to the signed-in customer."""
+async def change_delivery_address(access_token: Annotated[str, InjectedState("access_token")],shipping_address: Optional[str] = None) -> dict:
+    """Update the signed-in customer's default shipping address on their account.
+    Pass shipping_address only if the customer already stated the new address in
+    their message. Leave it unset if they only said they want to change it without
+    giving the new address, you'll be prompted and can retry with the value."""
+
+    if not shipping_address:
+        answer = interrupt({"question": "Sure, what would you like your new shipping address to be?"})
+        shipping_address = str(answer)
+
     writer = get_stream_writer()
-    writer({"type": "thought", "message": "Updating your delivery address..."})
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/{order_id}/address"
-    result = await call_service("PATCH", url, state["access_token"], json={"address_id": address_id})
-    writer({"type": "thought", "message": "Your delivery address has been updated." if not result.get("error") else "I couldn't update your delivery address."})
+    writer({"type": "thought", "message": "Updating your shipping address..."})
+    url = f"{settings.AUTH_BASE_URL}/api/v1/auth/buyer/update"
+    result = await call_service("PATCH", url, access_token, json={"shipping_address": shipping_address})
+    writer({"type": "thought", "message": "Your shipping address has been updated." if not result.get("error") else "I couldn't update your shipping address."})
     return result
 
 @tool
-async def get_order_analytics(state: Annotated[AgentState, InjectedState]) -> dict:
-    """Get the signed-in customer's own order analytics: order count, total spend, most-ordered products."""
+async def get_order_summary(access_token: Annotated[str, InjectedState("access_token")]) -> dict:
+    """Get the signed-in customer's own order summary and analytics, including total orders, delivered orders, total spend, active orders, failed or cancelled orders, and most-ordered products."""
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Analyzing your order history..."})
-    url = f"{settings.ORDER_BASE_URL}/api/v1/order/analytics"
-    result = await call_service("GET", url, state["access_token"])
+
+    url = f"{settings.ORDER_BASE_URL}/api/v1/order/summary"
+    result = await call_service("GET", url, access_token)
+    writer({"type": "thought", "message": "Almost Done..."})
     writer({"type": "thought", "message": "Your order analytics are ready." if not result.get("error") else "I couldn't retrieve your order analytics."})
     return result
 
@@ -82,7 +93,7 @@ async def get_wallet_balance(state: Annotated[AgentState, InjectedState]) -> dic
 
 @tool
 async def get_faq_response(question: str) -> dict:
-    """Answer a general store/product FAQ question using the store's knowledge base."""
+    """Answer a general store/product FAQ question about Cartord using the store's knowledge base."""
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Looking that up in the store knowledge base..."})
     async with AsyncSessionLocal() as db:
@@ -93,7 +104,7 @@ async def get_faq_response(question: str) -> dict:
 
 CUSTOMER_TOOLS = [
     change_delivery_address,
-    get_order_analytics,
+    get_order_summary,
     get_wallet_balance,
     get_faq_response,
     fetch_wallet_balance,

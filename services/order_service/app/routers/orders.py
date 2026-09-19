@@ -12,5 +12,5 @@ async def place_order(payload: OrderPayload, idempotency_key: str, current_user:
     return await OrderController.place_order(payload, current_user, db, idempotency_key)
 
 @order_router.get("/summary")
-async def get_order_summary(current_user: str = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_order_summary(current_user = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await OrderController.get_summary(current_user, db)
