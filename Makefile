@@ -4,6 +4,12 @@ IMAGE_REPO ?= werayco
 TOPIC ?= inventory
 PARTITIONS ?= 3
 REPLICATION ?= 1
+NETWORK ?= mynet
+INIT_IMAGE ?= python:3.12-slim
+
+init:
+	docker network create mynet
+	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"
 
 gen:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
@@ -74,10 +80,6 @@ push-all:
 	docker push $(IMAGE_REPO)/search-service:latest
 	docker push $(IMAGE_REPO)/ai-service:latest
 	docker push $(IMAGE_REPO)/payment-service:latest
-init:
-	python -m shared.init_scripts.debezium_setup
-	python -m shared.init_scripts.seed
-	python -m shared.init_scripts.create_topics
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d

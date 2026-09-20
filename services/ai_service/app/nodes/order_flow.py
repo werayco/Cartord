@@ -13,7 +13,7 @@ from app.services.agent_tools import call_service, fetch_item_details
 from app.core.schemas import OrderSlots
 
 CANCEL_WORDS = {"cancel", "never mind", "nevermind", "stop", "no thanks", "no"}
-CONFIRM_WORDS = {"yes", "y", "confirm", "yeah", "yep", "sure", "go ahead"}
+CONFIRM_WORDS = {"yes", "y", "confirm", "yeah", "yep", "sure", "go ahead", "do it"}
 
 slot_llm = ChatGroq(model="openai/gpt-oss-safeguard-20b",api_key=settings.LLM_API_KEY,temperature=0,).with_structured_output(OrderSlots)
 

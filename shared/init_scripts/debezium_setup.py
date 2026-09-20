@@ -4,7 +4,7 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
-DEBEZIUM_URL = "http://localhost:8083/connectors"
+DEBEZIUM_URL = os.getenv("DEBEZIUM_URL", "http://debezium:8083") + "/connectors"
 
 def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="aggregate_id"):
     return {

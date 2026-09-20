@@ -22,8 +22,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
 
-RAW_DATABASE_URL = os.getenv("INVENTORY_DATABASE_URL")
-DATABASE_URL = RAW_DATABASE_URL.replace("@postgres", "@localhost")
+DATABASE_URL = os.getenv("INVENTORY_DATABASE_URL")
 INVENTORY_JSON_PATH = Path(__file__).parent.parent / "inventory.json"
 
 metadata = MetaData()
@@ -83,7 +82,6 @@ async def seed() -> None:
                     unit_price = item["price"]
                     available_quantity = item.get("available_quantity", item.get("quantity", 0))
                 except KeyError as e:
-                    logger.info(f"Skipping item, missing required field {e}: {item}")
                     skipped += 1
                     continue
 
