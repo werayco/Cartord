@@ -1,0 +1,30 @@
+dependencies:
+- name: ai-service
+  repository: file://charts/ai-service
+  version: 0.1.0
+- name: auth-service
+  repository: file://charts/auth-service
+  version: 0.1.0
+- name: inventory-service
+  repository: file://charts/inventory-service
+  version: 0.1.0
+- name: notification-service
+  repository: file://charts/notification-service
+  version: 0.1.0
+- name: order-service
+  repository: file://charts/order-service
+  version: 0.1.0
+- name: payment-service
+  repository: file://charts/payment-service
+  version: 0.1.0
+- name: search-service
+  repository: file://charts/search-service
+  version: 0.1.0
+- name: redis
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 18.19.4
+- name: kafka
+  repository: oci://registry-1.docker.io/bitnamicharts
+  version: 26.11.4
+digest: sha256:f9822af65aaa97e87278195bfa25e10fd52fa1d95af08f18d2650c78e8878aed
+generated: "2026-09-25T11:47:07.5722529-07:00"

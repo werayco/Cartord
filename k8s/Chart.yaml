@@ -1,0 +1,45 @@
+apiVersion: v2
+name: k8s
+description: CartOrd/OrderFlow microservices platform — order, inventory, payment, auth, search, notification, and AI services
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: ai-service
+    version: "0.1.0"
+    repository: "file://charts/ai-service"
+
+  - name: auth-service
+    version: "0.1.0"
+    repository: "file://charts/auth-service"
+
+  - name: inventory-service
+    version: "0.1.0"
+    repository: "file://charts/inventory-service"
+
+  - name: notification-service
+    version: "0.1.0"
+    repository: "file://charts/notification-service"
+
+  - name: order-service
+    version: "0.1.0"
+    repository: "file://charts/order-service"
+
+  - name: payment-service
+    version: "0.1.0"
+    repository: "file://charts/payment-service"
+
+  - name: search-service
+    version: "0.1.0"
+    repository: "file://charts/search-service"
+
+  - name: redis
+    version: "18.x.x"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    condition: redis.enabled
+
+  - name: kafka
+    version: "26.x.x"
+    repository: "oci://registry-1.docker.io/bitnamicharts"
+    condition: kafka.enabled

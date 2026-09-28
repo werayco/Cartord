@@ -1,0 +1,105 @@
+replicaCount: 1
+
+image:
+  repository: werayco/ai-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "ai-service"
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 9000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - chart-example.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /headers
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
+livenessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: http
+readinessProbe:
+  httpGet:
+    path: /api/v1/health
+    port: http
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+volumes: []
+volumeMounts: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+env:
+  - name: OTEL_SERVICE_NAME
+    value: "ai_service"
+  - name: SENTRY_DSN
+    valueFrom:
+      secretKeyRef:
+        name: cartord-secrets
+        key: GLITCHTIP_AI_DSN
+  - name: AUTH_BASE_URL
+    value: "http://auth-service:9001"
+  - name: ORDER_BASE_URL
+    value: "http://order-service:9004"
+  - name: SEARCH_BASE_URL
+    value: "http://search-service:9007"
+  - name: INVENTORY_BASE_URL
+    value: "http://inventory-service:9002"
+  - name: PAYMENT_BASE_URL
+    value: "http://payment-service:9005/api/v1"
+
+envFrom:
+  - secretRef:
+      name: cartord-secrets

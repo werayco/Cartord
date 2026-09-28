@@ -1,0 +1,10 @@
+# k8s/values.yaml — add under redis: and kafka:
+redis:
+  enabled: true
+  global:
+    imageRegistry: docker.io/bitnamilegacy
+
+kafka:
+  enabled: true
+  global:
+    imageRegistry: docker.io/bitnamilegacy

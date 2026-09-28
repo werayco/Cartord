@@ -1,0 +1,2213 @@
+---
+# Source: k8s/charts/redis/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: cartord-redis
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: cartord
+      app.kubernetes.io/name: redis
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    # Allow inbound connections
+    - ports:
+        - port: 6379
+
+---
+# Source: k8s/charts/ai-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ai-service
+  labels:
+    helm.sh/chart: ai-service-0.1.0
+    app.kubernetes.io/name: ai-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/auth-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: auth-service
+  labels:
+    helm.sh/chart: auth-service-0.1.0
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/inventory-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: inventory-service
+  labels:
+    helm.sh/chart: inventory-service-0.1.0
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/kafka/templates/provisioning/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartord-kafka-provisioning
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+automountServiceAccountToken: false
+
+---
+# Source: k8s/charts/kafka/templates/rbac/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartord-kafka
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+    app.kubernetes.io/component: kafka
+automountServiceAccountToken: false
+
+---
+# Source: k8s/charts/notification-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: notification-service
+  labels:
+    helm.sh/chart: notification-service-0.1.0
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/order-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-service
+  labels:
+    helm.sh/chart: order-service-0.1.0
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/payment-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-service
+  labels:
+    helm.sh/chart: payment-service-0.1.0
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/redis/templates/master/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: false
+metadata:
+  name: cartord-redis-master
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+
+---
+# Source: k8s/charts/redis/templates/replicas/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: false
+metadata:
+  name: cartord-redis-replica
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+
+---
+# Source: k8s/charts/search-service/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: search-service
+  labels:
+    helm.sh/chart: search-service-0.1.0
+    app.kubernetes.io/name: search-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: k8s/charts/kafka/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cartord-kafka-user-passwords
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+type: Opaque
+data:
+  client-passwords: "b3JvTTlkZmg5Zg=="
+  system-user-password: "b3JvTTlkZmg5Zg=="
+  inter-broker-password: "RExCUm56SUZyTw=="
+  controller-password: "ZzJXWnRYeHVuYg=="
+---
+# Source: k8s/charts/kafka/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cartord-kafka-kraft-cluster-id
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+type: Opaque
+data:
+  kraft-cluster-id: "aFdwazhoWUFsR1E0eFk4ZVFlWmdiYw=="
+
+---
+# Source: k8s/charts/redis/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cartord-redis
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+type: Opaque
+data:
+  redis-password: "clhaT2J6d1dXcg=="
+---
+# Source: k8s/charts/kafka/templates/controller-eligible/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartord-kafka-controller-configuration
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+    app.kubernetes.io/component: controller-eligible
+    app.kubernetes.io/part-of: kafka
+data:
+  server.properties: |-
+    # Listeners configuration
+    listeners=CLIENT://:9092,INTERNAL://:9094,CONTROLLER://:9093
+    advertised.listeners=CLIENT://advertised-address-placeholder:9092,INTERNAL://advertised-address-placeholder:9094
+    listener.security.protocol.map=CLIENT:SASL_PLAINTEXT,INTERNAL:SASL_PLAINTEXT,CONTROLLER:SASL_PLAINTEXT
+    # KRaft process roles
+    process.roles=controller,broker
+    #node.id=
+    controller.listener.names=CONTROLLER
+    controller.quorum.voters=0@cartord-kafka-controller-0.cartord-kafka-controller-headless.default.svc.cluster.local:9093,1@cartord-kafka-controller-1.cartord-kafka-controller-headless.default.svc.cluster.local:9093,2@cartord-kafka-controller-2.cartord-kafka-controller-headless.default.svc.cluster.local:9093
+    # Kraft Controller listener SASL settings
+    sasl.mechanism.controller.protocol=PLAIN
+    listener.name.controller.sasl.enabled.mechanisms=PLAIN
+    listener.name.controller.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="controller_user" password="controller-password-placeholder" user_controller_user="controller-password-placeholder";
+    # Kafka data logs directory
+    log.dir=/bitnami/kafka/data
+    # Kafka application logs directory
+    logs.dir=/opt/bitnami/kafka/logs
+    
+    sasl.enabled.mechanisms=PLAIN,SCRAM-SHA-256,SCRAM-SHA-512
+    # Interbroker configuration
+    inter.broker.listener.name=INTERNAL
+    sasl.mechanism.inter.broker.protocol=PLAIN
+    # Listeners SASL JAAS configuration
+    listener.name.client.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required user_user1="password-placeholder-0";
+    listener.name.client.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required;
+    listener.name.client.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required;
+    listener.name.internal.plain.sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username="inter_broker_user" password="interbroker-password-placeholder" user_inter_broker_user="interbroker-password-placeholder" user_user1="password-placeholder-0";
+    listener.name.internal.scram-sha-256.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="inter_broker_user" password="interbroker-password-placeholder";
+    listener.name.internal.scram-sha-512.sasl.jaas.config=org.apache.kafka.common.security.scram.ScramLoginModule required username="inter_broker_user" password="interbroker-password-placeholder";
+    # End of SASL JAAS configuration
+    
+    
+
+---
+# Source: k8s/charts/kafka/templates/scripts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartord-kafka-scripts
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+data:
+  kafka-init.sh: |-
+    #!/bin/bash
+
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    error(){
+      local message="${1:?missing message}"
+      echo "ERROR: ${message}"
+      exit 1
+    }
+
+    retry_while() {
+        local -r cmd="${1:?cmd is missing}"
+        local -r retries="${2:-12}"
+        local -r sleep_time="${3:-5}"
+        local return_value=1
+
+        read -r -a command <<< "$cmd"
+        for ((i = 1 ; i <= retries ; i+=1 )); do
+            "${command[@]}" && return_value=0 && break
+            sleep "$sleep_time"
+        done
+        return $return_value
+    }
+
+    replace_in_file() {
+        local filename="${1:?filename is required}"
+        local match_regex="${2:?match regex is required}"
+        local substitute_regex="${3:?substitute regex is required}"
+        local posix_regex=${4:-true}
+
+        local result
+
+        # We should avoid using 'sed in-place' substitutions
+        # 1) They are not compatible with files mounted from ConfigMap(s)
+        # 2) We found incompatibility issues with Debian10 and "in-place" substitutions
+        local -r del=$'\001' # Use a non-printable character as a 'sed' delimiter to avoid issues
+        if [[ $posix_regex = true ]]; then
+            result="$(sed -E "s${del}${match_regex}${del}${substitute_regex}${del}g" "$filename")"
+        else
+            result="$(sed "s${del}${match_regex}${del}${substitute_regex}${del}g" "$filename")"
+        fi
+        echo "$result" > "$filename"
+    }
+
+    kafka_conf_set() {
+        local file="${1:?missing file}"
+        local key="${2:?missing key}"
+        local value="${3:?missing value}"
+
+        # Check if the value was set before
+        if grep -q "^[#\\s]*$key\s*=.*" "$file"; then
+            # Update the existing key
+            replace_in_file "$file" "^[#\\s]*${key}\s*=.*" "${key}=${value}" false
+        else
+            # Add a new key
+            printf '\n%s=%s' "$key" "$value" >>"$file"
+        fi
+    }
+
+    replace_placeholder() {
+      local placeholder="${1:?missing placeholder value}"
+      local password="${2:?missing password value}"
+      sed -i "s/$placeholder/$password/g" "$KAFKA_CONFIG_FILE"
+    }
+
+    append_file_to_kafka_conf() {
+        local file="${1:?missing source file}"
+        local conf="${2:?missing kafka conf file}"
+
+        cat "$1" >> "$2"
+    }
+
+    configure_external_access() {
+      # Configure external hostname
+      if [[ -f "/shared/external-host.txt" ]]; then
+        host=$(cat "/shared/external-host.txt")
+      elif [[ -n "${EXTERNAL_ACCESS_HOST:-}" ]]; then
+        host="$EXTERNAL_ACCESS_HOST"
+      elif [[ -n "${EXTERNAL_ACCESS_HOSTS_LIST:-}" ]]; then
+        read -r -a hosts <<<"$(tr ',' ' ' <<<"${EXTERNAL_ACCESS_HOSTS_LIST}")"
+        host="${hosts[$POD_ID]}"
+      elif [[ "$EXTERNAL_ACCESS_HOST_USE_PUBLIC_IP" =~ ^(yes|true)$ ]]; then
+        host=$(curl -s https://ipinfo.io/ip)
+      else
+        error "External access hostname not provided"
+      fi
+
+      # Configure external port
+      if [[ -f "/shared/external-port.txt" ]]; then
+        port=$(cat "/shared/external-port.txt")
+      elif [[ -n "${EXTERNAL_ACCESS_PORT:-}" ]]; then
+        if [[ "${EXTERNAL_ACCESS_PORT_AUTOINCREMENT:-}" =~ ^(yes|true)$ ]]; then
+          port="$((EXTERNAL_ACCESS_PORT + POD_ID))"
+        else
+          port="$EXTERNAL_ACCESS_PORT"
+        fi
+      elif [[ -n "${EXTERNAL_ACCESS_PORTS_LIST:-}" ]]; then
+        read -r -a ports <<<"$(tr ',' ' ' <<<"${EXTERNAL_ACCESS_PORTS_LIST}")"
+        port="${ports[$POD_ID]}"
+      else
+        error "External access port not provided"
+      fi
+      # Configure Kafka advertised listeners
+      sed -i -E "s|^(advertised\.listeners=\S+)$|\1,EXTERNAL://${host}:${port}|" "$KAFKA_CONFIG_FILE"
+    }
+    configure_kafka_sasl() {
+
+      # Replace placeholders with passwords
+      replace_placeholder "interbroker-password-placeholder" "$KAFKA_INTER_BROKER_PASSWORD"
+      replace_placeholder "controller-password-placeholder" "$KAFKA_CONTROLLER_PASSWORD"
+      read -r -a passwords <<<"$(tr ',;' ' ' <<<"${KAFKA_CLIENT_PASSWORDS:-}")"
+      for ((i = 0; i < ${#passwords[@]}; i++)); do
+          replace_placeholder "password-placeholder-${i}" "${passwords[i]}"
+      done
+    }
+
+    export KAFKA_CONFIG_FILE=/config/server.properties
+    cp /configmaps/server.properties $KAFKA_CONFIG_FILE
+
+    # Get pod ID and role, last and second last fields in the pod name respectively
+    POD_ID=$(echo "$MY_POD_NAME" | rev | cut -d'-' -f 1 | rev)
+    POD_ROLE=$(echo "$MY_POD_NAME" | rev | cut -d'-' -f 2 | rev)
+
+    # Configure node.id and/or broker.id
+    if [[ -f "/bitnami/kafka/data/meta.properties" ]]; then
+        if grep -q "broker.id" /bitnami/kafka/data/meta.properties; then
+          ID="$(grep "broker.id" /bitnami/kafka/data/meta.properties | awk -F '=' '{print $2}')"
+          kafka_conf_set "$KAFKA_CONFIG_FILE" "node.id" "$ID"
+        else
+          ID="$(grep "node.id" /bitnami/kafka/data/meta.properties | awk -F '=' '{print $2}')"
+          kafka_conf_set "$KAFKA_CONFIG_FILE" "node.id" "$ID"
+        fi
+    else
+        ID=$((POD_ID + KAFKA_MIN_ID))
+        kafka_conf_set "$KAFKA_CONFIG_FILE" "node.id" "$ID"
+    fi
+    replace_placeholder "advertised-address-placeholder" "${MY_POD_NAME}.cartord-kafka-${POD_ROLE}-headless.default.svc.cluster.local"
+    if [[ "${EXTERNAL_ACCESS_ENABLED:-false}" =~ ^(yes|true)$ ]]; then
+      configure_external_access
+    fi
+    configure_kafka_sasl
+    if [ -f /secret-config/server-secret.properties ]; then
+      append_file_to_kafka_conf /secret-config/server-secret.properties $KAFKA_CONFIG_FILE
+    fi
+    
+
+
+---
+# Source: k8s/charts/redis/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartord-redis-configuration
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+data:
+  redis.conf: |-
+    # User-supplied common configuration:
+    # Enable AOF https://redis.io/topics/persistence#append-only-file
+    appendonly yes
+    # Disable RDB persistence, AOF persistence already enabled.
+    save ""
+    # End of common configuration
+  master.conf: |-
+    dir /data
+    # User-supplied master configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of master configuration
+  replica.conf: |-
+    dir /data
+    # User-supplied replica configuration:
+    rename-command FLUSHDB ""
+    rename-command FLUSHALL ""
+    # End of replica configuration
+
+---
+# Source: k8s/charts/redis/templates/health-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartord-redis-health
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+data:
+  ping_readiness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_local.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -n "$REDIS_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h localhost \
+        -p $REDIS_PORT \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ] && [ "$responseFirstWord" != "MASTERDOWN" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    if [ "$response" != "PONG" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_liveness_master.sh: |-
+    #!/bin/bash
+
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    [[ -n "$REDIS_MASTER_PASSWORD" ]] && export REDISCLI_AUTH="$REDIS_MASTER_PASSWORD"
+    response=$(
+      timeout -s 15 $1 \
+      redis-cli \
+        -h $REDIS_MASTER_HOST \
+        -p $REDIS_MASTER_PORT_NUMBER \
+        ping
+    )
+    if [ "$?" -eq "124" ]; then
+      echo "Timed out"
+      exit 1
+    fi
+    responseFirstWord=$(echo $response | head -n1 | awk '{print $1;}')
+    if [ "$response" != "PONG" ] && [ "$responseFirstWord" != "LOADING" ]; then
+      echo "$response"
+      exit 1
+    fi
+  ping_readiness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_readiness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_readiness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+  ping_liveness_local_and_master.sh: |-
+    script_dir="$(dirname "$0")"
+    exit_status=0
+    "$script_dir/ping_liveness_local.sh" $1 || exit_status=$?
+    "$script_dir/ping_liveness_master.sh" $1 || exit_status=$?
+    exit $exit_status
+
+---
+# Source: k8s/charts/redis/templates/scripts-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cartord-redis-scripts
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+data:
+  start-master.sh: |
+    #!/bin/bash
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/master.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/master.conf /opt/bitnami/redis/etc/master.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/master.conf")
+    exec redis-server "${ARGS[@]}"
+  start-replica.sh: |
+    #!/bin/bash
+
+    get_port() {
+        hostname="$1"
+        type="$2"
+
+        port_var=$(echo "${hostname^^}_SERVICE_PORT_$type" | sed "s/-/_/g")
+        port=${!port_var}
+
+        if [ -z "$port" ]; then
+            case $type in
+                "SENTINEL")
+                    echo 26379
+                    ;;
+                "REDIS")
+                    echo 6379
+                    ;;
+            esac
+        else
+            echo $port
+        fi
+    }
+
+    get_full_hostname() {
+        hostname="$1"
+        full_hostname="${hostname}.${HEADLESS_SERVICE}"
+        echo "${full_hostname}"
+    }
+
+    REDISPORT=$(get_port "$HOSTNAME" "REDIS")
+    HEADLESS_SERVICE="cartord-redis-headless.default.svc.cluster.local"
+
+    [[ -f $REDIS_PASSWORD_FILE ]] && export REDIS_PASSWORD="$(< "${REDIS_PASSWORD_FILE}")"
+    [[ -f $REDIS_MASTER_PASSWORD_FILE ]] && export REDIS_MASTER_PASSWORD="$(< "${REDIS_MASTER_PASSWORD_FILE}")"
+    if [[ -f /opt/bitnami/redis/mounted-etc/replica.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/replica.conf /opt/bitnami/redis/etc/replica.conf
+    fi
+    if [[ -f /opt/bitnami/redis/mounted-etc/redis.conf ]];then
+        cp /opt/bitnami/redis/mounted-etc/redis.conf /opt/bitnami/redis/etc/redis.conf
+    fi
+
+    echo "" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-port $REDISPORT" >> /opt/bitnami/redis/etc/replica.conf
+    echo "replica-announce-ip $(get_full_hostname "$HOSTNAME")" >> /opt/bitnami/redis/etc/replica.conf
+    ARGS=("--port" "${REDIS_PORT}")
+    ARGS+=("--replicaof" "${REDIS_MASTER_HOST}" "${REDIS_MASTER_PORT_NUMBER}")
+    ARGS+=("--requirepass" "${REDIS_PASSWORD}")
+    ARGS+=("--masterauth" "${REDIS_MASTER_PASSWORD}")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/redis.conf")
+    ARGS+=("--include" "/opt/bitnami/redis/etc/replica.conf")
+    exec redis-server "${ARGS[@]}"
+---
+# Source: k8s/charts/ai-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  labels:
+    helm.sh/chart: ai-service-0.1.0
+    app.kubernetes.io/name: ai-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: ai-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/auth-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  labels:
+    helm.sh/chart: auth-service-0.1.0
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9001
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/inventory-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-service
+  labels:
+    helm.sh/chart: inventory-service-0.1.0
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9002
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/kafka/templates/controller-eligible/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartord-kafka-controller-headless
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+    app.kubernetes.io/component: controller-eligible
+    app.kubernetes.io/part-of: kafka
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: tcp-interbroker
+      port: 9094
+      protocol: TCP
+      targetPort: interbroker
+    - name: tcp-client
+      port: 9092
+      protocol: TCP
+      targetPort: client
+    - name: tcp-controller
+      protocol: TCP
+      port: 9093
+      targetPort: controller
+  selector:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/component: controller-eligible
+    app.kubernetes.io/part-of: kafka
+
+---
+# Source: k8s/charts/kafka/templates/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartord-kafka
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+    app.kubernetes.io/component: kafka
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-client
+      port: 9092
+      protocol: TCP
+      targetPort: client
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: kafka
+
+---
+# Source: k8s/charts/notification-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  labels:
+    helm.sh/chart: notification-service-0.1.0
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9003
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/order-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  labels:
+    helm.sh/chart: order-service-0.1.0
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9004
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/payment-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  labels:
+    helm.sh/chart: payment-service-0.1.0
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9005
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/redis/templates/headless-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartord-redis-headless
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+  selector:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/name: redis
+
+---
+# Source: k8s/charts/redis/templates/master/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartord-redis-master
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+    app.kubernetes.io/component: master
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: master
+
+---
+# Source: k8s/charts/redis/templates/replicas/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartord-redis-replicas
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+    app.kubernetes.io/component: replica
+spec:
+  type: ClusterIP
+  internalTrafficPolicy: Cluster
+  sessionAffinity: None
+  ports:
+    - name: tcp-redis
+      port: 6379
+      targetPort: redis
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/component: replica
+
+---
+# Source: k8s/charts/search-service/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-service
+  labels:
+    helm.sh/chart: search-service-0.1.0
+    app.kubernetes.io/name: search-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9007
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: search-service
+    app.kubernetes.io/instance: cartord
+
+---
+# Source: k8s/charts/ai-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  labels:
+    helm.sh/chart: ai-service-0.1.0
+    app.kubernetes.io/name: ai-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ai-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: ai-service-0.1.0
+        app.kubernetes.io/name: ai-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: ai-service
+      containers:
+        - name: ai-service
+          image: "werayco/ai-service:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: ai_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_AI_DSN
+                  name: cartord-secrets
+            - name: AUTH_BASE_URL
+              value: http://auth-service:9001
+            - name: ORDER_BASE_URL
+              value: http://order-service:9004
+            - name: SEARCH_BASE_URL
+              value: http://search-service:9007
+            - name: INVENTORY_BASE_URL
+              value: http://inventory-service:9002
+            - name: PAYMENT_BASE_URL
+              value: http://payment-service:9005/api/v1
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+
+---
+# Source: k8s/charts/auth-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  labels:
+    helm.sh/chart: auth-service-0.1.0
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: auth-service-0.1.0
+        app.kubernetes.io/name: auth-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: auth-service
+      containers:
+        - name: auth-service
+          image: "werayco/auth-service:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9001
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: auth_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_AUTH_DSN
+                  name: cartord-secrets
+            - name: PAYMENT_BASE_URL
+              value: http://payment-service:9005/api/v1
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: k8s/charts/inventory-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  labels:
+    helm.sh/chart: inventory-service-0.1.0
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: inventory-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: inventory-service-0.1.0
+        app.kubernetes.io/name: inventory-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: inventory-service
+      containers:
+        - name: inventory-service
+          image: "werayco/inventory-service:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9002
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: inventory_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_INVENTORY_DSN
+                  name: cartord-secrets
+            - name: AUTH_BASE_URL
+              value: http://auth-service:9001
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: k8s/charts/notification-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    helm.sh/chart: notification-service-0.1.0
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: notification-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: notification-service-0.1.0
+        app.kubernetes.io/name: notification-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: notification-service
+      containers:
+        - name: notification-service
+          image: "werayco/notification-service:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9003
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: notification_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_NOTIFICATION_DSN
+                  name: cartord-secrets
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+---
+# Source: k8s/charts/order-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  labels:
+    helm.sh/chart: order-service-0.1.0
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: order-service-0.1.0
+        app.kubernetes.io/name: order-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: order-service
+      containers:
+        - name: order-service
+          image: "werayco/order-service:latest"
+          imagePullPolicy: IfNotPresent
+          command:
+            - uvicorn
+            - app.main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9004"
+          ports:
+            - name: http
+              containerPort: 9004
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: order_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_ORDER_DSN
+                  name: cartord-secrets
+            - name: AUTH_BASE_URL
+              value: http://auth-service:9001
+            - name: INVENTORY_BASE_URL
+              value: http://inventory-service:9002/api/v1
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+---
+# Source: k8s/charts/payment-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  labels:
+    helm.sh/chart: payment-service-0.1.0
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: payment-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: payment-service-0.1.0
+        app.kubernetes.io/name: payment-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: payment-service
+      containers:
+        - name: payment-service
+          image: "werayco/payment-service:latest"
+          imagePullPolicy: IfNotPresent
+          command:
+            - uvicorn
+            - app.main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "9005"
+          ports:
+            - name: http
+              containerPort: 9005
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: payment_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_PAYMENT_DSN
+                  name: cartord-secrets
+            - name: AUTH_BASE_URL
+              value: http://auth-service:9001/api/v1
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+---
+# Source: k8s/charts/search-service/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service
+  labels:
+    helm.sh/chart: search-service-0.1.0
+    app.kubernetes.io/name: search-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: search-service
+      app.kubernetes.io/instance: cartord
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: search-service-0.1.0
+        app.kubernetes.io/name: search-service
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: search-service
+      containers:
+        - name: search-service
+          image: "werayco/search-service:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9007
+              protocol: TCP
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: search_service
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  key: GLITCHTIP_SEARCH_DSN
+                  name: cartord-secrets
+            - name: AUTH_BASE_URL
+              value: http://auth-service:9001
+          envFrom:
+            - secretRef:
+                name: cartord-secrets
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+---
+# Source: k8s/charts/kafka/templates/controller-eligible/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cartord-kafka-controller
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/version: 3.6.1
+    helm.sh/chart: kafka-26.11.4
+    app.kubernetes.io/component: controller-eligible
+    app.kubernetes.io/part-of: kafka
+spec:
+  podManagementPolicy: Parallel
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: cartord
+      app.kubernetes.io/name: kafka
+      app.kubernetes.io/component: controller-eligible
+      app.kubernetes.io/part-of: kafka
+  serviceName: cartord-kafka-controller-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: kafka
+        app.kubernetes.io/version: 3.6.1
+        helm.sh/chart: kafka-26.11.4
+        app.kubernetes.io/component: controller-eligible
+        app.kubernetes.io/part-of: kafka
+      annotations:
+        checksum/configuration: 5fa76aef18585725858dea6547ccd1cee555ad3cc64b945a0765225b3a47cb97
+        checksum/passwords-secret: 9c83d7a954e06ad17c6ebb170228ee595d3352e9e37314ec1272fe403fd8fbef
+    spec:
+      
+      automountServiceAccountToken: false
+      hostNetwork: false
+      hostIPC: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: cartord
+                    app.kubernetes.io/name: kafka
+                    app.kubernetes.io/component: controller-eligible
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: cartord-kafka
+      enableServiceLinks: true
+      initContainers:
+        - name: kafka-init
+          image: docker.io/bitnamilegacy/bitnami/kafka:3.6.1-debian-12-r12
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          resources:
+            limits: {}
+            requests: {} 
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              /scripts/kafka-init.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                    fieldPath: metadata.name
+            - name: KAFKA_VOLUME_DIR
+              value: "/bitnami/kafka"
+            - name: KAFKA_MIN_ID
+              value: "0"
+            - name: KAFKA_CLIENT_USERS
+              value: "user1"
+            - name: KAFKA_CLIENT_PASSWORDS
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: client-passwords
+            - name: KAFKA_INTER_BROKER_USER
+              value: "inter_broker_user"
+            - name: KAFKA_INTER_BROKER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: inter-broker-password
+            - name: KAFKA_CONTROLLER_USER
+              value: "controller_user"
+            - name: KAFKA_CONTROLLER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: controller-password
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/kafka
+            - name: kafka-config
+              mountPath: /config
+            - name: kafka-configmaps
+              mountPath: /configmaps
+            - name: kafka-secret-config
+              mountPath: /secret-config
+            - name: scripts
+              mountPath: /scripts
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: kafka
+          image: docker.io/bitnamilegacy/bitnami/kafka:3.6.1-debian-12-r12
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: KAFKA_HEAP_OPTS
+              value: "-Xmx1024m -Xms1024m"
+            - name: KAFKA_KRAFT_CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-kraft-cluster-id
+                  key: kraft-cluster-id
+            - name: KAFKA_KRAFT_BOOTSTRAP_SCRAM_USERS
+              value: "true"
+            - name: KAFKA_CLIENT_USERS
+              value: "user1"
+            - name: KAFKA_CLIENT_PASSWORDS
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: client-passwords
+            - name: KAFKA_INTER_BROKER_USER
+              value: "inter_broker_user"
+            - name: KAFKA_INTER_BROKER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: inter-broker-password
+            - name: KAFKA_CONTROLLER_USER
+              value: "controller_user"
+            - name: KAFKA_CONTROLLER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-kafka-user-passwords
+                  key: controller-password
+          ports:
+            - name: controller
+              containerPort: 9093
+            - name: client
+              containerPort: 9092
+            - name: interbroker
+              containerPort: 9094
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: "controller"
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: "controller"
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/kafka
+            - name: logs
+              mountPath: /opt/bitnami/kafka/logs
+            - name: kafka-config
+              mountPath: /opt/bitnami/kafka/config/server.properties
+              subPath: server.properties
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: kafka-configmaps
+          configMap:
+            name: cartord-kafka-controller-configuration
+        - name: kafka-secret-config
+          emptyDir: {}
+        - name: kafka-config
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        - name: scripts
+          configMap:
+            name: cartord-kafka-scripts
+            defaultMode: 493
+        - name: logs
+          emptyDir: {}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        
+
+---
+# Source: k8s/charts/redis/templates/master/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cartord-redis-master
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+    app.kubernetes.io/component: master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: cartord
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: master
+  serviceName: cartord-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/version: 7.2.4
+        helm.sh/chart: redis-18.19.4
+        app.kubernetes.io/component: master
+      annotations:
+        checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
+        checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
+        checksum/scripts: 2cf02de737bd7be6158eae133148ecd6e0f227dfec7f545970018bae7142bfe2
+        checksum/secret: cc3482d749cc3699889e90421a9611830cd1c69fa9d46bfc4e2bb3255fc84282
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: cartord-redis-master
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: cartord
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/component: master
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnamilegacy/bitnami/redis:7.2.4-debian-12-r9
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-master.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: master
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            # One second longer than command timeout should prevent generation of zombie processes.
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local.sh 1
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: empty-dir
+              mountPath: /opt/bitnami/redis/etc/
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: cartord-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: cartord-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: cartord-redis-configuration
+        - name: empty-dir
+          emptyDir: {}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/instance: cartord
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: master
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        
+
+---
+# Source: k8s/charts/redis/templates/replicas/application.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cartord-redis-replicas
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/version: 7.2.4
+    helm.sh/chart: redis-18.19.4
+    app.kubernetes.io/component: replica
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: cartord
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/component: replica
+  serviceName: cartord-redis-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: cartord
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: redis
+        app.kubernetes.io/version: 7.2.4
+        helm.sh/chart: redis-18.19.4
+        app.kubernetes.io/component: replica
+      annotations:
+        checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
+        checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
+        checksum/scripts: 2cf02de737bd7be6158eae133148ecd6e0f227dfec7f545970018bae7142bfe2
+        checksum/secret: 410e015d33d6f2246bfa0787fd864e597d0c6bdb6c4bbeceea474ca7bf90474f
+    spec:
+      
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: cartord-redis-replica
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: cartord
+                    app.kubernetes.io/name: redis
+                    app.kubernetes.io/component: replica
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: redis
+          image: docker.io/bitnamilegacy/bitnami/redis:7.2.4-debian-12-r9
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: false
+            runAsGroup: 0
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - /opt/bitnami/scripts/start-scripts/start-replica.sh
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: REDIS_REPLICATION_MODE
+              value: replica
+            - name: REDIS_MASTER_HOST
+              value: cartord-redis-master-0.cartord-redis-headless.default.svc.cluster.local
+            - name: REDIS_MASTER_PORT_NUMBER
+              value: "6379"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "no"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-redis
+                  key: redis-password
+            - name: REDIS_MASTER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cartord-redis
+                  key: redis-password
+            - name: REDIS_TLS_ENABLED
+              value: "no"
+            - name: REDIS_PORT
+              value: "6379"
+          ports:
+            - name: redis
+              containerPort: 6379
+          startupProbe:
+            failureThreshold: 22
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            tcpSocket:
+              port: redis
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 6
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_liveness_local_and_master.sh 5
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 5
+            exec:
+              command:
+                - sh
+                - -c
+                - /health/ping_readiness_local_and_master.sh 1
+          volumeMounts:
+            - name: start-scripts
+              mountPath: /opt/bitnami/scripts/start-scripts
+            - name: health
+              mountPath: /health
+            - name: redis-data
+              mountPath: /data
+            - name: config
+              mountPath: /opt/bitnami/redis/mounted-etc
+            - name: empty-dir
+              mountPath: /opt/bitnami/redis/etc
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+      volumes:
+        - name: start-scripts
+          configMap:
+            name: cartord-redis-scripts
+            defaultMode: 0755
+        - name: health
+          configMap:
+            name: cartord-redis-health
+            defaultMode: 0755
+        - name: config
+          configMap:
+            name: cartord-redis-configuration
+        - name: empty-dir
+          emptyDir: {}
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: redis-data
+        labels:
+          app.kubernetes.io/instance: cartord
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: replica
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+---
+# Source: k8s/charts/ai-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "ai-service-test-connection"
+  labels:
+    helm.sh/chart: ai-service-0.1.0
+    app.kubernetes.io/name: ai-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['ai-service:9000']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/auth-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "auth-service-test-connection"
+  labels:
+    helm.sh/chart: auth-service-0.1.0
+    app.kubernetes.io/name: auth-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['auth-service:9001']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/inventory-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "inventory-service-test-connection"
+  labels:
+    helm.sh/chart: inventory-service-0.1.0
+    app.kubernetes.io/name: inventory-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['inventory-service:9002']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/notification-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "notification-service-test-connection"
+  labels:
+    helm.sh/chart: notification-service-0.1.0
+    app.kubernetes.io/name: notification-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['notification-service:9003']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/order-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "order-service-test-connection"
+  labels:
+    helm.sh/chart: order-service-0.1.0
+    app.kubernetes.io/name: order-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['order-service:9004']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/payment-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "payment-service-test-connection"
+  labels:
+    helm.sh/chart: payment-service-0.1.0
+    app.kubernetes.io/name: payment-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['payment-service:9005']
+  restartPolicy: Never
+
+---
+# Source: k8s/charts/search-service/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "search-service-test-connection"
+  labels:
+    helm.sh/chart: search-service-0.1.0
+    app.kubernetes.io/name: search-service
+    app.kubernetes.io/instance: cartord
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['search-service:9007']
+  restartPolicy: Never
+

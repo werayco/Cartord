@@ -1,5 +1,4 @@
 from typing import Annotated, Optional
-from uuid import uuid4
 import aiohttp
 from langchain_core.tools import tool
 from langgraph.types import interrupt
@@ -8,7 +7,6 @@ from langgraph.prebuilt import InjectedState
 from app.core.config import settings
 from app.core.logging import logger
 from app.db.session import AsyncSessionLocal
-from app.services.agent_state import AgentState
 from app.services.rag_pipeline import RAGPipeline
 from datetime import timedelta
 from aiobreaker import CircuitBreaker, CircuitBreakerError
