@@ -1,1 +1,0 @@
-## TODO: quering of vector db (RAG)'s logic stays here.

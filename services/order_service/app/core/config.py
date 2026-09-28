@@ -2,7 +2,9 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "order_service"
     ALLOW_ORIGINS: str = "*"
+    SENTRY_DSN: str = ""
     ORDER_DATABASE_URL: str
 
     KAFKA_CLIENT_ID: str

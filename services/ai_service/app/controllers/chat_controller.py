@@ -21,6 +21,7 @@ class ChatController:
             message_id = uuid.UUID(message_id)
 
             if conversation_id:
+                logger.info(f"conversation_id exists in the payload and the id is {conversation_id}")
                 conversation_id = uuid.UUID(conversation_id)
 
                 result = await db.execute(
@@ -35,7 +36,7 @@ class ChatController:
                     })
                     return None
 
-                if conversation.user_id != user_id:
+                if str(conversation.user_id) != str(user_id):
                     logger.warning(
                         f"User {user_id} attempted to post to conversation {conversation_id} owned by {conversation.user_id}"
                     )

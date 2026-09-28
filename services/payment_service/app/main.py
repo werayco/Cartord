@@ -5,7 +5,18 @@ from app.db.session import engine, Base
 from app.routers.payment_router import router as payment_router
 from app import models  # noqa: F401  <-- ensures all models register with Base.metadata
 from app.kafka.consumer import kafka_manager
+from app.services.telemetry import setup_telemetry
 from pyfiglet import Figlet
+from app.core.config import settings
+import sentry_sdk
+
+if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=0.01,
+        auto_session_tracking=False,
+    )
+
 f = Figlet(font='slant')
 
 @asynccontextmanager
@@ -23,6 +34,7 @@ async def lifespan(app: FastAPI):
         pass
 
 app = FastAPI(lifespan=lifespan)
+setup_telemetry(app, engine)
 app.include_router(payment_router)
 
 @app.get("/api/v1/health")

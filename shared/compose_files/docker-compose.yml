@@ -104,9 +104,10 @@ services:
           "CMD-SHELL",
           "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server kafka:29092 || exit 1",
         ]
-      interval: 10s
-      timeout: 10s
+      interval: 15s
+      timeout: 30s
       retries: 10
+      start_period: 60s
     networks:
       - mynet
 

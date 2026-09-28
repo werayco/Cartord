@@ -9,17 +9,35 @@ scrape_configs:
       - targets:
           - "auth_service:9001"
 
+  - job_name: "ai_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "ai_service:9000"
+
   - job_name: "inventory_service"
     metrics_path: "/api/v1/metrics"
     static_configs:
       - targets:
           - "inventory_service:9002"
 
+  - job_name: "notification_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "notification_service:9003"
+
   - job_name: "order_service"
     metrics_path: "/api/v1/metrics"
     static_configs:
       - targets:
           - "order_service:9004"
+
+  - job_name: "payment_service"
+    metrics_path: "/api/v1/metrics"
+    static_configs:
+      - targets:
+          - "payment_service:9005"
 
   - job_name: "search_service"
     metrics_path: "/api/v1/metrics"

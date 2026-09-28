@@ -11,6 +11,9 @@ services:
       - hf_cache:/home/appuser/.cache/huggingface
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: ai_service
+      SENTRY_DSN: ${GLITCHTIP_AI_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -32,6 +35,9 @@ services:
       - "../../services/auth_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: auth_service
+      SENTRY_DSN: ${GLITCHTIP_AUTH_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9001", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -53,6 +59,9 @@ services:
       - "../../services/inventory_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: inventory_service
+      SENTRY_DSN: ${GLITCHTIP_INVENTORY_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -74,6 +83,9 @@ services:
       - "../../services/notification_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: notification_service
+      SENTRY_DSN: ${GLITCHTIP_NOTIFICATION_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9003", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -95,6 +107,9 @@ services:
       - "../../services/order_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: order_service
+      SENTRY_DSN: ${GLITCHTIP_ORDER_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9004", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -116,6 +131,9 @@ services:
       - "../../services/payment_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: payment_service
+      SENTRY_DSN: ${GLITCHTIP_PAYMENT_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -137,6 +155,9 @@ services:
       - "../../services/search_service:/app/"
     env_file:
       - ./.env
+    environment:
+      OTEL_SERVICE_NAME: search_service
+      SENTRY_DSN: ${GLITCHTIP_SEARCH_DSN}
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]
     restart: unless-stopped
     healthcheck:

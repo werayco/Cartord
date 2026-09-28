@@ -1,0 +1,23 @@
+{
+  "buyer": {
+    "endpoint": "/api/v1/auth/buyer/register",
+    "method": "POST",
+    "body": {
+      "email": "buyer.test@example.com",
+      "name": "Test Buyer",
+      "username": "test_buyer_001",
+      "password": "BuyerPassword123!",
+      "shipping_address": "123 Market Street, Springfield, 62701"
+    }
+  },
+  "seller": {
+    "endpoint": "/api/v1/auth/seller/register",
+    "method": "POST",
+    "body": {
+      "email": "seller.test@example.com",
+      "name": "Test Seller",
+      "username": "test_seller_001",
+      "password": "SellerPassword123!"
+    }
+  }
+}

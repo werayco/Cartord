@@ -4,6 +4,12 @@ IMAGE_REPO ?= werayco
 TOPIC ?= inventory
 PARTITIONS ?= 3
 REPLICATION ?= 1
+NETWORK ?= mynet
+INIT_IMAGE ?= python:3.12-slim
+
+init:
+	docker network create mynet
+	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"
 
 gen:
 	python -c "import secrets; print(secrets.token_urlsafe(64))"
@@ -40,6 +46,9 @@ kf:
 ai:
 	docker logs -f ai_service
 
+dz:
+	docker logs -f cartord-dz
+
 build-auth-service:
 	docker build -t $(IMAGE_REPO)/auth-service:latest ./services/auth_service
 
@@ -71,10 +80,6 @@ push-all:
 	docker push $(IMAGE_REPO)/search-service:latest
 	docker push $(IMAGE_REPO)/ai-service:latest
 	docker push $(IMAGE_REPO)/payment-service:latest
-init:
-	python -m shared.init_scripts.debezium_setup
-	python -m shared.init_scripts.seed
-	python -m shared.init_scripts.create_topics
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d
@@ -82,20 +87,31 @@ run:
 
 services-all:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build -d
+
 rebuild:
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --build $(SERVICE_NAME) -d
+
+recreate:
+	docker-compose -f shared/compose_files/services.docker-compose.yml up $(SERVICE_NAME) --force-recreate -d 
+
 recreate-all:
 	docker-compose -f shared/compose_files/docker-compose.yml up --force-recreate -d
 	docker-compose -f shared/compose_files/services.docker-compose.yml up --force-recreate -d
-recreate:
-	docker-compose -f shared/compose_files/services.docker-compose.yml up $(SERVICE_NAME) --force-recreate -d 
-stop:
-	docker-compose -f shared/compose_files/docker-compose.yml down
-	docker-compose -f shared/compose_files/services.docker-compose.yml down
-stop-v:
-	docker-compose -f shared/compose_files/docker-compose.yml down -v
-	docker-compose -f shared/compose_files/services.docker-compose.yml down -v
 	
+stop:
+	docker compose -f shared/compose_files/docker-compose.yml down --remove-orphans
+	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans
+
+stop-v:
+	docker compose -f shared/compose_files/docker-compose.yml down --remove-orphans -v
+	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans -v
+
+glitchtip-migrate:
+	docker exec chatdome-glitchtip-web ./manage.py migrate
+
+glitchtip-superuser:
+	docker exec -it chatdome-glitchtip-web ./manage.py createsuperuser
+
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"

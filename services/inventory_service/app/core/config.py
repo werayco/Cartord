@@ -2,7 +2,9 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "inventory_service"
     ALLOW_ORIGINS: str = "*"
+    SENTRY_DSN: str = ""
     INVENTORY_DATABASE_URL: str
     JWT_PRIVATE_KEY: str
     KAFKA_CLIENT_ID: str

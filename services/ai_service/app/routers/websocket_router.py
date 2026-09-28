@@ -32,7 +32,7 @@ async def chat_socket(websocket: WebSocket):
                     db=db,
                     user_id=user_id,
                     access_token=access_token,
-                )
+                ) # this logic handles ack sending to the user and it returns the conversation_id
                 if conversation_id:
                     await bridge.ensure_subscribed(conversation_id) # this subs to the conversation id channel
     except WebSocketDisconnect:

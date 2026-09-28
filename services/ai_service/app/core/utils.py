@@ -30,9 +30,20 @@ async def get_current_user(websocket: WebSocket) -> dict:
         "role": payload.get("role"),
         "is_admin": payload.get("role") == Roles.ADMIN.value,
     }
+
+async def get_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
+    credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
+    try:
+        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
+        if payload.get("type") != "access":
+            raise credentials_exception
+        return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
+    except (JWTError, KeyError):
+        raise credentials_exception
+
     
 async def get_admin(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    user = await get_current_user(token)
+    user = await get_user(token)
     if user["role"] != Roles.ADMIN.value:
         raise HTTPException(status_code=403, detail="Admin access required")
     return user

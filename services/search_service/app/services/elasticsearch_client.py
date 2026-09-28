@@ -1,5 +1,6 @@
 from elasticsearch import AsyncElasticsearch
 from app.core.config import settings
+from app.core.logging import logger
 
 class ElasticsearchClient:
     def __init__(self, index_name):
@@ -48,11 +49,13 @@ class ElasticsearchClient:
             }
         }
         response = await self.client.search(index=self.index_name, body=search_query)
+        logger.info(f"Search results for query '{query}': {len(response['hits']['hits'])}")
+        print("here is the response from elastic search",response)
         parsed_response = [
             {
                 "id": hit["_id"],
                 "name": hit["_source"]["name"],
-                "description": hit["_source"]["description"],
+                "description": hit["_source"].get("description"),
                 "available_quantity": hit["_source"]["available_quantity"],
                 "unit_price": hit["_source"]["unit_price"],
                 "sku": hit["_source"]["sku"]

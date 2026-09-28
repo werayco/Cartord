@@ -2,7 +2,9 @@ from pydantic import Field
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
+    OTEL_SERVICE_NAME: str = "ai_service"
     ALLOW_ORIGINS: str = "*"
+    SENTRY_DSN: str = ""
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
 
@@ -29,7 +31,13 @@ class Settings(BaseSettings):
 
     AUTH_BASE_URL: str = "http://auth_service:9001"
     ORDER_BASE_URL: str = "http://order_service:9004"
+    SEARCH_BASE_URL: str = "http://search_service:9007"
     INVENTORY_BASE_URL: str = "http://inventory_service:9002"
+
+    PAYMENT_BASE_URL: str
+
+    CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
+    CIRCUIT_BREAKER_FAIL_MAX: int = 5
 
     class Config:
         env_file = ".env"
