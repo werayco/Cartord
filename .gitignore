@@ -1,4 +1,6 @@
 shared/compose_files/.env
+shared/compose_files/.env.k8s
+
 .vscode
 services/ai_service/.cache/
 .ruff_cache/
