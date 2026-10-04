@@ -1,0 +1,48 @@
+image:
+  repository: pgvector/pgvector
+  tag: pg16
+  pullPolicy: IfNotPresent
+
+secretName: cartord-secrets
+
+service:
+  type: ClusterIP
+  port: 5432
+
+postgresql:
+  args:
+    - postgres
+    - -c
+    - wal_level=logical
+    - -c
+    - max_replication_slots=10
+    - -c
+    - max_wal_senders=10
+
+persistence:
+  size: 8Gi
+  storageClass: ""
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+initdbScripts:
+  create-databases.sql: |
+    CREATE DATABASE auth_db;
+    CREATE DATABASE inventory_db;
+    CREATE DATABASE order_db;
+    CREATE DATABASE payment_db;
+    CREATE DATABASE notification_db;
+    CREATE DATABASE search_db;
+    CREATE DATABASE glitchtip;
+    CREATE DATABASE ai_db;
+
+    ALTER ROLE rayco WITH REPLICATION;
+
+    \c ai_db
+    CREATE EXTENSION IF NOT EXISTS vector;

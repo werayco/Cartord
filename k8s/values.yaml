@@ -1,10 +1,50 @@
-# k8s/values.yaml — add under redis: and kafka:
 redis:
   enabled: true
+  architecture: standalone
+  auth:
+    enabled: false
   global:
     imageRegistry: docker.io/bitnamilegacy
+  image:
+    repository: redis
+  volumePermissions:
+    enabled: true
+    image:
+      registry: docker.io/bitnamilegacy
+      repository: os-shell
 
 kafka:
   enabled: true
   global:
     imageRegistry: docker.io/bitnamilegacy
+  image:
+    repository: kafka
+  volumePermissions:
+    enabled: true
+    image:
+      registry: docker.io/bitnamilegacy
+      repository: os-shell
+  kraft:
+    clusterId: "5L6g3nShT-eMCtK--X86sw"
+  controller:
+    replicaCount: 1
+    resourcesPreset: medium
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      failureThreshold: 30
+    livenessProbe:
+      initialDelaySeconds: 60
+      timeoutSeconds: 10
+      failureThreshold: 6
+    readinessProbe:
+      initialDelaySeconds: 30
+      timeoutSeconds: 10
+  listeners:
+    client:
+      protocol: PLAINTEXT
+    controller:
+      protocol: PLAINTEXT
+    interbroker:
+      protocol: PLAINTEXT

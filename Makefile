@@ -7,6 +7,9 @@ REPLICATION ?= 1
 NETWORK ?= mynet
 INIT_IMAGE ?= python:3.12-slim
 
+
+k8s-secret:
+	kubectl create secret generic cartord-secrets --from-env-file=shared/compose_files/.env.k8s
 init:
 	docker network create mynet
 	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"
@@ -118,4 +121,3 @@ git:
 	git push
 %:
 	@:
-

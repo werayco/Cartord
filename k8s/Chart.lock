@@ -20,11 +20,14 @@ dependencies:
 - name: search-service
   repository: file://charts/search-service
   version: 0.1.0
+- name: postgres
+  repository: file://charts/postgres
+  version: 0.1.0
 - name: redis
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 18.19.4
 - name: kafka
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 26.11.4
-digest: sha256:f9822af65aaa97e87278195bfa25e10fd52fa1d95af08f18d2650c78e8878aed
-generated: "2026-09-25T11:47:07.5722529-07:00"
+digest: sha256:fdf9119055ea3bd0907de66bd55b50fb2cbae85f12a9c441bbdbba7a7fe4ec3c
+generated: "2026-10-03T06:16:44.5406631-07:00"

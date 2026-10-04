@@ -63,10 +63,18 @@ livenessProbe:
   httpGet:
     path: /api/v1/health
     port: http
+  initialDelaySeconds: 60
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 6
 readinessProbe:
   httpGet:
     path: /api/v1/health
     port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
 
 autoscaling:
   enabled: false
