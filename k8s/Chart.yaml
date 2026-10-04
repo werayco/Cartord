@@ -1,5 +1,5 @@
 apiVersion: v2
-name: k8s
+name: cartord-k8s
 description: CartOrd/OrderFlow microservices platform — order, inventory, payment, auth, search, notification, and AI services
 type: application
 version: 0.1.0
@@ -33,6 +33,10 @@ dependencies:
   - name: search-service
     version: "0.1.0"
     repository: "file://charts/search-service"
+
+  - name: postgres
+    version: "0.1.0"
+    repository: "file://charts/postgres"
 
   - name: redis
     version: "18.x.x"

@@ -1,0 +1,33 @@
+﻿mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+config:
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+
+  receivers:
+    otlp:
+      protocols:
+        grpc: {}
+        http: {}
+
+  exporters:
+    otlp/jaeger:
+      endpoint: jaeger-collector.cartord.svc.cluster.local:4317
+      tls:
+        insecure: true
+    prometheus:
+      endpoint: 0.0.0.0:8889
+
+  service:
+    extensions: [health_check]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        exporters: [otlp/jaeger]
+      metrics:
+        receivers: [otlp]
+        exporters: [prometheus]
