@@ -4,9 +4,9 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
-DEBEZIUM_URL = os.getenv("DEBEZIUM_URL") + "/connectors"
+DEBEZIUM_URL = "http://localhost:8083/connectors"
 
-def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="aggregate_id"):
+def outbox_connector(name, db_name, table_name, slot_name, topic):
     return {
         "name": name,
         "config": {
@@ -26,7 +26,7 @@ def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="agg
             "transforms": "outbox",
             "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
             "transforms.outbox.table.field.event.id": "id",
-            "transforms.outbox.table.field.event.key": key_field,
+            "transforms.outbox.table.field.event.key": "aggregate_id",
             # "transforms.outbox.table.field.event.timestamp": "created_at",
             "transforms.outbox.table.field.event.payload": "payload",
             "transforms.outbox.table.expand.json.payload": "true",
@@ -66,15 +66,6 @@ connector_config_chat = outbox_connector(
     table_name="chat_outbox_events",
     slot_name="chat_outbox_slot",
     topic="chat",
-    key_field="conversation_id",
-)
-
-connector_config_auth = outbox_connector(
-    name="auth-outbox-connector",
-    db_name="auth_db",
-    table_name="auth_outbox_events",
-    slot_name="auth_outbox_slot",
-    topic="auth",
 )
 
 def register_connector(connector_config):
@@ -82,11 +73,10 @@ def register_connector(connector_config):
     config = connector_config["config"]
     url = f"{DEBEZIUM_URL}/{name}/config"
 
-    response = requests.put(
-        url,
+    response = requests.put(url,
         headers={"Content-Type": "application/json"},
-        data=json.dumps(config),
-    )
+        data=json.dumps(config))
+    
     if response.status_code in (200, 201):
         verb = "updated" if response.status_code == 200 else "created"
         print(f"Connector {name} {verb} successfully.")
@@ -100,4 +90,3 @@ if __name__ == "__main__":
     register_connector(connector_config_inventory)
     register_connector(connector_config_payment)
     register_connector(connector_config_chat)
-    register_connector(connector_config_auth)

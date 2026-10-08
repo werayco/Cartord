@@ -1,4 +1,4 @@
-.PHONY: build-all build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service
+.PHONY: build-all build-auth-service build-inventory-service build-notification-service build-order-service build-search-service build-user-service k8s-debezium-forward k8s-debezium-register
 
 IMAGE_REPO ?= werayco
 TOPIC ?= inventory
@@ -9,7 +9,11 @@ INIT_IMAGE ?= python:3.12-slim
 
 
 k8s-secret:
-	kubectl create secret generic cartord-secrets --from-env-file=shared/compose_files/.env.k8s
+	kubectl create secret generic cartord-secrets --from-env-file=shared/compose_files/.env.k8s -n cartord --dry-run=client -o yaml | kubectl apply -f -
+k8s-debezium-forward:
+	kubectl port-forward -n cartord svc/debezium 8083:8083
+k8s-debezium-register:
+	python -m shared.init_scripts.debezium_setup --env-file shared/compose_files/.env.k8s --url http://localhost:8083 --database-host cartord-postgres --database-port 5432
 init:
 	docker network create mynet
 	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"

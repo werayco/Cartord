@@ -1,0 +1,27 @@
+image:
+  repository: quay.io/debezium/connect
+  tag: "2.7.3.Final"
+  pullPolicy: IfNotPresent
+
+env:
+  BOOTSTRAP_SERVERS: cartord-kafka:9092
+  GROUP_ID: cartord-connect-cluster
+  CONFIG_STORAGE_TOPIC: cartord_connect_configs
+  OFFSET_STORAGE_TOPIC: cartord_connect_offsets
+  STATUS_STORAGE_TOPIC: cartord_connect_statuses
+  CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+  OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+  STATUS_STORAGE_REPLICATION_FACTOR: "1"
+  KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+  CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+  CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+  HEAP_OPTS: "-Xms256M -Xmx768M"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi

@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: werayco/ai-service
-  pullPolicy: IfNotPresent
+  pullPolicy: Always # IfNotPresent
   tag: "latest"
 
 imagePullSecrets: []
@@ -92,6 +92,10 @@ affinity: {}
 env:
   - name: OTEL_SERVICE_NAME
     value: "ai_service"
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: "http://otel-collector:4317"
+  - name: OTEL_EXPORTER_OTLP_PROTOCOL
+    value: "grpc"
   - name: SENTRY_DSN
     valueFrom:
       secretKeyRef:

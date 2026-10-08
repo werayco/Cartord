@@ -44,4 +44,23 @@ The setup check emits cartord-otel-connection-test from each container using
 the application's provider setup and verifies retrieval through Jaeger's API.
 This checks the trace pipeline independently of application startup.
 
+## Kubernetes
+
+The `k8s` umbrella chart deploys Jaeger with in-memory storage and routes
+application traces through the OpenTelemetry Collector. In-memory storage is
+intended for development; traces are lost when Jaeger restarts.
+
+Forward the Jaeger UI locally:
+
+```powershell
+kubectl port-forward svc/jaeger-query 16686:16686
+```
+
+Forward the collector endpoints when testing telemetry from outside the
+cluster:
+
+```powershell
+kubectl port-forward svc/otel-collector 4317:4317 4318:4318
+```
+
 Reference: https://opentelemetry.io/docs/languages/sdk-configuration/general/

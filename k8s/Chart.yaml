@@ -1,6 +1,6 @@
 apiVersion: v2
 name: cartord-k8s
-description: CartOrd/OrderFlow microservices platform — order, inventory, payment, auth, search, notification, and AI services
+description: CartOrd microservices platform
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
@@ -47,3 +47,43 @@ dependencies:
     version: "26.x.x"
     repository: "oci://registry-1.docker.io/bitnamicharts"
     condition: kafka.enabled
+
+  - name: elasticsearch
+    version: "8.5.1"
+    repository: "https://helm.elastic.co"
+    condition: elasticsearch.enabled
+
+  - name: glitchtip
+    version: "9.0.1"
+    repository: "https://gitlab.com/api/v4/projects/16325141/packages/helm/stable"
+    condition: glitchtip.enabled
+
+  - name: jaeger
+    version: "3.4.0"
+    repository: "https://jaegertracing.github.io/helm-charts"
+    condition: jaeger.enabled
+
+  - name: opentelemetry-operator
+    version: "0.124.1"
+    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+    condition: opentelemetry-operator.enabled
+
+  - name: opentelemetry-collector
+    alias: otel-collector
+    version: "0.175.0"
+    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+    condition: otel-collector.enabled
+
+  - name: prometheus
+    version: "29.35.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: prometheus.enabled
+
+  - name: grafana
+    version: "13.2.7"
+    repository: "https://grafana-community.github.io/helm-charts"
+    condition: grafana.enabled
+
+  - name: debezium-connect
+    version: "0.1.0"
+    repository: "file://charts/debezium-connect"

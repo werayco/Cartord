@@ -5,12 +5,16 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
     ELASTICSEARCH_HOST: str
     ELASTICSEARCH_PORT: int
+    ELASTICSEARCH_SCHEME: str = "http"
+    ELASTICSEARCH_USER: str = ""
+    ELASTICSEARCH_PASSWORD: str = ""
+    ELASTICSEARCH_VERIFY_CERTS: bool = True
 
     JWT_PRIVATE_KEY: str
 
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str
-    
+
     AUTH_BASE_URL: str = "http://auth_service:9001"
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str

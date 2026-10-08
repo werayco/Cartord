@@ -29,5 +29,29 @@ dependencies:
 - name: kafka
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 26.11.4
-digest: sha256:fdf9119055ea3bd0907de66bd55b50fb2cbae85f12a9c441bbdbba7a7fe4ec3c
-generated: "2026-10-03T06:16:44.5406631-07:00"
+- name: elasticsearch
+  repository: https://helm.elastic.co
+  version: 8.5.1
+- name: glitchtip
+  repository: https://gitlab.com/api/v4/projects/16325141/packages/helm/stable
+  version: 9.0.1
+- name: jaeger
+  repository: https://jaegertracing.github.io/helm-charts
+  version: 3.4.0
+- name: opentelemetry-operator
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.124.1
+- name: opentelemetry-collector
+  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
+  version: 0.175.0
+- name: prometheus
+  repository: https://prometheus-community.github.io/helm-charts
+  version: 29.35.0
+- name: grafana
+  repository: https://grafana-community.github.io/helm-charts
+  version: 13.2.7
+- name: debezium-connect
+  repository: file://charts/debezium-connect
+  version: 0.1.0
+digest: sha256:ecf01bbbfd198b3aed6d4b738066ceb07376ebbe1080c7f3681ffa4cf0a234b1
+generated: "2026-10-07T02:01:27.7866536-07:00"

@@ -48,3 +48,225 @@ kafka:
       protocol: PLAINTEXT
     interbroker:
       protocol: PLAINTEXT
+
+elasticsearch:
+  enabled: true
+  replicas: 1
+  minimumMasterNodes: 1
+  protocol: http
+  createCert: false
+  clusterHealthCheckParams: "wait_for_status=yellow&timeout=1s"
+  esConfig:
+    elasticsearch.yml: |
+      xpack.security.enabled: false
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: cartord-secrets
+          key: ELASTIC_PASSWORD
+          
+glitchtip:
+  enabled: true
+  glitchtip:
+    existingSecret: cartord-secrets
+    existingSecretKey: SECRET_KEY
+    domain: "https://errors.devrayco.name.ng"
+    database:
+      existingSecret: cartord-secrets
+      existingSecretKey: DATABASE_URL
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  # ingress:
+  #   enabled: true
+  #   className: traefik
+  #   annotations:
+  #     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  #     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+  #     traefik.ingress.kubernetes.io/router.tls: "true"
+  #   hosts:
+  #     - host: errors.devrayco.name.ng
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  #   tls:
+  #     - secretName: glitchtip-tls-secret
+  #       hosts:
+  #         - errors.devrayco.name.ng
+  postgresql:
+    enabled: false
+  valkey:
+    enabled: true
+    dataStorage:
+      enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+jaeger:
+  enabled: true
+  fullnameOverride: jaeger
+  provisionDataStore:
+    cassandra: false
+    elasticsearch: false
+    kafka: false
+  storage:
+    type: memory
+  allInOne:
+    enabled: true
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
+
+opentelemetry-operator:
+  enabled: true
+  admissionWebhooks:
+    certManager:
+      enabled: false
+
+otel-collector:
+  enabled: true
+  fullnameOverride: otel-collector
+  mode: deployment
+  image:
+    repository: otel/opentelemetry-collector-contrib
+  ports:
+    otlp:
+      hostPort: null
+    otlp-http:
+      hostPort: null
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-thrift-http:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+    prometheus:
+      enabled: true
+      containerPort: 8889
+      servicePort: 8889
+      protocol: TCP
+  config:
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+    processors:
+      batch:
+        timeout: 1s
+        send_batch_size: 1024
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+    exporters:
+      otlp/jaeger:
+        endpoint: jaeger-collector:4317
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: 0.0.0.0:8889
+    service:
+      extensions:
+        - health_check
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - otlp/jaeger
+        metrics:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - prometheus
+
+prometheus:
+  enabled: true
+  server:
+    fullnameOverride: prometheus
+    persistentVolume:
+      enabled: false
+  extraScrapeConfigs: |
+    - job_name: "ai_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["ai-service:9000"]
+    - job_name: "auth_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["auth-service:9001"]
+    - job_name: "inventory_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["inventory-service:9002"]
+    - job_name: "notification_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["notification-service:9003"]
+    - job_name: "order_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["order-service:9004"]
+    - job_name: "payment_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["payment-service:9005"]
+    - job_name: "search_service"
+      metrics_path: /api/v1/metrics
+      static_configs:
+        - targets: ["search-service:9007"]
+    - job_name: "otel_collector"
+      static_configs:
+        - targets: ["otel-collector:8889"]
+
+grafana:
+  enabled: true
+  fullnameOverride: grafana
+  persistence:
+    enabled: false
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:80
+          isDefault: true
+
