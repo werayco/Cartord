@@ -17,11 +17,8 @@ def create_topic(admin, topic_name, num_partitions=3, replication_factor=1):
     futures = admin.create_topics([topic])
 
     for name, future in futures.items():
-        try:
-            future.result()
-            print(f"Created topic: {name} (partitions: {num_partitions}, replication: {replication_factor})")
-        except Exception as e:
-            print(f"Failed to create '{name}': {e}")
+        future.result()
+        print(f"Created topic: {name} (partitions: {num_partitions}, replication: {replication_factor})")
 
 def create_all_topics():
     admin = AdminClient({"bootstrap.servers": BOOTSTRAP_SERVERS})

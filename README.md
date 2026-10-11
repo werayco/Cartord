@@ -229,6 +229,59 @@ python -m shared.init_scripts.create_topics    # creates the order/inventory/pay
 > host after `make run`, not inside a container. They need
 > `shared/requirements.txt` installed, plus `python-dotenv` and `requests`.
 
+## Initialize a Kubernetes deployment
+
+Build the init image and load it into the current Minikube cluster:
+
+```bash
+make k8s-init-image
+```
+
+The chart runs Kafka with a single broker, so its internal topic replication
+settings are set to `1`.
+
+Wait for PostgreSQL, Kafka, and the inventory service to be ready. The
+inventory service creates its database tables during startup:
+
+```bash
+kubectl rollout status statefulset/cartord-postgres -n cartord --timeout=5m
+kubectl rollout status statefulset/cartord-kafka-controller -n cartord --timeout=5m
+kubectl rollout status deployment/inventory-service -n cartord --timeout=5m
+```
+
+Run the Kubernetes Job to seed inventory and create Kafka topics:
+
+```bash
+make k8s-init
+kubectl get jobs -n cartord -w
+```
+
+The Job reads `INVENTORY_DATABASE_URL` from the `cartord-secrets` Secret and
+connects to the in-cluster Kafka Service. Find its generated name with
+`kubectl get jobs -n cartord`, then inspect its output:
+
+```bash
+kubectl logs -n cartord job/<generated-job-name>
+```
+
+After the order, inventory, payment, and AI services are ready (they create
+their outbox tables during startup), register the Debezium connectors:
+
+```bash
+kubectl rollout status deployment/order-service -n cartord --timeout=5m
+kubectl rollout status deployment/inventory-service -n cartord --timeout=5m
+kubectl rollout status deployment/payment-service -n cartord --timeout=5m
+kubectl rollout status deployment/ai-service -n cartord --timeout=5m
+kubectl rollout status deployment/debezium-connect -n cartord --timeout=5m
+make k8s-debezium-register
+kubectl get jobs -n cartord -w
+```
+
+The connector-registration Job uses the `debezium-connect` and
+`cartord-postgres` Kubernetes Services and reads PostgreSQL credentials from
+`cartord-secrets`. Job logs are available with `kubectl logs -n cartord
+job/<generated-job-name>`.
+
 ## 6. Verify
 
 Each service exposes a health check and interactive OpenAPI docs:

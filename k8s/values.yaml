@@ -29,6 +29,11 @@ kafka:
   controller:
     replicaCount: 1
     resourcesPreset: medium
+    extraConfig: |
+      offsets.topic.replication.factor=1
+      transaction.state.log.replication.factor=1
+      transaction.state.log.min.isr=1
+      default.replication.factor=1
     startupProbe:
       enabled: true
       initialDelaySeconds: 30
@@ -59,12 +64,14 @@ elasticsearch:
   esConfig:
     elasticsearch.yml: |
       xpack.security.enabled: false
+  secret:
+    enabled: false
   extraEnvs:
     - name: ELASTIC_PASSWORD
       valueFrom:
         secretKeyRef:
           name: cartord-secrets
-          key: ELASTIC_PASSWORD
+          key: ELASTICSEARCH_PASSWORD
           
 glitchtip:
   enabled: true
@@ -269,4 +276,3 @@ grafana:
           access: proxy
           url: http://prometheus:80
           isDefault: true
-

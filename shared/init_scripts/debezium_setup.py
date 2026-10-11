@@ -4,14 +4,14 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
-DEBEZIUM_URL = "http://localhost:8083/connectors"
+DEBEZIUM_URL = os.getenv("DEBEZIUM_URL", "http://localhost:8083/connectors")
 
 def outbox_connector(name, db_name, table_name, slot_name, topic):
     return {
         "name": name,
         "config": {
             "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-            "database.hostname": "postgres",
+            "database.hostname": os.getenv("POSTGRES_HOST", "postgres"),
             "database.port": os.getenv("DB_PORT"),
             "database.user": os.getenv("POSTGRES_USER"),
             "database.password": os.getenv("POSTGRES_PASSWORD"),
