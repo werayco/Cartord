@@ -20,7 +20,7 @@ k8s-init-image:
 k8s-init:
 	kubectl create -f k8s/jobs/seed-and-topics.yaml
 init:
-	docker network create mynet
+# 	docker network create mynet
 	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"
 
 gen:
