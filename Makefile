@@ -15,8 +15,8 @@ k8s-debezium-forward:
 k8s-debezium-register:
 	kubectl create -f k8s/jobs/debezium-register.yaml
 k8s-init-image:
-	docker build -t cartord-init:latest -f shared/init_scripts/Dockerfile .
-	minikube image load cartord-init:latest
+	docker build -t $(IMAGE_REPO)/cartord-init:latest -f shared/init_scripts/Dockerfile .
+	minikube image load $(IMAGE_REPO)/cartord-init:latest
 k8s-init:
 	kubectl create -f k8s/jobs/seed-and-topics.yaml
 init:
@@ -92,6 +92,7 @@ push-all:
 	docker push $(IMAGE_REPO)/search-service:latest
 	docker push $(IMAGE_REPO)/ai-service:latest
 	docker push $(IMAGE_REPO)/payment-service:latest
+	docker push $(IMAGE_REPO)/cartord-init:latest
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d

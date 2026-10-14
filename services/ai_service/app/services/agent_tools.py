@@ -36,7 +36,7 @@ async def call_service(method: str, url: str, user_id: str, scope: str, json: Op
             return {"error": True, "status": 503, "message": "Service temporarily unavailable, please try again shortly."}
         except aiohttp.ClientResponseError as e:
             if e.status == 401 and attempt == 1:
-                invalidate(user_id, scope)   # cached token was rejected; mint a fresh one and retry once
+                invalidate(user_id, scope)
                 continue
             logger.error(f"{method} {url} failed: {e.status} - {e.message}")
             return {"error": True, "status": e.status, "message": e.message}

@@ -22,7 +22,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: register-connectors
-          image: cartord-init:latest
+          image: werayco/cartord-init:latest
           imagePullPolicy: IfNotPresent
           command:
             - python
