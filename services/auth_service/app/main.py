@@ -7,7 +7,7 @@ from pyfiglet import Figlet
 import redis
 from app.db.redis_client import redis_client
 from app.services.telemetry import setup_telemetry
-from app.routers import seller_router, buyer_router, admin_router
+from app.routers import seller_router, buyer_router, admin_router, internal_router
 from app.core.config import settings
 import sentry_sdk
 
@@ -57,3 +57,4 @@ async def root():
 app.include_router(seller_router)
 app.include_router(buyer_router)
 app.include_router(admin_router)
+app.include_router(internal_router)

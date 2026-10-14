@@ -28,6 +28,8 @@ class Settings(BaseSettings):
 
     PAYMENT_BASE_URL: str
     SERVICE_SHARED_KEY: str
+
+    AI_AGENT_SECRET_HASH: str = ""
     
     class Config:
         env_file = ".env"

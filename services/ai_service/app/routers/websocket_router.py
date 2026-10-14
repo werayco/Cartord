@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from app.db.session import get_db
-from app.core.utils import get_current_user, authenticate
+from app.core.utils import get_current_user
 from app.controllers.chat_controller import ChatController
 from app.services.socket_registry import ConversationBridge
 
@@ -11,7 +11,6 @@ router = APIRouter(prefix="/api/v1")
 @router.websocket("/ws/chat")
 async def chat_socket(websocket: WebSocket):
     try:
-        access_token = await authenticate(websocket)
         buyer_cred = await get_current_user(websocket)
     except Exception as e:
         logger.error(f"Authentication failed: {e}")
@@ -31,7 +30,6 @@ async def chat_socket(websocket: WebSocket):
                     data=data,
                     db=db,
                     user_id=user_id,
-                    access_token=access_token,
                 ) # this logic handles ack sending to the user and it returns the conversation_id
                 if conversation_id:
                     await bridge.ensure_subscribed(conversation_id) # this subs to the conversation id channel

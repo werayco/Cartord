@@ -9,7 +9,7 @@ from fastapi import WebSocket
 
 class ChatController:
     @staticmethod
-    async def handle_message(websocket: WebSocket,data: dict,db: AsyncSession,user_id: uuid.UUID,access_token: str) -> str:
+    async def handle_message(websocket: WebSocket,data: dict,db: AsyncSession,user_id: uuid.UUID) -> str:
         try:
             conversation_id = data.get("conversation_id")
             message_id = data.get("message_id")
@@ -61,7 +61,6 @@ class ChatController:
                     "conversation_id": str(conversation_id),
                     "user_id": str(user_id),
                     "content": content,
-                    "access_token": access_token,
                 },
             )
             db.add(event)

@@ -27,7 +27,6 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
     url = f"{settings.INVENTORY_BASE_URL}/inventory/reserve"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
-    print(f"request header is: {headers}")
 
     async with aiohttp.ClientSession() as session:
         print("sending request...")
