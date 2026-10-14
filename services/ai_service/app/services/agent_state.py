@@ -18,7 +18,6 @@ class OrderDraft(TypedDict, total=False):
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
     user_id: UUID
-    access_token: str
     users_name: str
     intent: NotRequired[str]
     order_draft: NotRequired[OrderDraft]

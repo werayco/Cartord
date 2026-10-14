@@ -83,6 +83,21 @@ Prometheus is available at:
 http://localhost:9090
 ```
 
+The Kubernetes umbrella chart configures the same seven application metrics
+jobs using their in-cluster service names and also scrapes the OpenTelemetry
+Collector's Prometheus exporter. Forward its Prometheus service to inspect
+targets:
+
+```powershell
+kubectl port-forward svc/prometheus 9090:80
+```
+
+Grafana is available by forwarding its service:
+
+```powershell
+kubectl port-forward svc/grafana 3000:80
+```
+
 ## Checking Metrics
 
 Check a service endpoint directly from the host when its port is published:

@@ -4,14 +4,14 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
-DEBEZIUM_URL = os.getenv("DEBEZIUM_URL") + "/connectors"
+DEBEZIUM_URL = os.getenv("DEBEZIUM_URL", "http://localhost:8083/connectors")
 
-def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="aggregate_id"):
+def outbox_connector(name, db_name, table_name, slot_name, topic, event_key="aggregate_id"):
     return {
         "name": name,
         "config": {
             "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
-            "database.hostname": "postgres",
+            "database.hostname": os.getenv("POSTGRES_HOST", "postgres"),
             "database.port": os.getenv("DB_PORT"),
             "database.user": os.getenv("POSTGRES_USER"),
             "database.password": os.getenv("POSTGRES_PASSWORD"),
@@ -26,7 +26,7 @@ def outbox_connector(name, db_name, table_name, slot_name, topic, key_field="agg
             "transforms": "outbox",
             "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
             "transforms.outbox.table.field.event.id": "id",
-            "transforms.outbox.table.field.event.key": key_field,
+            "transforms.outbox.table.field.event.key": event_key,
             # "transforms.outbox.table.field.event.timestamp": "created_at",
             "transforms.outbox.table.field.event.payload": "payload",
             "transforms.outbox.table.expand.json.payload": "true",
@@ -66,7 +66,7 @@ connector_config_chat = outbox_connector(
     table_name="chat_outbox_events",
     slot_name="chat_outbox_slot",
     topic="chat",
-    key_field="conversation_id",
+    event_key="conversation_id"
 )
 
 connector_config_auth = outbox_connector(
@@ -82,11 +82,10 @@ def register_connector(connector_config):
     config = connector_config["config"]
     url = f"{DEBEZIUM_URL}/{name}/config"
 
-    response = requests.put(
-        url,
+    response = requests.put(url,
         headers={"Content-Type": "application/json"},
-        data=json.dumps(config),
-    )
+        data=json.dumps(config))
+    
     if response.status_code in (200, 201):
         verb = "updated" if response.status_code == 200 else "created"
         print(f"Connector {name} {verb} successfully.")

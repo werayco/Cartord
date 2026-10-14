@@ -59,7 +59,7 @@ async def validate_item(state: AgentState) -> Command[Literal["validate_item", "
 
     else:
         writer({"type": "thought", "node": "validate_item", "message": "Searching the catalog for matching products..."})
-        result = await fetch_item_details(query,  state["access_token"])
+        result = await fetch_item_details(query, state["user_id"])
         
         if not result.get("error") and len(result.get("response") or []) > 1:
             draft["search_matches"] = result["response"]
@@ -104,7 +104,7 @@ async def check_wallet(state: AgentState) -> Command[Literal["confirm_order", "_
     draft = dict(state.get("order_draft") or {})
     total = draft["price"] * draft["quantity"]
     url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
-    wallet = await call_service("GET", url, state["access_token"])
+    wallet = await call_service("GET", url, state["user_id"], "wallet:read")
 
     if wallet.get("error"):
         return Command(goto=END,update={"messages": [AIMessage(content="I couldn't check your wallet balance right now, so I've paused the order.")]},)
@@ -152,7 +152,7 @@ async def place_order_node(state: AgentState) -> Command[Literal["__end__"]]:
     if draft.get("delivery_address_id"):
         payload["delivery_address_id"] = draft["delivery_address_id"]
 
-    result = await call_service("POST", url, state["access_token"], json=payload)
+    result = await call_service("POST", url, state["user_id"], "orders:write", json=payload)
 
     if result.get("error"):
         message = "I couldn't place the order — please try again in a moment."
@@ -166,7 +166,7 @@ async def wallet_balance_node(state: AgentState) -> Command[Literal["__end__"]]:
     writer({"type": "thought", "node": "wallet_balance_node", "message": "Retrieving your wallet balance..."})
     writer({"type": "thought", "node": "wallet_balance_node", "message": "Hold on a sec..."})
     url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
-    wallet = await call_service("GET", url, state["access_token"])
+    wallet = await call_service("GET", url, state["user_id"], "wallet:read")
     if wallet.get("error"):
         writer({"type": "thought", "node": "wallet_balance_node", "message": "Oops! Something is going on..."})
         message = "I couldn't check your wallet balance right now."

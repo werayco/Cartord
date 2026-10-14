@@ -4,13 +4,14 @@ import bcrypt
 from jose import jwt, JWTError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.config import settings
 from app.core.schemas import Roles
 from app.models.seller import Seller
 from app.db.session import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+import hmac
 from jose import jwt, JWTError
 import secrets
 import hashlib
@@ -21,6 +22,16 @@ bearer_scheme = HTTPBearer()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
+AI_AGENT_SCOPES = {"catalog:read", "orders:read", "orders:write", "wallet:read","profile:write"}
+
+def authenticate_ai_agent(x_service_secret: str = Header(...)) -> str:
+    expected_hash = settings.AI_AGENT_SECRET_HASH
+    if not expected_hash:
+        raise HTTPException(status_code=503, detail="Token delegation is not configured")
+    presented_hash = hashlib.sha256(x_service_secret.encode()).hexdigest()
+    if not hmac.compare_digest(presented_hash, expected_hash):
+        raise HTTPException(status_code=401, detail="Invalid service credentials")
+    return "ai-agent"
 
 @payment_breaker 
 async def create_wallet(customer_id: UUID) -> dict:
@@ -57,10 +68,11 @@ async def get_admin_user(current_user: Seller = Depends(get_current_user_dep(Sel
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
-def _build_token(user, token_type: str, expires_delta: timedelta) -> str:
+def _build_token(user, token_type: str, expires_delta: timedelta, extra: dict | None = None) -> str:
     now = datetime.now(timezone.utc)
     role = getattr(user, "role", None)
     payload = {
+        **(extra or {}),  # extra claims first so they can never override the reserved ones below
         "sub": str(user.id),
         "email": user.email,
         "role": role.value if role is not None else "buyer",
@@ -72,6 +84,24 @@ def _build_token(user, token_type: str, expires_delta: timedelta) -> str:
 
 async def issue_access_token(user) -> str:
     return _build_token(user, "access", timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+DELEGATED_TOKEN_EXPIRE_SECONDS = 300
+
+def issue_delegated_token(user, scopes: list[str], actor: str) -> str:
+    """Short-lived access token minted for a trusted internal service acting on behalf of `user`.
+
+    It is a normal access token (type="access") so every service accepts it, plus:
+      scope: what the actor asked for (informational until downstream services enforce it)
+      act:   RFC 8693 actor claim - who is acting for the user
+    No `aud` claim on purpose: python-jose rejects tokens carrying `aud` unless the
+    verifier passes an audience, and the existing services don't.
+    """
+    return _build_token(
+        user,
+        "access",
+        timedelta(seconds=DELEGATED_TOKEN_EXPIRE_SECONDS),
+        extra={"scope": " ".join(scopes), "act": {"sub": actor}},
+    )
 
 async def get_tokens(user):
     access = await issue_access_token(user)

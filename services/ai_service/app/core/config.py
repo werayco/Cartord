@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     CHUNK_SIZE: int = 500
 
     AUTH_BASE_URL: str = "http://auth_service:9001"
+    AUTH_DELEGATION_SECRET: str
     ORDER_BASE_URL: str = "http://order_service:9004"
     SEARCH_BASE_URL: str = "http://search_service:9007"
     INVENTORY_BASE_URL: str = "http://inventory_service:9002"

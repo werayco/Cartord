@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
 
 class RegisterRequest(BaseModel):
@@ -77,3 +77,7 @@ class UserCountResponse(BaseModel):
 class CustomerStatisticsResponse(BaseModel):
     period: str
     new_customers: int
+
+class DelegateRequest(BaseModel):
+    user_id: UUID
+    scopes: list[str] = Field(min_length=1)

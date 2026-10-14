@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 from confluent_kafka import Consumer, Producer
 from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
@@ -15,6 +16,13 @@ from app.services.socket_registry import conversation_channel
 from app.core.logging import logger
 
 IDEMPOTENCY_TTL_SECONDS = 60 * 60
+
+_TOKEN_RE = re.compile(r'"access_token"\s*:\s*"[^"]*"')
+
+def _redact(value_bytes) -> str | None:
+    if not value_bytes:
+        return None
+    return _TOKEN_RE.sub('"access_token":"[REDACTED]"', value_bytes.decode(errors="replace"))
 
 class KafkaConsumer:
     def __init__(self):
@@ -83,7 +91,6 @@ class KafkaConsumer:
         conversation_id = payload["conversation_id"]
         content = payload["content"]
         user_id = payload.get("user_id")
-        access_token = payload.get("access_token")
 
         dedup_key = f"processed:{message_id}"
         was_new = await redis_client.set(dedup_key, "1", nx=True, ex=IDEMPOTENCY_TTL_SECONDS)
@@ -100,7 +107,7 @@ class KafkaConsumer:
         if state.next:
             resume_input=Command(resume=content)
         else:
-            resume_input = {"messages": [HumanMessage(content=content)], "user_id": user_id, "access_token": access_token}
+            resume_input = {"messages": [HumanMessage(content=content)], "user_id": user_id}
 
         full_reply = ""
         try:
@@ -172,7 +179,7 @@ class KafkaConsumer:
                 topic="chat.dlq",
                 key=key_bytes,
                 value=json.dumps({
-                    "original_value": value_bytes.decode(errors="replace") if value_bytes else None,
+                    "original_value": _redact(value_bytes),
                     "error": error,
                 }).encode(),
             )

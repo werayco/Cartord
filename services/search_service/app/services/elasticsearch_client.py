@@ -1,3 +1,4 @@
+import asyncio
 from elasticsearch import AsyncElasticsearch
 from app.core.config import settings
 from app.core.logging import logger
@@ -5,7 +6,17 @@ from app.core.logging import logger
 class ElasticsearchClient:
     def __init__(self, index_name):
         self.index_name = index_name
-        self.client = AsyncElasticsearch(hosts=[f"http://{settings.ELASTICSEARCH_HOST}:{settings.ELASTICSEARCH_PORT}"])
+        auth = (
+            (settings.ELASTICSEARCH_USER, settings.ELASTICSEARCH_PASSWORD)
+            if settings.ELASTICSEARCH_USER
+            else None
+        )
+        self.client = AsyncElasticsearch(
+            hosts=[f"{settings.ELASTICSEARCH_SCHEME}://{settings.ELASTICSEARCH_HOST}:{settings.ELASTICSEARCH_PORT}"],
+            basic_auth=auth,
+            verify_certs=settings.ELASTICSEARCH_VERIFY_CERTS,
+            ssl_show_warn=False,
+        )
         self.mappings = {
             "properties": {
                 "name": {"type": "text"},
@@ -19,9 +30,16 @@ class ElasticsearchClient:
             }
         }
 
-    async def _ensure_index(self):
-        if not await self.client.indices.exists(index=self.index_name):
-            await self.client.indices.create(index=self.index_name, mappings=self.mappings)
+    async def _ensure_index(self, retries: int = 12, delay: float = 5.0):
+        for attempt in range(1, retries + 1):
+            try:
+                if not await self.client.indices.exists(index=self.index_name):
+                    await self.client.indices.create(index=self.index_name, mappings=self.mappings)
+                return
+            except Exception as e:
+                logger.warning(f"Elasticsearch not ready (attempt {attempt}/{retries}): {e}")
+                await asyncio.sleep(delay)
+        raise RuntimeError("Elasticsearch unavailable after retries")
 
     async def crud_document(self, key, value: dict):
         if key == "inventory.created":
