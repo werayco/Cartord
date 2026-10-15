@@ -14,11 +14,14 @@ k8s-debezium-forward:
 	kubectl port-forward -n cartord svc/debezium-connect 8083:8083
 k8s-debezium-register:
 	kubectl create -f k8s/jobs/debezium-register.yaml
-k8s-init-image:
+k8s-init:
 	docker build -t $(IMAGE_REPO)/cartord-init:latest -f shared/init_scripts/Dockerfile .
 	minikube image load $(IMAGE_REPO)/cartord-init:latest
-k8s-init:
+	kubectl create -f k8s/jobs/debezium-register.yaml
 	kubectl create -f k8s/jobs/seed-and-topics.yaml
+
+k8s:
+	helm upgrade --install cartord ./k8s --namespace cartord -f ./k8s/values.yaml --create-namespace
 init:
 # 	docker network create mynet
 	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"

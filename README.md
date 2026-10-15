@@ -1,7 +1,7 @@
 <div align="center">
  <img src="shared/images/cartord-logo.png" alt="Cartord Logo" width="900"/>
 
- <sub>The Cartord logo was designed by me, Using Adobe Illustrator, click<a href="shared/images/cartord-logo.ai"> Here</a> to view the editable file</sub>
+ <sub>The Cartord logo was designed by me using Adobe Illustrator. Click <a href="shared/images/cartord-logo.ai">here</a> to view the editable file.</sub>
 
  <br/>
 
@@ -40,6 +40,19 @@
 A mini e-commerce ordering system built to demonstrate production-grade backend
 architecture: event-driven microservices, resilience patterns, an AI shopping
 assistant, and full observability, deployed on Docker Compose or Kubernetes.
+
+## Table of Contents
+
+- [Microservices](#microservices)
+- [Architecture Patterns](#architecture-patterns)
+- [Observability](#observability)
+- [Infrastructure](#infrastructure)
+- [System Architecture](#system-architecture)
+- [Running with Docker Compose](#running-with-docker-compose)
+- [Running on Kubernetes](#running-on-kubernetes)
+- [Accessing Kubernetes Services with kubefwd](#accessing-kubernetes-services-with-kubefwd)
+- [Other Make Targets](#other-make-targets)
+- [API Documentation](#api-documentation)
 
 ## Microservices
 
@@ -84,6 +97,8 @@ assistant, and full observability, deployed on Docker Compose or Kubernetes.
 - **Kafka + Debezium** - event streaming and CDC-based outbox relay
 - **Kubernetes** - deployment, StatefulSets for stateful workloads
 - **Docker Compose** - local development
+
+---
 
 # System Architecture
 
@@ -147,14 +162,14 @@ The project is prepared for container-based deployment.
 
 ---
 
-# Running the Project
+# Running with Docker Compose
 
 ## Prerequisites
 
 - Docker + Docker Compose
 - `make`
 - Python 3.10+ (only needed on the host to run the one-off init scripts)
-- `openssl` is not required for JWT generation anymore because the project uses a shared HS256 secret
+- No `openssl` needed for JWT generation: the project uses a shared HS256 secret
 
 ## 1. Create the Docker network
 
@@ -217,39 +232,47 @@ inventory data, and create the Kafka topics:
 make init
 ```
 
-This is equivalent to running, in order:
+## 6. Verify
+
+Each service exposes a health check and interactive OpenAPI docs:
 
 ```bash
-python -m shared.init_scripts.debezium_setup   # registers the outbox CDC connectors in Debezium
-python -m shared.init_scripts.seed             # seeds shared/inventory.json into inventory_db
-python -m shared.init_scripts.create_topics    # creates the order/inventory/payment/auth/chat topics + DLQs
+curl http://localhost:9001/api/v1/health   # auth_service
 ```
 
-> These scripts run against `localhost`, so they're meant to be run on the
-> host after `make run`, not inside a container. They need
-> `shared/requirements.txt` installed, plus `python-dotenv` and `requests`.
+Swagger UI is available per service at `http://localhost:<port>/docs`
+(e.g. `http://localhost:9001/docs`).
 
-## Initialize a Kubernetes deployment
+Other useful UIs once the stack is up:
 
-Build the init image and load it into the current Minikube cluster:
+| UI       | URL                      |
+| -------- | ------------------------ |
+| Kafka UI | `http://localhost:8090`  |
+| Grafana  | `http://localhost:3000`  |
+| Jaeger   | `http://localhost:16686` |
+| GlitchTip| `http://localhost:8080`  |
+| Mailpit  | `http://localhost:8025`  |
+
+---
+
+# Running on Kubernetes
+
+## 1. Create the secrets and install the Helm chart
+
+Create or update the `cartord-secrets` Secret from
+`shared/compose_files/.env.k8s`, then install or upgrade the Helm chart:
 
 ```bash
-make k8s-init-image
+make k8s-secret
+make k8s
 ```
 
-The chart runs Kafka with a single broker, so its internal topic replication
-settings are set to `1`.
+> **Note:** the chart runs Kafka with a single broker, so its internal topic
+> replication settings are set to `1`.
 
-Wait for PostgreSQL, Kafka, and the inventory service to be ready. The
-inventory service creates its database tables during startup:
+## 2. Seed inventory and create Kafka topics
 
-```bash
-kubectl rollout status statefulset/cartord-postgres -n cartord --timeout=5m
-kubectl rollout status statefulset/cartord-kafka-controller -n cartord --timeout=5m
-kubectl rollout status deployment/inventory-service -n cartord --timeout=5m
-```
-
-Run the Kubernetes Job to seed inventory and create Kafka topics:
+Run the Kubernetes Job to seed inventory and create the Kafka topics:
 
 ```bash
 make k8s-init
@@ -264,8 +287,11 @@ connects to the in-cluster Kafka Service. Find its generated name with
 kubectl logs -n cartord job/<generated-job-name>
 ```
 
-After the order, inventory, payment, and AI services are ready (they create
-their outbox tables during startup), register the Debezium connectors:
+## 3. Register the Debezium connectors
+
+The order, inventory, payment, and AI services create their outbox tables
+during startup, so wait until they are ready before registering the
+connectors:
 
 ```bash
 kubectl rollout status deployment/order-service -n cartord --timeout=5m
@@ -279,36 +305,184 @@ kubectl get jobs -n cartord -w
 
 The connector-registration Job uses the `debezium-connect` and
 `cartord-postgres` Kubernetes Services and reads PostgreSQL credentials from
-`cartord-secrets`. Job logs are available with `kubectl logs -n cartord
-job/<generated-job-name>`.
-
-## 6. Verify
-
-Each service exposes a health check and interactive OpenAPI docs:
+`cartord-secrets`. Job logs are available with:
 
 ```bash
-curl http://localhost:9001/api/v1/health   # auth_service
+kubectl logs -n cartord job/<generated-job-name>
 ```
 
-Swagger UI is available per service at `http://localhost:<port>/docs`
-(e.g. `http://localhost:9001/docs`).
+---
 
-Other useful UIs once the stack is up: Kafka UI on `:8090`, Grafana on
-`:3000`, Jaeger on `:16686`, GlitchTip on `:8080`, Mailpit on `:8025`.
+# Accessing Kubernetes Services with kubefwd
 
-## Other Make targets
+[kubefwd](https://github.com/txn2/kubefwd) forwards every service in a
+namespace to your local machine at once, so you can reach them by their
+Kubernetes service names instead of juggling one `kubectl port-forward` per
+service.
 
-| Command                                                                                            | What it does                                                  |
-| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `make <service>` (e.g. `make auth`, `make order`, `make payment`, `make ai`, `make db`, `make kf`) | Tail logs for that container                                  |
-| `make build-all` / `make build-<service>-service`                                                  | Build Docker images (tagged `$(IMAGE_REPO)/<service>:latest`) |
-| `make push-all`                                                                                    | Push all built images                                          |
-| `make services-all`                                                                                | Rebuild and start all application services                    |
-| `make rebuild SERVICE_NAME=<service>`                                                              | Rebuild and restart a single service                           |
-| `make recreate-all`                                                                                | Force-recreate infra + services (needed after `.env` changes)  |
-| `make recreate SERVICE_NAME=<service>`                                                             | Force-recreate a single service                                |
-| `make stop`                                                                                        | Stop everything                                                 |
-| `make stop-v`                                                                                      | Stop everything and remove volumes                              |
+## 1. Install kubefwd
+
+### Ubuntu
+
+```bash
+# Set the architecture (amd64 for most machines, arm64 for ARM)
+ARCH=$(dpkg --print-architecture)
+
+# Get the latest version tag
+VERSION=$(curl -s https://api.github.com/repos/txn2/kubefwd/releases/latest | grep tag_name | cut -d '"' -f 4 | sed 's/v//')
+
+# Download and install
+wget https://github.com/txn2/kubefwd/releases/download/v${VERSION}/kubefwd_${ARCH}.deb
+sudo dpkg -i kubefwd_${ARCH}.deb
+```
+
+Run `kubefwd` to confirm it installed successfully. It should print its usage
+and available commands:
+
+```bash
+kubefwd
+```
+
+> If the `.deb` filename differs, check the exact asset name on the
+> [releases page](https://github.com/txn2/kubefwd/releases) and adjust the
+> `wget` line. Other install options (Homebrew, binary tarball) are listed there too.
+
+### Windows
+
+Using [Scoop](https://scoop.sh):
+
+```powershell
+scoop install kubefwd
+```
+
+Or download the Windows `.zip` from the
+[releases page](https://github.com/txn2/kubefwd/releases), extract
+`kubefwd.exe`, and add its folder to your `PATH`.
+
+Then run `kubefwd` in PowerShell to confirm it installed successfully.
+
+> **Tip:** run kubefwd on the same OS where your cluster runs. If minikube runs
+> on Windows, use the Windows install. A WSL terminal has its own kubeconfig
+> and cannot reach a Windows minikube by default.
+
+## 2. Forward all Cartord services
+
+Make sure the stack is up first (`kubectl get pods -n cartord`).
+
+### Ubuntu
+
+```bash
+sudo -E kubefwd svc -n cartord
+```
+
+kubefwd needs root because it edits `/etc/hosts` and adds loopback IP
+aliases. `-E` preserves your environment so `sudo` can find your
+`KUBECONFIG`. If you use a non-default kubeconfig or context, pass them
+explicitly (use an absolute path, not `~`):
+
+```bash
+sudo -E kubefwd svc -n cartord --kubeconfig /home/<user>/.kube/config --context <context-name>
+```
+
+Leave it running in its own terminal. Each service in the `cartord`
+namespace is now reachable by its service name (see
+[Service URLs](#service-urls) below), for example:
+
+```bash
+curl http://auth-service:9001/api/v1/health
+```
+
+### Windows
+
+Open **PowerShell as Administrator** (right-click PowerShell, then
+**Run as administrator**) and run:
+
+```powershell
+kubefwd svc -n cartord
+```
+
+Leave it running. Services are then reachable by name from Windows apps and
+browsers. They will not resolve inside WSL, which has its own `/etc/hosts`.
+
+## Service URLs
+
+While kubefwd is running, these URLs work from your machine.
+
+**Application services**
+
+| Service                | URL                             |
+| ---------------------- | ------------------------------- |
+| `ai-service`           | `http://ai-service:9000`        |
+| `auth-service`         | `http://auth-service:9001`      |
+| `inventory-service`    | `http://inventory-service:9002` |
+| `notification-service` | `http://notification-service:9003` |
+| `order-service`        | `http://order-service:9004`     |
+| `payment-service`      | `http://payment-service:9005`   |
+| `search-service`       | `http://search-service:9007`    |
+
+Swagger UI is available per service at `/docs`
+(e.g. `http://auth-service:9001/docs`).
+
+**Infrastructure**
+
+| Component     | URL / address                          |
+| ------------- | -------------------------------------- |
+| Grafana       | `http://grafana` (port 80)             |
+| Prometheus    | `http://prometheus`                    |
+| Jaeger UI     | `http://jaeger-query:16686`            |
+| GlitchTip     | `https://errors.devrayco.name.ng`     |
+| Elasticsearch | `http://elasticsearch-master:9200`     |
+| Debezium      | `http://debezium-connect:8083`         |
+| Postgres      | `cartord-postgres:5432`                |
+| Kafka         | `cartord-kafka:9092`                   |
+| Redis         | `cartord-redis-master:6379`            |
+
+## What kubefwd changes on your machine
+
+kubefwd edits your real hosts file in place (`/etc/hosts` on Linux,
+`C:\Windows\System32\drivers\etc\hosts` on Windows); it does not create a
+separate temporary hosts file.
+
+- **On start**, it adds an entry for each forwarded service, mapping the
+  service name to a loopback IP (like `127.1.27.1`), and brings up those
+  loopback aliases on your machine.
+- **On exit** (`Ctrl+C` or a normal termination), it removes those entries,
+  so the changes are temporary.
+- **Backup**: it also saves a copy of your original hosts file as
+  `hosts.original` in the home directory of the user running it, which is why
+  it needs root.
+
+## Troubleshooting
+
+- **Stale entries after a crash.** If kubefwd is killed abruptly (`kill -9`,
+  crash, power loss), cleanup may not run and its lines can remain in
+  `/etc/hosts`. Delete just those lines by hand. Restore the backup only if
+  you have made no other `/etc/hosts` changes since kubefwd started:
+
+  ```bash
+  sudo cp ~/hosts.original /etc/hosts
+  ```
+
+- **Can't find the kubeconfig under `sudo`.** Pass `--kubeconfig` with an
+  absolute path, and confirm `kubectl get svc -n cartord` works without sudo.
+- **Running on minikube.** Make sure the cluster is running
+  (`minikube status`) before starting kubefwd.
+
+---
+
+# Other Make Targets
+
+| Command                                                                                             | What it does                                                   |
+| --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `make <service>` (e.g. `make auth`, `make order`, `make payment`, `make ai`, `make db`, `make kf`) | Tail logs for that container                                   |
+| `make build-all` / `make build-<service>-service`                                                   | Build Docker images (tagged `$(IMAGE_REPO)/<service>:latest`)  |
+| `make push-all`                                                                                     | Push all built images                                          |
+| `make services-all`                                                                                 | Rebuild and start all application services                     |
+| `make rebuild SERVICE_NAME=<service>`                                                               | Rebuild and restart a single service                           |
+| `make recreate-all`                                                                                 | Force-recreate infra + services (needed after `.env` changes)  |
+| `make recreate SERVICE_NAME=<service>`                                                              | Force-recreate a single service                                |
+| `make stop`                                                                                         | Stop everything                                                |
+| `make stop-v`                                                                                       | Stop everything and remove volumes                             |
 
 ---
 
