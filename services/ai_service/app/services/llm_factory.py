@@ -11,8 +11,8 @@ _GROQ_MODELS = {
 }
 
 _GEMINI_MODELS = {
-    "customer": "gemini-3.1-pro-preview",  # stronger reasoning, needed for open-ended tool selection
-    "classifier": "gemini-3.1-flash-lite",  # cheap, stable, plenty for simple classification
+    "customer": "gemini-3.1-pro-preview",
+    "classifier": "gemini-3.1-flash-lite",
     "slot": "gemini-3.1-flash-lite",
 }
 
