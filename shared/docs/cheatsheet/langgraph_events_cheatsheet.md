@@ -33,8 +33,8 @@ A message chunk is not necessarily one token. It may contain text, tool-call dat
 Typical standard payload locations:
 
 ```python
-event["data"]["input"]   # Start input; shape depends on component
-event["data"]["chunk"]   # Stream update
+event["data"]["input"]  # Start input; shape depends on component
+event["data"]["chunk"]  # Stream update
 event["data"]["output"]  # Completed output
 ```
 
@@ -69,10 +69,7 @@ async for event in graph.astream_events(
     config=config,
     version="v2",
 ):
-    if (
-        event["event"] == "on_chain_end"
-        and event.get("name") == "agent"
-    ):
+    if event["event"] == "on_chain_end" and event.get("name") == "agent":
         output = event["data"].get("output") or {}
         for message in output.get("messages", []):
             if message.content:
@@ -111,7 +108,8 @@ async for event in graph.astream_events(
     print(
         event["event"],
         event.get("name"),
-        "data_keys=", list(event.get("data", {})),
+        "data_keys=",
+        list(event.get("data", {})),
         flush=True,
     )
 ```
@@ -125,6 +123,7 @@ Ensure the streaming loop is inside `main()` and the file ends with:
 ```python
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())
 ```
 

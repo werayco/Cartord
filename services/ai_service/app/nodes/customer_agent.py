@@ -1,6 +1,7 @@
+from langchain_core.messages import SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_groq import ChatGroq
-from langchain_core.messages import SystemMessage
+
 from app.core.config import settings
 from app.services.agent_state import AgentState
 from app.services.agent_tools import CUSTOMER_TOOLS
@@ -23,9 +24,7 @@ CUSTOMER_SYSTEM_PROMPT = (
 
 
 async def Agent(state: AgentState, config: RunnableConfig) -> AgentState:
-    messages = [
-        SystemMessage(content=CUSTOMER_SYSTEM_PROMPT),
-        *state["messages"]]
+    messages = [SystemMessage(content=CUSTOMER_SYSTEM_PROMPT), *state["messages"]]
 
     response = await llm_customer.ainvoke(messages, config)
     return {"messages": [response]}

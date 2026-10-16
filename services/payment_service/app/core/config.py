@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "payment_service"
     SENTRY_DSN: str = ""
@@ -16,8 +17,8 @@ class Settings(BaseSettings):
     CIRCUIT_BREAKER_TIMEOUT_DURATION: int = 30
     CIRCUIT_BREAKER_FAIL_MAX: int = 5
 
-    
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

@@ -1,6 +1,6 @@
 import hashlib
 import secrets
-from pathlib import Path
+
 
 def generated_values() -> dict[str, str]:
     secret = secrets.token_urlsafe(48)
@@ -8,5 +8,6 @@ def generated_values() -> dict[str, str]:
     print(f"AI_AGENT_SECRET={secret}")
     print(f"AI_AGENT_SECRET_HASH={secret_hash}")
     print(f"AUTH_DELEGATION_SECRET={secret}")
+
 
 generated_values()

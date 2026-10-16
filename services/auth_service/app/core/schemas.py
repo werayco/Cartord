@@ -1,6 +1,8 @@
 from enum import Enum
-from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class RegisterRequest(BaseModel):
     email: str
@@ -9,28 +11,35 @@ class RegisterRequest(BaseModel):
     password: str
     shipping_address: str
 
+
 class LoginRequest(BaseModel):
     username: str
     password: str
+
 
 class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str
 
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
 
+
 class RefreshRequest(BaseModel):
     refresh_token: str
+
 
 class AccessTokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
+
 class Roles(Enum):
     ADMIN = "admin"
     SELLER = "seller"
+
 
 class RegisterSeller(BaseModel):
     email: str
@@ -38,11 +47,13 @@ class RegisterSeller(BaseModel):
     password: str
     username: str
 
+
 class RegisterAdmin(BaseModel):
     email: str
     name: str
     password: str
     username: str
+
 
 class SellerOut(BaseModel):
     id: UUID
@@ -51,10 +62,12 @@ class SellerOut(BaseModel):
     username: str
     role: str
     model_config = {"from_attributes": True}
-    
+
+
 class DeleteUser(BaseModel):
     username: str
     password: str
+
 
 class BuyerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -65,18 +78,22 @@ class BuyerOut(BaseModel):
     shipping_address: str | None
     id: UUID
 
+
 class UpdateUser(BaseModel):
     email: str | None = None
     name: str | None = None
     username: str | None = None
     shipping_address: str | None = None
 
+
 class UserCountResponse(BaseModel):
     total_users: int
+
 
 class CustomerStatisticsResponse(BaseModel):
     period: str
     new_customers: int
+
 
 class DelegateRequest(BaseModel):
     user_id: UUID

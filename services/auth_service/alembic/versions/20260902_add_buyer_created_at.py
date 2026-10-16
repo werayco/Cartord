@@ -3,8 +3,9 @@
 Revision ID: 20260902_buyer_created_at
 Revises:
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 
 revision = "20260902_buyer_created_at"
 down_revision = None
@@ -15,7 +16,12 @@ depends_on = None
 def upgrade() -> None:
     op.add_column(
         "buyer",
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
     )
 
 

@@ -2,16 +2,17 @@ import asyncio
 import os
 from logging.config import fileConfig
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 ENV_PATH = Path(__file__).resolve().parents[3] / "shared" / "compose_files" / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
-from sqlalchemy import pool  # noqa: E402
-from sqlalchemy.engine import Connection  # noqa: E402
-from sqlalchemy.ext.asyncio import async_engine_from_config  # noqa: E402
-from app.models import Payment, UserWallet, OutboxEvent # noqa: E402
-from app.db.session import Base  # noqa: E402
-from alembic import context  # noqa: E402
+from alembic import context
+from app.db.session import Base
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
 config = context.config
 
@@ -22,6 +23,7 @@ db_url = os.getenv("PAYMENT_DATABASE_URL", "").replace("@postgres:", "@localhost
 config.set_main_option("sqlalchemy.url", db_url)
 
 target_metadata = Base.metadata
+
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")

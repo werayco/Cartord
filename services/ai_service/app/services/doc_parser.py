@@ -1,7 +1,9 @@
 from io import BytesIO
+
+from docx import Document
 from fastapi import UploadFile
 from pypdf import PdfReader
-from docx import Document
+
 
 async def extract_text(file: UploadFile) -> str:
     content = await file.read()
@@ -9,7 +11,7 @@ async def extract_text(file: UploadFile) -> str:
     if file.filename.lower().endswith(".pdf"):
         reader = PdfReader(BytesIO(content))
 
-        text = "\n".join(page.extract_text() or ""for page in reader.pages)
+        text = "\n".join(page.extract_text() or "" for page in reader.pages)
 
     elif file.filename.lower().endswith(".docx"):
         document = Document(BytesIO(content))
@@ -24,8 +26,6 @@ async def extract_text(file: UploadFile) -> str:
         text = content.decode("utf-8")
 
     else:
-        raise ValueError(
-            f"Unsupported file type: {file.filename}"
-        )
+        raise ValueError(f"Unsupported file type: {file.filename}")
 
     return text.strip()

@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Depends
+
 from app.core.utils import get_current_user
 from app.services.elasticsearch_client import elasticsearch_client
 
-search_router = APIRouter(prefix="/api/v1/search",tags=["search"])
+search_router = APIRouter(prefix="/api/v1/search", tags=["search"])
+
 
 @search_router.get("/items")
-async def get_item(query:str, current_user = Depends(get_current_user)):
+async def get_item(query: str, current_user=Depends(get_current_user)):
     return {"response": await elasticsearch_client.search_documents(query)}
+
+
+@search_router.get("/items/all")
+async def get_all_items(current_user=Depends(get_current_user)):
+    return {"response": await elasticsearch_client.get_all_documents()}

@@ -1,7 +1,10 @@
 import asyncio
+
 from elasticsearch import AsyncElasticsearch
+
 from app.core.config import settings
 from app.core.logging import logger
+
 
 class ElasticsearchClient:
     def __init__(self, index_name):
@@ -12,7 +15,9 @@ class ElasticsearchClient:
             else None
         )
         self.client = AsyncElasticsearch(
-            hosts=[f"{settings.ELASTICSEARCH_SCHEME}://{settings.ELASTICSEARCH_HOST}:{settings.ELASTICSEARCH_PORT}"],
+            hosts=[
+                f"{settings.ELASTICSEARCH_SCHEME}://{settings.ELASTICSEARCH_HOST}:{settings.ELASTICSEARCH_PORT}"
+            ],
             basic_auth=auth,
             verify_certs=settings.ELASTICSEARCH_VERIFY_CERTS,
             ssl_show_warn=False,
@@ -22,7 +27,7 @@ class ElasticsearchClient:
                 "name": {"type": "text"},
                 "description": {
                     "type": "text",
-                    "fields": {"keyword": {"type": "keyword"}}
+                    "fields": {"keyword": {"type": "keyword"}},
                 },
                 "available_quantity": {"type": "integer"},
                 "unit_price": {"type": "float"},
@@ -34,18 +39,26 @@ class ElasticsearchClient:
         for attempt in range(1, retries + 1):
             try:
                 if not await self.client.indices.exists(index=self.index_name):
-                    await self.client.indices.create(index=self.index_name, mappings=self.mappings)
+                    await self.client.indices.create(
+                        index=self.index_name, mappings=self.mappings
+                    )
                 return
             except Exception as e:
-                logger.warning(f"Elasticsearch not ready (attempt {attempt}/{retries}): {e}")
+                logger.warning(
+                    f"Elasticsearch not ready (attempt {attempt}/{retries}): {e}"
+                )
                 await asyncio.sleep(delay)
         raise RuntimeError("Elasticsearch unavailable after retries")
 
     async def crud_document(self, key, value: dict):
         if key == "inventory.created":
-            await self.client.index(index=self.index_name, id=str(value["id"]), document=value)
+            await self.client.index(
+                index=self.index_name, id=str(value["id"]), document=value
+            )
         elif key == "inventory.updated":
-            await self.client.update(index=self.index_name, id=str(value["id"]), document=value)
+            await self.client.update(
+                index=self.index_name, id=str(value["id"]), document=value
+            )
         elif key == "inventory.deleted":
             await self.client.delete(index=self.index_name, id=str(value["id"]))
 
@@ -59,7 +72,7 @@ class ElasticsearchClient:
                             "multi_match": {
                                 "query": query,
                                 "fields": ["name^3", "description"],
-                                "fuzziness": "AUTO"
+                                "fuzziness": "AUTO",
                             }
                         }
                     ],
@@ -67,19 +80,49 @@ class ElasticsearchClient:
             }
         }
         response = await self.client.search(index=self.index_name, body=search_query)
-        logger.info(f"Search results for query '{query}': {len(response['hits']['hits'])}")
-        print("here is the response from elastic search",response)
-        parsed_response = [
+        hits = response["hits"]["hits"]
+        logger.info(f"Search results for query '{query}': {len(hits)}")
+        return self._parse_hits(hits)
+
+    async def get_all_documents(self):
+        response = await self.client.search(
+            index=self.index_name,
+            query={"match_all": {}},
+            size=1000,
+            scroll="2m",
+        )
+        scroll_id = response.get("_scroll_id")
+        documents = []
+
+        try:
+            while True:
+                hits = response["hits"]["hits"]
+                if not hits:
+                    break
+
+                documents.extend(self._parse_hits(hits))
+                response = await self.client.scroll(scroll_id=scroll_id, scroll="2m")
+                scroll_id = response.get("_scroll_id", scroll_id)
+        finally:
+            if scroll_id:
+                await self.client.clear_scroll(scroll_id=scroll_id)
+
+        logger.info(f"Retrieved {len(documents)} documents from index '{self.index_name}'")
+        return documents
+
+    @staticmethod
+    def _parse_hits(hits):
+        return [
             {
                 "id": hit["_id"],
                 "name": hit["_source"]["name"],
                 "description": hit["_source"].get("description"),
                 "available_quantity": hit["_source"]["available_quantity"],
                 "unit_price": hit["_source"]["unit_price"],
-                "sku": hit["_source"]["sku"]
+                "sku": hit["_source"]["sku"],
             }
-            for hit in response["hits"]["hits"]
+            for hit in hits
         ]
-        return parsed_response
+
 
 elasticsearch_client = ElasticsearchClient(index_name="search_index")

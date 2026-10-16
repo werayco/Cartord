@@ -1,12 +1,15 @@
 import logging
+
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from app.db.session import get_db
-from app.core.utils import get_current_user
+
 from app.controllers.chat_controller import ChatController
+from app.core.utils import get_current_user
+from app.db.session import get_db
 from app.services.socket_registry import ConversationBridge
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1")
+
 
 @router.websocket("/ws/chat")
 async def chat_socket(websocket: WebSocket):
@@ -30,9 +33,11 @@ async def chat_socket(websocket: WebSocket):
                     data=data,
                     db=db,
                     user_id=user_id,
-                ) # this logic handles ack sending to the user and it returns the conversation_id
+                )  # this logic handles ack sending to the user and it returns the conversation_id
                 if conversation_id:
-                    await bridge.ensure_subscribed(conversation_id) # this subs to the conversation id channel
+                    await bridge.ensure_subscribed(
+                        conversation_id
+                    )  # this subs to the conversation id channel
     except WebSocketDisconnect:
         logger.info(f"WebSocket disconnected for user {user_id}")
     except Exception as e:

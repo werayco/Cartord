@@ -1,15 +1,17 @@
 import asyncio
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.db.session import engine, Base
+
+import sentry_sdk
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
+
+from app.core.config import settings
+from app.db.session import Base, engine
+from app.kafka.consumer import kafka_manager
 from app.routers.document import router as document_router
 from app.routers.websocket_router import router as chat_router
 from app.services.telemetry import setup_telemetry
-from app.kafka.consumer import kafka_manager
-from app.core.config import settings
-import sentry_sdk
 
 if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -18,11 +20,12 @@ if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
         auto_session_tracking=False,
     )
 
-f = Figlet(font='slant')
+f = Figlet(font="slant")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f.renderText('AI Service'))
+    print(f.renderText("AI Service"))
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     consumer_task = asyncio.create_task(kafka_manager.consume())
@@ -34,6 +37,7 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass
 
+
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app, engine)
 
@@ -42,11 +46,14 @@ app.add_middleware(
     allow_origins=[settings.ALLOW_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"])
+    allow_headers=["*"],
+)
+
 
 @app.get("/api/v1/health")
 async def root():
     return {"message": "Welcome to the AI Service", "version": "1.0.0"}
+
 
 app.include_router(document_router)
 app.include_router(chat_router)

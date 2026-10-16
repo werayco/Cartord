@@ -164,7 +164,10 @@ class AuthServiceEndpointTests(unittest.TestCase):
         self.assertEqual(profile["role"], "seller")
 
         self.request(
-            "GET", "/api/v1/auth/seller/sellers", token=seller_access, expected_status=403
+            "GET",
+            "/api/v1/auth/seller/sellers",
+            token=seller_access,
+            expected_status=403,
         )
 
         refreshed = self.request(
@@ -207,12 +210,18 @@ class AuthServiceEndpointTests(unittest.TestCase):
         admin_access = self.access_token(login)
 
         sellers = self.request(
-            "GET", "/api/v1/auth/seller/sellers", token=admin_access, expected_status=201
+            "GET",
+            "/api/v1/auth/seller/sellers",
+            token=admin_access,
+            expected_status=201,
         )
         self.assertIsInstance(sellers, list)
 
         count = self.request(
-            "GET", "/api/v1/auth/admin/users/count", token=admin_access, expected_status=200
+            "GET",
+            "/api/v1/auth/admin/users/count",
+            token=admin_access,
+            expected_status=200,
         )
         self.assertIsInstance(count["total_users"], int)
 

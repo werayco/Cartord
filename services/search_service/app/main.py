@@ -1,12 +1,14 @@
 import asyncio
-from fastapi import FastAPI
-from app.routers import search_router
-from pyfiglet import Figlet
-from app.services import elasticsearch_client, kafka_manager
 from contextlib import asynccontextmanager
-from app.services.telemetry import setup_telemetry
-from app.core.config import settings
+
 import sentry_sdk
+from fastapi import FastAPI
+from pyfiglet import Figlet
+
+from app.core.config import settings
+from app.routers import search_router
+from app.services import elasticsearch_client, kafka_manager
+from app.services.telemetry import setup_telemetry
 
 if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -15,10 +17,11 @@ if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
         auto_session_tracking=False,
     )
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    f = Figlet(font='slant')
-    print(f.renderText('Search Service'))
+    f = Figlet(font="slant")
+    print(f.renderText("Search Service"))
     await elasticsearch_client._ensure_index()
 
     consumer_task = asyncio.create_task(kafka_manager.consume())
@@ -30,9 +33,11 @@ async def lifespan(app: FastAPI):
     except asyncio.CancelledError:
         pass
 
+
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app)
 app.include_router(search_router)
+
 
 @app.get("/api/v1/health")
 async def root():

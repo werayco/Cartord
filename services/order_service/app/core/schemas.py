@@ -1,10 +1,12 @@
-from pydantic import BaseModel
-from pydantic import BaseModel
 from enum import Enum
+
+from pydantic import BaseModel
+
 
 class OrderPayload(BaseModel):
     sku: str
     quantity: int
+
 
 class OrderResponse(BaseModel):
     order_id: str
@@ -12,9 +14,11 @@ class OrderResponse(BaseModel):
     unit_price: float
     status: str
 
+
 class Roles(Enum):
     ADMIN = "admin"
     SELLER = "seller"
+
 
 class OrderStatus(Enum):
     PENDING = "pending"
@@ -24,6 +28,7 @@ class OrderStatus(Enum):
     CANCELLED = "cancelled"
     FAILED = "failed"
 
+
 class OrderStatisticsResponse(BaseModel):
     period: str
     total_orders: int
@@ -31,6 +36,7 @@ class OrderStatisticsResponse(BaseModel):
     total_revenue: float
     average_order_value: float
     orders_by_status: dict[str, int]
+
 
 class FailedOrderStatisticsResponse(BaseModel):
     period: str

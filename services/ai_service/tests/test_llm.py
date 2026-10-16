@@ -1,5 +1,6 @@
-from app.nodes.intent_classifier import llm_customer, CUSTOMER_SYSTEM_PROMPT
+from app.nodes.intent_classifier import CUSTOMER_SYSTEM_PROMPT, llm_customer
 from langchain_core.messages import HumanMessage, SystemMessage
+
 
 async def main():
     messages = [
@@ -13,6 +14,8 @@ async def main():
 
     print()
 
+
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())

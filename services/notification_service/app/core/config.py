@@ -1,5 +1,5 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "notification_service"
@@ -7,9 +7,9 @@ class Settings(BaseSettings):
     KAFKA_CLIENT_ID: str
     KAFKA_BOOTSTRAP_SERVERS: str
     SERVICE_SHARED_KEY: str
-    
+
     OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://otel-collector:4317"
-    
+
     EMAIL_PROVIDER: str = "mailpit"
     RESEND_API_KEY: str = ""
     SMTP_HOST: str = ""
@@ -23,5 +23,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

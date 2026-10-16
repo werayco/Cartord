@@ -1,6 +1,7 @@
 from langchain_core.language_models import BaseChatModel
-from langchain_groq import ChatGroq
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
+
 from app.core.config import settings
 
 _GROQ_MODELS = {
@@ -10,12 +11,15 @@ _GROQ_MODELS = {
 }
 
 _GEMINI_MODELS = {
-    "customer": "gemini-3.1-pro-preview",   # stronger reasoning, needed for open-ended tool selection
+    "customer": "gemini-3.1-pro-preview",  # stronger reasoning, needed for open-ended tool selection
     "classifier": "gemini-3.1-flash-lite",  # cheap, stable, plenty for simple classification
     "slot": "gemini-3.1-flash-lite",
 }
 
-def get_chat_model(role: str, *, temperature: float = 0, streaming: bool = False) -> BaseChatModel:
+
+def get_chat_model(
+    role: str, *, temperature: float = 0, streaming: bool = False
+) -> BaseChatModel:
     provider = settings.LLM_PROVIDER.lower()
 
     if provider == "gemini":

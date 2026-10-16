@@ -1,11 +1,13 @@
 import asyncio
 import time
+
 import aiohttp
+
 from app.core.config import settings
 from app.core.logging import logger
 
 DELEGATE_PATH = "/internal/v1/token/delegate"
-REFRESH_MARGIN_SECONDS = 30 
+REFRESH_MARGIN_SECONDS = 30
 MAX_CACHE_ENTRIES = 2048
 
 _cache: dict[tuple[str, str], tuple[str, float]] = {}
@@ -26,7 +28,9 @@ def _prune() -> None:
         _cache.pop(key, None)
     while len(_cache) > MAX_CACHE_ENTRIES:
         _cache.pop(next(iter(_cache)))
-    for key in [k for k, lock in _locks.items() if k not in _cache and not lock.locked()]:
+    for key in [
+        k for k, lock in _locks.items() if k not in _cache and not lock.locked()
+    ]:
         _locks.pop(key, None)
 
 
@@ -45,13 +49,22 @@ async def _mint(user_id: str, scope: str) -> tuple[str, float]:
                 headers={"X-Service-Secret": settings.AUTH_DELEGATION_SECRET},
             ) as response:
                 if response.status != 200:
-                    raise TokenDelegationError(f"auth service returned {response.status}")
+                    raise TokenDelegationError(
+                        f"auth service returned {response.status}"
+                    )
                 data = await response.json()
         return data["access_token"], float(data["expires_in"])
     except TokenDelegationError:
         raise
-    except (aiohttp.ClientError, asyncio.TimeoutError, KeyError, ValueError, TypeError) as e:
+    except (
+        aiohttp.ClientError,
+        asyncio.TimeoutError,
+        KeyError,
+        ValueError,
+        TypeError,
+    ) as e:
         raise TokenDelegationError(f"{type(e).__name__}: {e}") from e
+
 
 async def get_token(user_id: str, scope: str) -> str:
     key = (str(user_id), scope)

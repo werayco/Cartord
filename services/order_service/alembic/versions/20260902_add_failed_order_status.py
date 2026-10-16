@@ -3,6 +3,7 @@
 Revision ID: 20260902_failed_order_status
 Revises:
 """
+
 from alembic import op
 
 revision = "20260902_failed_order_status"

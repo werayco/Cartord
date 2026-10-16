@@ -1,14 +1,18 @@
-from opentelemetry.trace import get_tracer_provider
-from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
-from app.core.config import settings
 from confluent_kafka import Producer
+from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
+from opentelemetry.trace import get_tracer_provider
+
+from app.core.config import settings
+
 
 class KafkaManager:
     def __init__(self):
-        producer = Producer({
-            'bootstrap.servers': settings.KAFKA_BOOTSTRAP_SERVERS,
-            'client.id': settings.KAFKA_CLIENT_ID
-        })
+        producer = Producer(
+            {
+                "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                "client.id": settings.KAFKA_CLIENT_ID,
+            }
+        )
         self.producer = ConfluentKafkaInstrumentor().instrument_producer(
             producer, get_tracer_provider()
         )

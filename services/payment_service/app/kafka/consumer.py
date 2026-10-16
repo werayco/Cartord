@@ -1,27 +1,34 @@
 import asyncio
 import json
 import logging
+
 from confluent_kafka import Consumer, Producer
-from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
+from opentelemetry.trace import get_tracer_provider
+
+from app.controllers.payment_controller import PaymentProcessorController
 from app.core.config import settings
 from app.db.session import AsyncSessionLocal
-from app.controllers.payment_controller import PaymentProcessorController
 
 logger = logging.getLogger(__name__)
+
 
 class KafkaConsumer:
     def __init__(self):
         inst = ConfluentKafkaInstrumentor()
         tracer_provider = get_tracer_provider()
 
-        consumer = Consumer({
-            "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
-            "group.id": "payment-service",
-            "auto.offset.reset": "earliest",
-            "enable.auto.commit": False,
-        })
-        self.consumer = inst.instrument_consumer(consumer, tracer_provider=tracer_provider)
+        consumer = Consumer(
+            {
+                "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                "group.id": "payment-service",
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+            }
+        )
+        self.consumer = inst.instrument_consumer(
+            consumer, tracer_provider=tracer_provider
+        )
 
         dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
         self.dlq_producer = inst.instrument_producer(dlq_producer, tracer_provider)
@@ -57,24 +64,39 @@ class KafkaConsumer:
                 event_type = self._event_type(msg)
 
                 try:
-                    value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
+                    value = (
+                        json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
+                    )
 
                     if event_type == "order.created":
                         async with AsyncSessionLocal() as db:
                             await PaymentProcessorController.process_payment(value, db)
                     elif event_type == "buyer.registered":
                         async with AsyncSessionLocal() as db:
-                            await PaymentProcessorController.create_buyer_wallet_from_event(value, db)
+                            await PaymentProcessorController.create_buyer_wallet_from_event(
+                                value, db
+                            )
                     elif event_type == "seller.registered":
                         async with AsyncSessionLocal() as db:
-                            await PaymentProcessorController.create_seller_wallet_from_event(value, db)
+                            await PaymentProcessorController.create_seller_wallet_from_event(
+                                value, db
+                            )
                     else:
                         logger.info(f"Ignoring event type: {event_type}")
 
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
-                    logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, msg.topic(), key_bytes, value_bytes, str(e))
+                    logger.error(
+                        f"Failed to process message at offset {msg.offset()}: {e}"
+                    )
+                    await loop.run_in_executor(
+                        None,
+                        self._send_to_dlq,
+                        msg.topic(),
+                        key_bytes,
+                        value_bytes,
+                        str(e),
+                    )
                     await loop.run_in_executor(None, self.consumer.commit, msg)
         finally:
             self.consumer.close()
@@ -87,13 +109,20 @@ class KafkaConsumer:
             self.dlq_producer.produce(
                 topic=f"{source_topic}.dlq",
                 key=key_bytes,
-                value=json.dumps({
-                    "original_value": value_bytes.decode(errors="replace") if value_bytes else None,
-                    "error": error,
-                }).encode(),
+                value=json.dumps(
+                    {
+                        "original_value": value_bytes.decode(errors="replace")
+                        if value_bytes
+                        else None,
+                        "error": error,
+                    }
+                ).encode(),
             )
             self.dlq_producer.flush()
         except Exception as dlq_err:
-            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+            logger.critical(
+                f"Failed to publish to DLQ, message permanently lost: {dlq_err}"
+            )
+
 
 kafka_manager = KafkaConsumer()

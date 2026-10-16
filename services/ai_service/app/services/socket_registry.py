@@ -1,11 +1,14 @@
 import asyncio
-import logging
+
 from fastapi import WebSocket
-from app.db.redis_client import redis_client
+
 from app.core.logging import logger
+from app.db.redis_client import redis_client
+
 
 def conversation_channel(conversation_id: str) -> str:
     return f"conv:{conversation_id}"
+
 
 class ConversationBridge:
     def __init__(self, websocket: WebSocket):

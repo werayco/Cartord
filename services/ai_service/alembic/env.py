@@ -8,12 +8,12 @@ from dotenv import load_dotenv
 ENV_PATH = Path(__file__).resolve().parents[3] / "shared" / "compose_files" / ".env"
 load_dotenv(dotenv_path=ENV_PATH)
 
-from sqlalchemy import pool  # noqa: E402
-from sqlalchemy.engine import Connection  # noqa: E402
-from sqlalchemy.ext.asyncio import async_engine_from_config  # noqa: E402
-from app.models import * # noqa: E402
-from app.db.session import Base  # noqa: E402
-from alembic import context  # noqa: E402
+from alembic import context
+from app.db.session import Base
+from app.models import *
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
 
 config = context.config
 if config.config_file_name is not None:

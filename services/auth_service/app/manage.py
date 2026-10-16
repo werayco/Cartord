@@ -1,25 +1,34 @@
-import asyncio
 import argparse
-from sqlalchemy import select, or_
+import asyncio
+
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+
+from app.core.schemas import Roles
+from app.core.utils import hash_password
 from app.db.session import AsyncSessionLocal
 from app.models import Seller
-from app.core.utils import hash_password
-from app.core.schemas import Roles
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Update an Admin")
-    parser.add_argument("--email", type=str, required=True, help="Admin Email (to find the admin)")
+    parser.add_argument(
+        "--email", type=str, required=True, help="Admin Email (to find the admin)"
+    )
     parser.add_argument("--name", type=str, help="New name")
     parser.add_argument("--username", type=str, help="New username")
     parser.add_argument("--password", type=str, help="New password")
     return parser.parse_args()
 
 
-async def update_admin(email: str, password: str | None, name: str | None, username: str | None):
+async def update_admin(
+    email: str, password: str | None, name: str | None, username: str | None
+):
     async with AsyncSessionLocal() as db:
         result = await db.execute(
-            select(Seller).where(Seller.email == email, Seller.role == Roles.ADMIN.value)
+            select(Seller).where(
+                Seller.email == email, Seller.role == Roles.ADMIN.value
+            )
         )
         admin = result.scalars().first()
         if not admin:
