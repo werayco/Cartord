@@ -128,6 +128,12 @@ glitchtip-migrate:
 glitchtip-superuser:
 	docker exec -it chatdome-glitchtip-web ./manage.py createsuperuser
 
+pycache-del-ps:
+	Get-ChildItem -Path . -Recurse -Include '__pycache__', '*.pyc' | Remove-Item -Recurse -Force
+
+pycache-del-wsl:
+	find . -type d -name "__pycache__" -exec rm -rf {} +
+
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"
