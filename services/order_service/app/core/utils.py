@@ -1,11 +1,10 @@
 import json
-
 import aiohttp
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-
 from app.core.config import settings
+from app.core.logging import logger
 from app.services.circuit_breaker import breaker as inventory_breaker
 
 bearer_scheme = HTTPBearer()
@@ -37,22 +36,32 @@ async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
 
-
 @inventory_breaker
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
     url = f"{settings.INVENTORY_BASE_URL}/inventory/reserve"
     headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
 
     async with aiohttp.ClientSession() as session:
-        print("sending request...")
+        logger.info("Making request to inventory service for reserving stock")
         async with session.patch(
             url,
             json={"sku": sku, "reserved_quantity": reserved_quantity},
             headers=headers,
         ) as response:
-            response.raise_for_status()
+            if response.status >= 400:
+                try:
+                    error_body = await response.json()
+                except (aiohttp.ContentTypeError, json.JSONDecodeError):
+                    detail = response.reason
+                else:
+                    detail = (
+                        error_body.get("detail", response.reason)
+                        if isinstance(error_body, dict)
+                        else response.reason
+                    )
+                raise HTTPException(status_code=response.status, detail=detail)
             response_json = await response.json()
-            print(f"response from inventory reservsation is {response_json}")
+            logger.info(f"Response from inventory reservation is {response_json}")
             return response_json
 
 

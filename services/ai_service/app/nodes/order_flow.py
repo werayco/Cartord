@@ -291,9 +291,9 @@ async def place_order_node(state: AgentState) -> Command[Literal["__end__"]]:
     draft = dict(state.get("order_draft") or {})
     idempotency_key = str(uuid4())
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/place/{idempotency_key}"
-    payload = {"sku": draft["sku"], "quantity": draft["quantity"]}
+    payload = [{"sku": draft["sku"], "quantity": draft["quantity"]}]
     if draft.get("delivery_address_id"):
-        payload["delivery_address_id"] = draft["delivery_address_id"]
+        payload[0]["delivery_address_id"] = draft["delivery_address_id"]
 
     result = await call_service(
         "POST", url, state["user_id"], "orders:write", json=payload

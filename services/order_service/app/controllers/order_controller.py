@@ -18,7 +18,7 @@ from app.services.idempotency import idempotency
 class OrderController:
     @staticmethod
     async def place_order(
-        payload: OrderPayload,
+        payload: list[OrderPayload],
         current_user: dict[str, Any],
         db: AsyncSession,
         idempotency_key: str,
@@ -26,10 +26,11 @@ class OrderController:
         user_id = current_user.get("id")
         email = current_user.get("email")
         operation = partial(
-            OrderController.create_order, payload, str(user_id), email, db
+            OrderController.create_orders, payload, str(user_id), email, db
         )
         logger.info(
-            f"Placing order for user_id: {user_id} with idempotency_key: {idempotency_key}"
+            f"Placing {len(payload)} orders for user_id: {user_id} "
+            f"with idempotency_key: {idempotency_key}"
         )
         result = await idempotency(
             idempotency_key=idempotency_key, user_id=str(user_id), operation=operation
@@ -37,6 +38,17 @@ class OrderController:
         if result["status"] == "processing":
             raise HTTPException(status_code=409, detail=result["message"])
         return result["result"]
+
+    @staticmethod
+    async def create_orders(
+        payload: list[OrderPayload], user_id: str, email: str, db: AsyncSession
+    ) -> list[dict[str, Any]]:
+        orders = []
+        for order_payload in payload:
+            orders.append(
+                await OrderController.create_order(order_payload, user_id, email, db)
+            )
+        return orders
 
     @staticmethod
     async def create_order(
