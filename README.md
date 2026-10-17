@@ -1,5 +1,5 @@
 <div align="center">
- <img src="shared/images/cartord-logo-ii-nbg.png" alt="Cartord Logo" width="900"/>
+ <img src="shared/images/cartord-logo-ii-nbg.png" alt="Cartord Logo" width="500"/>
 
  <sub>The Cartord logo was designed by me using Adobe Illustrator. Click <a href="shared/images/cartord-logo.ai">here</a> to view the editable file.</sub>
 
