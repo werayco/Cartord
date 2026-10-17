@@ -1,3 +1,4 @@
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from enum import Enum
 from typing import Literal
 from uuid import UUID
@@ -38,3 +39,16 @@ class OrderSlots(BaseModel):
     quantity: int | None = Field(
         default=None, description="Quantity (it is an integer), if mentioned."
     )
+
+
+
+class ConversationRename(BaseModel):
+    title: str = Field(min_length=1, max_length=100)
+
+    @field_validator("title")
+    @classmethod
+    def clean_title(cls, v: str) -> str:
+        v = " ".join(v.split())
+        if not v:
+            raise ValueError("title cannot be blank")
+        return v

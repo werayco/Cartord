@@ -1,9 +1,7 @@
 import uuid
-
 from fastapi import WebSocket
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.logging import logger
 from app.models.conversation import Conversation
 from app.models.message import Message
@@ -19,6 +17,7 @@ class ChatController:
             conversation_id = data.get("conversation_id")
             message_id = data.get("message_id")
             content = data["content"]
+            is_new_conversation = False
 
             if not message_id:
                 message_id = str(uuid.uuid4())
@@ -62,6 +61,7 @@ class ChatController:
                 await db.flush()
 
                 conversation_id = conversation.id
+                is_new_conversation = True
                 logger.info(
                     f"Created new conversation {conversation_id} for user {user_id}"
                 )
@@ -81,6 +81,7 @@ class ChatController:
                     "conversation_id": str(conversation_id),
                     "user_id": str(user_id),
                     "content": content,
+                    "is_new_conversation": is_new_conversation,
                 },
             )
             db.add(event)

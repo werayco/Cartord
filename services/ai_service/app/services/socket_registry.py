@@ -16,7 +16,6 @@ class ConversationBridge:
         self._tasks: dict[str, asyncio.Task] = {}
 
     async def ensure_subscribed(self, conversation_id: str) -> None:
-        """Ensure that the websocket is subscribed to the Redis channel for the given conversation_id."""
         if conversation_id in self._tasks:
             return
         self._tasks[conversation_id] = asyncio.create_task(
