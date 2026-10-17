@@ -1,15 +1,17 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.db.session import engine, Base
-from app.controllers.seller_controller import SellerController
+
+import redis
+import sentry_sdk
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
-import redis
-from app.db.redis_client import redis_client
-from app.services.telemetry import setup_telemetry
-from app.routers import seller_router, buyer_router, admin_router, internal_router
+
+from app.controllers.seller_controller import SellerController
 from app.core.config import settings
-import sentry_sdk
+from app.db.redis_client import redis_client
+from app.db.session import Base, engine
+from app.routers import admin_router, buyer_router, internal_router, seller_router
+from app.services.telemetry import setup_telemetry
 
 if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -18,26 +20,34 @@ if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
         auto_session_tracking=False,
     )
 
-f = Figlet(font='slant')
+f = Figlet(font="slant")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
-    print(f.renderText('Auth Service'))
+    print(f.renderText("Auth Service"))
     app.state.redis = redis_client
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     response = await SellerController.run()
     print(response)
-    
+
     yield
     app.state.redis.close()
 
 
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app, engine)
-app.add_middleware(CORSMiddleware,allow_origins=[settings.ALLOW_ORIGINS],allow_credentials=True,allow_methods=["*"],allow_headers=["*"],)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.ALLOW_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/api/v1/health")
 async def root():

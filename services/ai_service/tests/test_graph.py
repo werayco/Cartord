@@ -1,7 +1,9 @@
 import asyncio
 from uuid import UUID
-from langchain_core.messages import HumanMessage
+
 from app.nodes.entry_point import node_registry
+from langchain_core.messages import HumanMessage
+
 
 async def main():
     print("Building graph...", flush=True)
@@ -33,6 +35,7 @@ async def main():
         print("METADATA:", metadata)
 
     print("\nDone.")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

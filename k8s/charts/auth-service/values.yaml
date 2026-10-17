@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: werayco/auth-service
-  pullPolicy: IfNotPresent
+  pullPolicy: Always #IfNotPresent
   tag: "latest"
 
 imagePullSecrets: []

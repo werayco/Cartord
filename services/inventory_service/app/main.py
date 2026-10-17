@@ -1,12 +1,14 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.db.session import engine, Base
+
+import sentry_sdk
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
-from app.routers import inventory_router, admin_router
-from app.services.telemetry import setup_telemetry
+
 from app.core.config import settings
-import sentry_sdk
+from app.db.session import Base, engine
+from app.routers import admin_router, inventory_router
+from app.services.telemetry import setup_telemetry
 
 if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
     sentry_sdk.init(
@@ -18,11 +20,12 @@ if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    f = Figlet(font='slant')
-    print(f.renderText('Inventory Service'))
+    f = Figlet(font="slant")
+    print(f.renderText("Inventory Service"))
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app, engine)
@@ -32,11 +35,14 @@ app.add_middleware(
     allow_origins=[settings.ALLOW_ORIGINS],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"])
+    allow_headers=["*"],
+)
+
 
 @app.get("/api/v1/health")
 async def root():
     return {"message": "Welcome to the Inventory Service", "version": "1.0.0"}
+
 
 app.include_router(inventory_router)
 app.include_router(admin_router)

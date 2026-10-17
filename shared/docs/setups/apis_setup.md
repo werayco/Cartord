@@ -316,6 +316,9 @@ Base URL: http://localhost:9007
   - Requires a bearer token
   - Query parameter: `query`
   - No request body
+- GET `/api/v1/search/items/all`
+  - Requires a bearer token
+  - Returns all indexed items; no request body
 
 ---
 

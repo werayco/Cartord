@@ -1,29 +1,50 @@
-from pydantic import BaseModel, RootModel, ConfigDict
-from enum import Enum
-from typing import Union
 from datetime import datetime
+from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, RootModel
+
 
 class InventorySchema(BaseModel):
-    name: Union[str, None] = None
-    description: Union[str, None] = None
-    unit_price: Union[float, None] = None
-    sku: Union[str, None] = None
-    available_quantity: Union[int, None] = None
-    reserved_quantity: Union[int, None] = None
+    name: str | None = None
+    description: str | None = None
+    unit_price: float | None = None
+    sku: str | None = None
+    available_quantity: int | None = None
+    reserved_quantity: int | None = None
 
-class InventorySchemaList(RootModel[list[InventorySchema]]):
+
+class InventoryCreateSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    description: str | None = None
+    unit_price: float
+    available_quantity: int = 0
+    reserved_quantity: int = 0
+
+
+class InventoryCreateResponse(BaseModel):
+    message: str
+    sku: str
+
+
+class InventorySchemaList(RootModel[list[InventoryCreateSchema]]):
     pass
+
 
 class InventoryDeleteSchema(BaseModel):
     sku: str
+
 
 class Roles(Enum):
     ADMIN = "admin"
     SELLER = "seller"
 
+
 class InventoryReserve(BaseModel):
-    sku: Union[str,None]
-    reserved_quantity: Union[int, None]
+    sku: str | None
+    reserved_quantity: int | None
+
 
 class InventoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -34,13 +55,14 @@ class InventoryResponse(BaseModel):
     available_quantity: int
     created_at: datetime
 
+
 class InventoryAdminItem(InventoryResponse):
     description: str | None = None
     reserved_quantity: int
     sellable_quantity: int
 
+
 class InventorySummaryResponse(BaseModel):
     total_skus: int
     total_units: int
     total_inventory_value: float
-

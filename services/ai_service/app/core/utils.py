@@ -1,18 +1,22 @@
-from fastapi import WebSocket, HTTPException, Depends
-from app.core.config import settings
-from app.core.logging import logger
 import json
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+from fastapi import Depends, HTTPException, WebSocket
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
+
+from app.core.config import settings
 from app.core.schemas import Roles
-from jose import jwt, JWTError
+
 
 async def authenticate(websocket: WebSocket) -> str:
     token = websocket.query_params.get("token")
     if not token:
-        raise ValueError("Missing authentication token")    
+        raise ValueError("Missing authentication token")
     return token
 
+
 bearer_scheme = HTTPBearer()
+
 
 async def get_current_user(websocket: WebSocket) -> dict:
     token = websocket.query_params.get("token")
@@ -31,22 +35,36 @@ async def get_current_user(websocket: WebSocket) -> dict:
         "is_admin": payload.get("role") == Roles.ADMIN.value,
     }
 
-async def get_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
+
+async def get_user(
+    token: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> dict:
+    credentials_exception = HTTPException(
+        status_code=401, detail="Invalid or expired token"
+    )
     try:
-        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
+        payload = jwt.decode(
+            token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"]
+        )
         if payload.get("type") != "access":
             raise credentials_exception
-        return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
+        return {
+            "id": payload["sub"],
+            "email": payload.get("email"),
+            "role": payload.get("role"),
+        }
     except (JWTError, KeyError):
         raise credentials_exception
 
-    
-async def get_admin(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
+
+async def get_admin(
+    token: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> dict:
     user = await get_user(token)
     if user["role"] != Roles.ADMIN.value:
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
+
 
 def deserialize_from_json(data):
     try:

@@ -1,12 +1,16 @@
 import json
 import os
+
 import requests
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path="./shared/compose_files/.env")
 DEBEZIUM_URL = os.getenv("DEBEZIUM_URL", "http://localhost:8083/connectors")
 
-def outbox_connector(name, db_name, table_name, slot_name, topic, event_key="aggregate_id"):
+
+def outbox_connector(
+    name, db_name, table_name, slot_name, topic, event_key="aggregate_id"
+):
     return {
         "name": name,
         "config": {
@@ -22,7 +26,6 @@ def outbox_connector(name, db_name, table_name, slot_name, topic, event_key="agg
             "publication.autocreate.mode": "filtered",
             "table.include.list": f"public.{table_name}",
             "tombstones.on.delete": "false",
-
             "transforms": "outbox",
             "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
             "transforms.outbox.table.field.event.id": "id",
@@ -35,6 +38,7 @@ def outbox_connector(name, db_name, table_name, slot_name, topic, event_key="agg
             "transforms.outbox.route.topic.replacement": topic,
         },
     }
+
 
 connector_config_order = outbox_connector(
     name="order-outbox-connector",
@@ -66,7 +70,7 @@ connector_config_chat = outbox_connector(
     table_name="chat_outbox_events",
     slot_name="chat_outbox_slot",
     topic="chat",
-    event_key="conversation_id"
+    event_key="conversation_id",
 )
 
 connector_config_auth = outbox_connector(
@@ -77,15 +81,16 @@ connector_config_auth = outbox_connector(
     topic="auth",
 )
 
+
 def register_connector(connector_config):
     name = connector_config["name"]
     config = connector_config["config"]
     url = f"{DEBEZIUM_URL}/{name}/config"
 
-    response = requests.put(url,
-        headers={"Content-Type": "application/json"},
-        data=json.dumps(config))
-    
+    response = requests.put(
+        url, headers={"Content-Type": "application/json"}, data=json.dumps(config)
+    )
+
     if response.status_code in (200, 201):
         verb = "updated" if response.status_code == 200 else "created"
         print(f"Connector {name} {verb} successfully.")
@@ -93,6 +98,7 @@ def register_connector(connector_config):
         print(f"Failed to register {name}: {response.status_code}")
         print(response.text)
         response.raise_for_status()
+
 
 if __name__ == "__main__":
     register_connector(connector_config_order)

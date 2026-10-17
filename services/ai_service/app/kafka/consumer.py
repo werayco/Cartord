@@ -2,40 +2,50 @@ import asyncio
 import json
 import re
 from confluent_kafka import Consumer, Producer
-from opentelemetry.trace import get_tracer_provider
-from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from langchain_core.messages import HumanMessage
-from app.core.config import settings
-from app.core.utils import deserialize_from_json
-from app.db.session import AsyncSessionLocal
-from app.db.redis_client import redis_client
 from langgraph.types import Command
+from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
+from opentelemetry.trace import get_tracer_provider
+from app.core.config import settings
+from app.core.logging import logger
+from app.core.utils import deserialize_from_json
+from app.db.redis_client import redis_client
+from app.db.session import AsyncSessionLocal
 from app.models.message import Message
 from app.nodes.entry_point import node_registry
 from app.services.socket_registry import conversation_channel
-from app.core.logging import logger
+from app.services.title_generator import generate_and_publish_title
 
 IDEMPOTENCY_TTL_SECONDS = 60 * 60
-
 _TOKEN_RE = re.compile(r'"access_token"\s*:\s*"[^"]*"')
+
+_bg_tasks: set[asyncio.Task] = set()
+
 
 def _redact(value_bytes) -> str | None:
     if not value_bytes:
         return None
-    return _TOKEN_RE.sub('"access_token":"[REDACTED]"', value_bytes.decode(errors="replace"))
+    return _TOKEN_RE.sub(
+        '"access_token":"[REDACTED]"', value_bytes.decode(errors="replace")
+    )
+
 
 class KafkaConsumer:
     def __init__(self):
         inst = ConfluentKafkaInstrumentor()
         tracer_provider = get_tracer_provider()
 
-        consumer = Consumer({
-            "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
-            "group.id": "ai-service",
-            "auto.offset.reset": "earliest",
-            "enable.auto.commit": False,
-        })
-        self.consumer = inst.instrument_consumer(consumer, tracer_provider=tracer_provider)
+        consumer = Consumer(
+            {
+                "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                "group.id": "ai-service",
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+            }
+        )
+        self.consumer = inst.instrument_consumer(
+            consumer, tracer_provider=tracer_provider
+        )
 
         dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
         self.dlq_producer = inst.instrument_producer(dlq_producer, tracer_provider)
@@ -59,6 +69,7 @@ class KafkaConsumer:
         loop = asyncio.get_event_loop()
         try:
             while self._running:
+                logger.debug("Polling Kafka for messages...")
                 msg = await loop.run_in_executor(None, self.consumer.poll, 1.0)
                 if msg is None:
                     continue
@@ -81,81 +92,134 @@ class KafkaConsumer:
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
                     logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, key_bytes, value_bytes, str(e))
+                    logger.error(f"Message key: {key_bytes}, value: {_redact(value_bytes)}")
+                    await loop.run_in_executor(
+                        None, self._send_to_dlq, key_bytes, value_bytes, str(e)
+                    )
                     await loop.run_in_executor(None, self.consumer.commit, msg)
         finally:
             self.consumer.close()
 
     async def handle_message_created(self, payload: dict) -> None:
+        logger.info(f"Processing message.created event: {payload}")
         message_id = payload["message_id"]
         conversation_id = payload["conversation_id"]
         content = payload["content"]
         user_id = payload.get("user_id")
 
         dedup_key = f"processed:{message_id}"
-        was_new = await redis_client.set(dedup_key, "1", nx=True, ex=IDEMPOTENCY_TTL_SECONDS)
+        logger.info(f"Checking deduplication key: {dedup_key}")
+        was_new = await redis_client.set(
+            dedup_key, "1", nx=True, ex=IDEMPOTENCY_TTL_SECONDS
+        )
         if not was_new:
             logger.info(f"Message {message_id} already processed, skipping redelivery")
             return
 
         channel = conversation_channel(conversation_id)
+
+        if payload.get("is_new_conversation"):
+            logger.info(f"Generating title for new conversation {conversation_id}")
+            task = asyncio.create_task(
+                generate_and_publish_title(conversation_id, content)
+            )
+            _bg_tasks.add(task)
+            task.add_done_callback(_bg_tasks.discard)
+
+        logger.info(f"Fetching graph for conversation {conversation_id}")
         graph = await node_registry()
 
         config = {"configurable": {"thread_id": conversation_id}}
 
-        state = await graph.aget_state(config) # using the thread_id to return the snapshot of the checkpoint
+        state = await graph.aget_state(config)
         if state.next:
-            resume_input=Command(resume=content)
+            resume_input = Command(resume=content)
         else:
-            resume_input = {"messages": [HumanMessage(content=content)], "user_id": user_id}
+            resume_input = {
+                "messages": [HumanMessage(content=content)],
+                "user_id": user_id,
+            }
 
         full_reply = ""
         try:
-            async for mode, data in graph.astream(resume_input, stream_mode=["messages", "custom", "updates"], config=config):
+            async for mode, data in graph.astream(
+                resume_input,
+                stream_mode=["messages", "custom", "updates"],
+                config=config,
+            ):
+                logger.info(f"Received stream mode: {mode}, data: {data}")
                 if mode == "custom":
-                    await redis_client.publish(channel, json.dumps({
-                        **data, # {"type": "thought"} -- this is the tought
-                        "conversation_id": conversation_id,
-                        "message_id": message_id}))
-                    
+                    await redis_client.publish(
+                        channel,
+                        json.dumps(
+                            {
+                                **data,
+                                "conversation_id": conversation_id,
+                                "message_id": message_id,
+                            }
+                        ),
+                    )
+
                 elif mode == "messages":
+                    logger.info("the astream returned a 'messages' stream mode")
+                    logger.info(f"the data is {data}")
                     message, metadata = data
                     if isinstance(message.content, str) and message.content:
                         full_reply += message.content
-                        await redis_client.publish(channel, json.dumps({
-                            "type": "token",
-                            "conversation_id": conversation_id,
-                            "message_id": message_id,
-                            "delta": message.content,
-                        }))
+                        await redis_client.publish(
+                            channel,
+                            json.dumps(
+                                {
+                                    "type": "token",
+                                    "conversation_id": conversation_id,
+                                    "message_id": message_id,
+                                    "delta": message.content,
+                                }
+                            ),
+                        )
                 elif mode == "updates":
-                    print("the astream returned a 'updates' stream mode")
-                    print(f"the data is {data}")
+                    logger.info("the astream returned a 'updates' stream mode")
+                    logger.info(f"the data is {data}")
                     if "__interrupt__" in data:
                         interrupt_obj = data["__interrupt__"][0]
-                        await redis_client.publish(channel, json.dumps({
-                            "type": "question",
-                            "conversation_id": conversation_id,
-                            "message_id": message_id,
-                            "question": interrupt_obj.value["question"],
-                        }))
+                        await redis_client.publish(
+                            channel,
+                            json.dumps(
+                                {
+                                    "type": "question",
+                                    "conversation_id": conversation_id,
+                                    "message_id": message_id,
+                                    "question": interrupt_obj.value["question"],
+                                }
+                            ),
+                        )
                         return
         except Exception:
-            await redis_client.publish(channel, json.dumps({
-                "type": "error",
-                "conversation_id": conversation_id,
-                "message_id": message_id,
-                "error": "Something went wrong generating a reply, try again.",
-            }))
+            await redis_client.publish(
+                channel,
+                json.dumps(
+                    {
+                        "type": "error",
+                        "conversation_id": conversation_id,
+                        "message_id": message_id,
+                        "error": "Something went wrong generating a reply, try again.",
+                    }
+                ),
+            )
             raise
 
         assistant_message_id = await self.persist_reply(conversation_id, full_reply)
-        await redis_client.publish(channel, json.dumps({
-            "type": "done",
-            "conversation_id": conversation_id,
-            "user_message_id": message_id,
-            "assistant_message_id": assistant_message_id,
-        }))
+        await redis_client.publish(
+            channel,
+            json.dumps(
+                {
+                    "type": "done",
+                    "conversation_id": conversation_id,
+                    "user_message_id": message_id,
+                    "assistant_message_id": assistant_message_id,
+                }
+            ),
+        )
 
     @staticmethod
     async def persist_reply(conversation_id: str, content: str) -> str:
@@ -178,13 +242,18 @@ class KafkaConsumer:
             self.dlq_producer.produce(
                 topic="chat.dlq",
                 key=key_bytes,
-                value=json.dumps({
-                    "original_value": _redact(value_bytes),
-                    "error": error,
-                }).encode(),
+                value=json.dumps(
+                    {
+                        "original_value": _redact(value_bytes),
+                        "error": error,
+                    }
+                ).encode(),
             )
             self.dlq_producer.flush()
         except Exception as dlq_err:
-            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+            logger.critical(
+                f"Failed to publish to DLQ, message permanently lost: {dlq_err}"
+            )
+
 
 kafka_manager = KafkaConsumer()

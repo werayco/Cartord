@@ -1,8 +1,10 @@
 from typing import Annotated
-from typing_extensions import TypedDict, NotRequired
+from uuid import UUID
+
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
-from uuid import UUID
+from typing_extensions import NotRequired, TypedDict
+
 
 class OrderDraft(TypedDict, total=False):
     product_query: str

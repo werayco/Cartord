@@ -1,5 +1,5 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "ai_service"
@@ -42,5 +42,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

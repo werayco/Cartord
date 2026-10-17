@@ -1,6 +1,5 @@
-from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings
-import base64
+
 
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "auth_service"
@@ -11,7 +10,7 @@ class Settings(BaseSettings):
     REDIS_PORT: int
 
     JWT_PRIVATE_KEY: str
-    
+
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
 
@@ -30,8 +29,9 @@ class Settings(BaseSettings):
     SERVICE_SHARED_KEY: str
 
     AI_AGENT_SECRET_HASH: str = ""
-    
+
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

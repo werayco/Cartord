@@ -1,11 +1,14 @@
 import asyncio
-import logging
+
 from fastapi import WebSocket
-from app.db.redis_client import redis_client
+
 from app.core.logging import logger
+from app.db.redis_client import redis_client
+
 
 def conversation_channel(conversation_id: str) -> str:
     return f"conv:{conversation_id}"
+
 
 class ConversationBridge:
     def __init__(self, websocket: WebSocket):
@@ -13,7 +16,6 @@ class ConversationBridge:
         self._tasks: dict[str, asyncio.Task] = {}
 
     async def ensure_subscribed(self, conversation_id: str) -> None:
-        """Ensure that the websocket is subscribed to the Redis channel for the given conversation_id."""
         if conversation_id in self._tasks:
             return
         self._tasks[conversation_id] = asyncio.create_task(

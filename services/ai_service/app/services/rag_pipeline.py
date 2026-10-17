@@ -1,13 +1,17 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.config import settings
 from app.core.logging import logger
 from app.models.embed import Document
 from app.services.embedding_model import encode_text
 
+
 class RAGPipeline:
-    splitter = RecursiveCharacterTextSplitter(chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP)
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=settings.CHUNK_SIZE, chunk_overlap=settings.CHUNK_OVERLAP
+    )
 
     @staticmethod
     async def ingest_document(content: str, db: AsyncSession):
@@ -18,7 +22,9 @@ class RAGPipeline:
             logger.warning("Document content is empty")
             return
 
-        logger.debug(f"Splitting document with chunk_size={settings.CHUNK_SIZE}, chunk_overlap={settings.CHUNK_OVERLAP}")
+        logger.debug(
+            f"Splitting document with chunk_size={settings.CHUNK_SIZE}, chunk_overlap={settings.CHUNK_OVERLAP}"
+        )
         chunks = RAGPipeline.splitter.split_text(content)
         logger.info(f"Created {len(chunks)} chunks")
 
@@ -38,7 +44,10 @@ class RAGPipeline:
             raise
 
         logger.debug("Creating Document database records")
-        documents = [Document(content=chunk, embedding=list(embedding)) for chunk, embedding in zip(chunks, embeddings)]
+        documents = [
+            Document(content=chunk, embedding=list(embedding))
+            for chunk, embedding in zip(chunks, embeddings)
+        ]
         logger.debug(f"Created {len(documents)} Document objects")
 
         logger.info(f"Saving {len(documents)} document chunks to database")
@@ -53,7 +62,13 @@ class RAGPipeline:
             raise
 
     @staticmethod
-    async def retrieve_documents(query: str,db: AsyncSession,limit: int = 5,candidate_limit: int = 20,rrf_k: int = 60) -> list[Document]:
+    async def retrieve_documents(
+        query: str,
+        db: AsyncSession,
+        limit: int = 5,
+        candidate_limit: int = 20,
+        rrf_k: int = 60,
+    ) -> list[Document]:
         logger.info("Starting hybrid document retrieval")
         logger.debug(f"Retrieval query: {query!r}")
         logger.debug(f"limit={limit}, candidate_limit={candidate_limit}, rrf_k={rrf_k}")
@@ -84,7 +99,13 @@ class RAGPipeline:
             .cte("vector_rank")
         )
 
-        fts_rank = (select(Document.id,func.row_number().over(order_by=func.ts_rank(Document.content_tsv, ts_query).desc()).label("rank"))
+        fts_rank = (
+            select(
+                Document.id,
+                func.row_number()
+                .over(order_by=func.ts_rank(Document.content_tsv, ts_query).desc())
+                .label("rank"),
+            )
             .where(Document.content_tsv.op("@@")(ts_query))
             .order_by(func.ts_rank(Document.content_tsv, ts_query).desc())
             .limit(candidate_limit)
@@ -127,7 +148,9 @@ class RAGPipeline:
             logger.info(f"Retrieved {len(documents)} documents")
 
             if documents:
-                logger.debug(f"First retrieved document preview: {documents[0].content[:100]!r}")
+                logger.debug(
+                    f"First retrieved document preview: {documents[0].content[:100]!r}"
+                )
             else:
                 logger.warning("Hybrid search returned no documents")
 

@@ -1,27 +1,34 @@
 import asyncio
 import json
 import logging
+
 from confluent_kafka import Consumer, Producer
-from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
-from app.services.elasticsearch_client import elasticsearch_client
+from opentelemetry.trace import get_tracer_provider
+
 from app.core.config import settings
 from app.core.utils import deserialize_from_json
+from app.services.elasticsearch_client import elasticsearch_client
 
 logger = logging.getLogger(__name__)
+
 
 class KafkaConsumer:
     def __init__(self):
         inst = ConfluentKafkaInstrumentor()
         tracer_provider = get_tracer_provider()
 
-        consumer = Consumer({
-            "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
-            "group.id": "search-service",
-            "auto.offset.reset": "earliest",
-            "enable.auto.commit": False,
-        })
-        self.consumer = inst.instrument_consumer(consumer, tracer_provider=tracer_provider)
+        consumer = Consumer(
+            {
+                "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                "group.id": "search-service",
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+            }
+        )
+        self.consumer = inst.instrument_consumer(
+            consumer, tracer_provider=tracer_provider
+        )
 
         dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
         self.dlq_producer = inst.instrument_producer(dlq_producer, tracer_provider)
@@ -61,8 +68,12 @@ class KafkaConsumer:
                     await elasticsearch_client.crud_document(event_type, value)
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
-                    logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, key_bytes, value_bytes, str(e))
+                    logger.error(
+                        f"Failed to process message at offset {msg.offset()}: {e}"
+                    )
+                    await loop.run_in_executor(
+                        None, self._send_to_dlq, key_bytes, value_bytes, str(e)
+                    )
                     await loop.run_in_executor(None, self.consumer.commit, msg)
         finally:
             self.consumer.close()
@@ -75,13 +86,20 @@ class KafkaConsumer:
             self.dlq_producer.produce(
                 topic="inventory.dlq",
                 key=key_bytes,
-                value=json.dumps({
-                    "original_value": value_bytes.decode(errors="replace") if value_bytes else None,
-                    "error": error,
-                }).encode(),
+                value=json.dumps(
+                    {
+                        "original_value": value_bytes.decode(errors="replace")
+                        if value_bytes
+                        else None,
+                        "error": error,
+                    }
+                ).encode(),
             )
             self.dlq_producer.flush()
         except Exception as dlq_err:
-            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+            logger.critical(
+                f"Failed to publish to DLQ, message permanently lost: {dlq_err}"
+            )
+
 
 kafka_manager = KafkaConsumer()

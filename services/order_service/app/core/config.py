@@ -1,5 +1,5 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "order_service"
@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     CIRCUIT_BREAKER_FAIL_MAX: int = 5
 
     OTEL_EXPORTER_OTLP_ENDPOINT: str = "http://otel-collector:4317"
-    
+
     class Config:
         env_file = ".env"
+
 
 settings = Settings()

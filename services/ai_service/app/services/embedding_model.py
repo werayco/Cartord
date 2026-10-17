@@ -1,14 +1,20 @@
 import asyncio
-from app.core.logging import logger
-from app.core.config import settings
+
 from google import genai
+
+from app.core.config import settings
+from app.core.logging import logger
+
 
 class EmbeddingService:
     def __init__(self):
         self._use_local = settings.USE_LOCAL_EMBEDDING_MODEL
         if self._use_local:
             from sentence_transformers import SentenceTransformer
-            self._model = SentenceTransformer(settings.LOCAL_EMBEDDING_MODEL, device="cpu")
+
+            self._model = SentenceTransformer(
+                settings.LOCAL_EMBEDDING_MODEL, device="cpu"
+            )
         else:
             self._client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -33,7 +39,9 @@ class EmbeddingService:
         )
         return [e.values for e in response.embeddings]
 
+
 embedding_service = EmbeddingService()
+
 
 async def encode_text(text: str | list[str]):
     return await embedding_service.encode(text)

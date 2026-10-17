@@ -1,42 +1,62 @@
-from typing import Annotated, Optional
+from datetime import timedelta
+from typing import Annotated
+
 import aiohttp
+from aiobreaker import CircuitBreaker, CircuitBreakerError
 from langchain_core.tools import tool
-from langgraph.types import interrupt
 from langgraph.config import get_stream_writer
 from langgraph.prebuilt import InjectedState
+from langgraph.types import interrupt
+
 from app.core.config import settings
 from app.core.logging import logger
 from app.db.session import AsyncSessionLocal
 from app.services.rag_pipeline import RAGPipeline
-from app.services.token_provider import get_token, invalidate, TokenDelegationError
-from datetime import timedelta
-from aiobreaker import CircuitBreaker, CircuitBreakerError
+from app.services.token_provider import TokenDelegationError, get_token, invalidate
 
 breaker = CircuitBreaker(fail_max=5, timeout_duration=timedelta(seconds=30))
 
-async def call_service(method: str, url: str, user_id: str, scope: str, json: Optional[dict] = None, params: Optional[dict] = None) -> dict:
+
+async def call_service(
+    method: str,
+    url: str,
+    user_id: str,
+    scope: str,
+    json: dict | None = None,
+    params: dict | None = None,
+) -> dict:
     for attempt in (1, 2):
         try:
             token = await get_token(user_id, scope)
         except TokenDelegationError as e:
             logger.error(f"{method} {url} not sent - token delegation failed: {e}")
-            return {"error": True, "status": 503, "message": "Service temporarily unavailable, please try again shortly."}
+            return {
+                "error": True,
+                "status": 503,
+                "message": "Service temporarily unavailable, please try again shortly.",
+            }
 
         headers = {"Authorization": f"Bearer {token}"}
 
         async def _do_request():
-            async with aiohttp.ClientSession() as session:
-                async with session.request(method, url, json=json, params=params, headers=headers) as response:
-                    response.raise_for_status()
-                    return await response.json()
+            async with aiohttp.ClientSession() as session, session.request(
+                method, url, json=json, params=params, headers=headers
+            ) as response:
+                response.raise_for_status()
+                return await response.json()
+
         try:
             return await breaker.call_async(_do_request)
         except CircuitBreakerError:
             logger.error(f"{method} {url} short-circuited - breaker open")
-            return {"error": True, "status": 503, "message": "Service temporarily unavailable, please try again shortly."}
+            return {
+                "error": True,
+                "status": 503,
+                "message": "Service temporarily unavailable, please try again shortly.",
+            }
         except aiohttp.ClientResponseError as e:
             if e.status == 401 and attempt == 1:
-                invalidate(user_id, scope)   # cached token was rejected; mint a fresh one and retry once
+                invalidate(user_id, scope)
                 continue
             logger.error(f"{method} {url} failed: {e.status} - {e.message}")
             return {"error": True, "status": e.status, "message": e.message}
@@ -44,28 +64,51 @@ async def call_service(method: str, url: str, user_id: str, scope: str, json: Op
             logger.error(f"{method} {url} connection error: {e}")
             return {"error": True, "status": 503, "message": "Service unavailable"}
 
+
 async def fetch_item_details(query: str, user_id: str) -> dict:
     """Search the catalog by product name; return ranked matches with their SKUs."""
     url = f"{settings.SEARCH_BASE_URL}/api/v1/search/items"
-    return await call_service("GET", url, user_id, "catalog:read", params={"query": query})
+    return await call_service(
+        "GET", url, user_id, "catalog:read", params={"query": query}
+    )
+
 
 @tool
-async def change_delivery_address(user_id: Annotated[str, InjectedState("user_id")],shipping_address: Optional[str] = None) -> dict:
+async def change_delivery_address(
+    user_id: Annotated[str, InjectedState("user_id")],
+    shipping_address: str | None = None,
+) -> dict:
     """Update the signed-in customer's default shipping address on their account.
     Pass shipping_address only if the customer already stated the new address in
     their message. Leave it unset if they only said they want to change it without
     giving the new address, you'll be prompted and can retry with the value."""
 
     if not shipping_address:
-        answer = interrupt({"question": "Sure, what would you like your new shipping address to be?"})
+        answer = interrupt(
+            {"question": "Sure, what would you like your new shipping address to be?"}
+        )
         shipping_address = str(answer)
 
     writer = get_stream_writer()
     writer({"type": "thought", "message": "Updating your shipping address..."})
     url = f"{settings.AUTH_BASE_URL}/api/v1/auth/buyer/update"
-    result = await call_service("PATCH", url, user_id, "profile:write", json={"shipping_address": shipping_address})
-    writer({"type": "thought", "message": "Your shipping address has been updated." if not result.get("error") else "I couldn't update your shipping address."})
+    result = await call_service(
+        "PATCH",
+        url,
+        user_id,
+        "profile:write",
+        json={"shipping_address": shipping_address},
+    )
+    writer(
+        {
+            "type": "thought",
+            "message": "Your shipping address has been updated."
+            if not result.get("error")
+            else "I couldn't update your shipping address.",
+        }
+    )
     return result
+
 
 @tool
 async def get_order_summary(user_id: Annotated[str, InjectedState("user_id")]) -> dict:
@@ -76,8 +119,16 @@ async def get_order_summary(user_id: Annotated[str, InjectedState("user_id")]) -
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/summary"
     result = await call_service("GET", url, user_id, "orders:read")
     writer({"type": "thought", "message": "Almost Done..."})
-    writer({"type": "thought", "message": "Your order analytics are ready." if not result.get("error") else "I couldn't retrieve your order analytics."})
+    writer(
+        {
+            "type": "thought",
+            "message": "Your order analytics are ready."
+            if not result.get("error")
+            else "I couldn't retrieve your order analytics.",
+        }
+    )
     return result
+
 
 @tool
 async def get_wallet_balance(user_id: Annotated[str, InjectedState("user_id")]) -> dict:
@@ -92,16 +143,20 @@ async def get_wallet_balance(user_id: Annotated[str, InjectedState("user_id")]) 
         return {"error": result.get("message", "Wallet balance unavailable.")}
     return f"Current_balance of the user is {result['current_balance']}"
 
+
 @tool
 async def get_faq_response(question: str) -> dict:
     """Answer a general store/product FAQ question about Cartord using the store's knowledge base."""
     writer = get_stream_writer()
-    writer({"type": "thought", "message": "Looking that up in the store knowledge base..."})
+    writer(
+        {"type": "thought", "message": "Looking that up in the store knowledge base..."}
+    )
     async with AsyncSessionLocal() as db:
         documents = await RAGPipeline.retrieve_documents(question, db)
         result = {"document_text": [doc.content for doc in documents]}
     writer({"type": "thought", "message": "I found the relevant information."})
     return result
+
 
 CUSTOMER_TOOLS = [
     change_delivery_address,

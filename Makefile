@@ -7,18 +7,23 @@ REPLICATION ?= 1
 NETWORK ?= mynet
 INIT_IMAGE ?= python:3.12-slim
 
-
 k8s-secret:
 	kubectl create secret generic cartord-secrets --from-env-file=shared/compose_files/.env.k8s -n cartord --dry-run=client -o yaml | kubectl apply -f -
+
 k8s-debezium-forward:
 	kubectl port-forward -n cartord svc/debezium-connect 8083:8083
+
 k8s-debezium-register:
 	kubectl create -f k8s/jobs/debezium-register.yaml
-k8s-init-image:
-	docker build -t cartord-init:latest -f shared/init_scripts/Dockerfile .
-	minikube image load cartord-init:latest
+
 k8s-init:
+	docker build -t $(IMAGE_REPO)/cartord-init:latest -f shared/init_scripts/Dockerfile .
+	minikube image load $(IMAGE_REPO)/cartord-init:latest
+	kubectl create -f k8s/jobs/debezium-register.yaml
 	kubectl create -f k8s/jobs/seed-and-topics.yaml
+
+k8s:
+	helm upgrade --install cartord ./k8s --namespace cartord -f ./k8s/values.yaml --create-namespace
 init:
 # 	docker network create mynet
 	docker run --rm --network $(NETWORK) -e PYTHONDONTWRITEBYTECODE=1 -v "$(CURDIR)/shared:/app/shared:ro" -w /app python:3.12-slim sh -c "pip install -q --no-cache-dir --root-user-action=ignore -r shared/init_scripts/requirements.txt && python -m shared.init_scripts.debezium_setup && python -m shared.init_scripts.seed && python -m shared.init_scripts.create_topics"
@@ -92,6 +97,7 @@ push-all:
 	docker push $(IMAGE_REPO)/search-service:latest
 	docker push $(IMAGE_REPO)/ai-service:latest
 	docker push $(IMAGE_REPO)/payment-service:latest
+	docker push $(IMAGE_REPO)/cartord-init:latest
 
 run:
 	docker-compose -f shared/compose_files/docker-compose.yml up -d
@@ -119,10 +125,16 @@ stop-v:
 	docker compose -f shared/compose_files/services.docker-compose.yml down --remove-orphans -v
 
 glitchtip-migrate:
-	docker exec chatdome-glitchtip-web ./manage.py migrate
+	docker exec  cartord-glitchtip-web ./manage.py migrate
 
 glitchtip-superuser:
-	docker exec -it chatdome-glitchtip-web ./manage.py createsuperuser
+	docker exec -it  cartord-glitchtip-web ./manage.py createsuperuser
+
+ps-ch:
+	Get-ChildItem -Path . -Recurse -Include '__pycache__', '*.pyc' | Remove-Item -Recurse -Force
+
+wsl-ch:
+	sudo find . -type d -name "__pycache__" -exec rm -rf {} +
 
 git:
 	git add .

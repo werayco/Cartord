@@ -1,28 +1,43 @@
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.core.config import settings
 import json
+
 import aiohttp
-from jose import jwt, JWTError
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from jose import JWTError, jwt
+
+from app.core.config import settings
 from app.services.circuit_breaker import breaker as inventory_breaker
 
 bearer_scheme = HTTPBearer()
 
-async def get_current_user(token: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> dict:
-    credentials_exception = HTTPException(status_code=401, detail="Invalid or expired token")
+
+async def get_current_user(
+    token: HTTPAuthorizationCredentials = Depends(bearer_scheme),
+) -> dict:
+    credentials_exception = HTTPException(
+        status_code=401, detail="Invalid or expired token"
+    )
     try:
-        payload = jwt.decode(token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"])
+        payload = jwt.decode(
+            token.credentials, settings.JWT_PRIVATE_KEY, algorithms=["HS256"]
+        )
         if payload.get("type") != "access":
             raise credentials_exception
-        return {"id": payload["sub"], "email": payload.get("email"), "role": payload.get("role")}
+        return {
+            "id": payload["sub"],
+            "email": payload.get("email"),
+            "role": payload.get("role"),
+        }
     except (JWTError, KeyError):
         raise credentials_exception
+
 
 async def get_admin_user(current_user: dict = Depends(get_current_user)) -> dict:
     if current_user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return current_user
-    
+
+
 @inventory_breaker
 async def update_inventory(sku: str, reserved_quantity: int) -> dict:
     url = f"{settings.INVENTORY_BASE_URL}/inventory/reserve"
@@ -30,11 +45,16 @@ async def update_inventory(sku: str, reserved_quantity: int) -> dict:
 
     async with aiohttp.ClientSession() as session:
         print("sending request...")
-        async with session.patch(url, json={"sku":sku, "reserved_quantity":reserved_quantity}, headers=headers) as response:
+        async with session.patch(
+            url,
+            json={"sku": sku, "reserved_quantity": reserved_quantity},
+            headers=headers,
+        ) as response:
             response.raise_for_status()
             response_json = await response.json()
             print(f"response from inventory reservsation is {response_json}")
             return response_json
+
 
 def seralize_to_json(data):
     try:

@@ -1,13 +1,14 @@
 import asyncio
 import json
-import logging
+
 from confluent_kafka import Consumer, Producer
-from opentelemetry.trace import get_tracer_provider
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
-from app.core.config import settings
-from app.db.session import AsyncSessionLocal
+from opentelemetry.trace import get_tracer_provider
+
 from app.controllers.order_controller import OrderController
+from app.core.config import settings
 from app.core.logging import logger
+from app.db.session import AsyncSessionLocal
 
 
 class KafkaConsumer:
@@ -15,13 +16,17 @@ class KafkaConsumer:
         inst = ConfluentKafkaInstrumentor()
         tracer_provider = get_tracer_provider()
 
-        consumer = Consumer({
-            "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
-            "group.id": "order-service",
-            "auto.offset.reset": "earliest",
-            "enable.auto.commit": False,
-        })
-        self.consumer = inst.instrument_consumer(consumer, tracer_provider=tracer_provider)
+        consumer = Consumer(
+            {
+                "bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS,
+                "group.id": "order-service",
+                "auto.offset.reset": "earliest",
+                "enable.auto.commit": False,
+            }
+        )
+        self.consumer = inst.instrument_consumer(
+            consumer, tracer_provider=tracer_provider
+        )
 
         dlq_producer = Producer({"bootstrap.servers": settings.KAFKA_BOOTSTRAP_SERVERS})
         self.dlq_producer = inst.instrument_producer(dlq_producer, tracer_provider)
@@ -57,7 +62,9 @@ class KafkaConsumer:
                 event_type = self._event_type(msg)
 
                 try:
-                    value = json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
+                    value = (
+                        json.loads(value_bytes.decode("utf-8")) if value_bytes else {}
+                    )
 
                     if event_type == "payment.succeeded":
                         async with AsyncSessionLocal() as db:
@@ -70,8 +77,12 @@ class KafkaConsumer:
 
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
-                    logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
-                    await loop.run_in_executor(None, self._send_to_dlq, key_bytes, value_bytes, str(e))
+                    logger.error(
+                        f"Failed to process message at offset {msg.offset()}: {e}"
+                    )
+                    await loop.run_in_executor(
+                        None, self._send_to_dlq, key_bytes, value_bytes, str(e)
+                    )
                     await loop.run_in_executor(None, self.consumer.commit, msg)
         finally:
             self.consumer.close()
@@ -84,13 +95,20 @@ class KafkaConsumer:
             self.dlq_producer.produce(
                 topic="payment.dlq",
                 key=key_bytes,
-                value=json.dumps({
-                    "original_value": value_bytes.decode(errors="replace") if value_bytes else None,
-                    "error": error,
-                }).encode(),
+                value=json.dumps(
+                    {
+                        "original_value": value_bytes.decode(errors="replace")
+                        if value_bytes
+                        else None,
+                        "error": error,
+                    }
+                ).encode(),
             )
             self.dlq_producer.flush()
         except Exception as dlq_err:
-            logger.critical(f"Failed to publish to DLQ, message permanently lost: {dlq_err}")
+            logger.critical(
+                f"Failed to publish to DLQ, message permanently lost: {dlq_err}"
+            )
+
 
 kafka_manager = KafkaConsumer()
