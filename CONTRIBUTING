@@ -1,0 +1,73 @@
+# Contributing to Cartord
+
+Thanks for your interest in improving Cartord. We welcome contributions from engineers, operators, testers, and anyone with ideas to make the project more useful, reliable, and production-ready.
+
+## Ways to contribute
+
+- Report bugs and reproducible issues
+- Suggest improvements and feature ideas
+- Improve documentation and examples
+- Submit code, tests, or configuration updates
+- Help with troubleshooting and operational feedback
+
+## Before you start
+
+1. Review the project documentation in the repository README.
+2. Make sure your issue or change is aligned with the current architecture and roadmap.
+3. For large changes, open or reference an issue first so the maintainers can review the design before implementation.
+
+## Local setup
+
+This repository is organized as a set of Python microservices with shared infrastructure definitions. Typical local development uses Docker Compose and Makefile-based commands.
+
+1. Clone the repository.
+2. Create and activate a Python environment if you are working on service code.
+3. Install service dependencies as needed for the work you are touching.
+4. Use Docker Compose or the provided Makefile targets to run the stack locally.
+5. Run targeted tests for the service or code path you changed.
+
+See the root README for the supported workflow and environment references.
+
+## Development workflow
+
+- Create a branch for your work.
+- Keep changes focused on a single issue or feature.
+- Prefer small, readable pull requests with clear descriptions.
+- Add or update tests when behavior changes.
+- Update documentation when user-facing or operational workflows change.
+
+## Coding standards
+
+- Follow the conventions already used within the relevant service.
+- Keep new code readable, explicit, and easy to reason about.
+- Use type hints and validation patterns consistent with the existing Python code.
+- Avoid introducing unnecessary dependencies or broad refactors unless they are required for the fix.
+- Preserve service boundaries and the event-driven design discussed in the project documentation.
+
+## Testing
+
+Before opening a pull request, validate the area you changed.
+
+Recommended checks:
+
+- Unit tests for the specific service or module
+- Linting or formatting if the project or service includes it
+- Local integration checks for any changed API or event flow
+
+When possible, include the exact commands used and the outcome in your PR description.
+
+## Pull request guidelines
+
+- Use a clear title that describes the change.
+- Include a summary of the problem being solved.
+- Explain any user-visible changes, migration steps, or operational impact.
+- Link the related issue if one exists.
+- Include screenshots or logs when they help explain a fix.
+
+## Community expectations
+
+Please be respectful, constructive, and collaborative. We expect contributors to uphold the project Code of Conduct and to keep discussions focused on solving problems and improving the system.
+
+## Questions
+
+If you have questions about an issue, design direction, or contribution approach, please open a discussion or issue in the repository before making a large change.
