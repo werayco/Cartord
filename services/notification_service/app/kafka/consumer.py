@@ -49,14 +49,11 @@ class KafkaConsumer:
             email = event_data.get("email")
             if not email:
                 logger.error(f"No email found in payment data: {event_data}")
-                # Try to get email from customer_id if available
                 customer_id = event_data.get("customer_id")
                 if customer_id:
                     logger.info(
                         f"Attempting to fetch email for customer_id: {customer_id}"
                     )
-                    # You would call a service here to get the customer's email
-                    # For now, we'll just log and skip
                     return
                 return
 
@@ -64,16 +61,13 @@ class KafkaConsumer:
             order_id = event_data.get("order_id", "Unknown")
             subtotal = event_data.get("subtotal", 0.00)
 
-            # Convert status to lowercase for consistency
             status = status.lower()
 
-            # Clean and validate email
             email = email.strip()
             if not self._is_valid_email(email):
                 logger.error(f"Invalid email address: {email}")
                 return
 
-            # Email subject and body
             if status == "succeeded":
                 subject = f"Payment Successful - Order #{order_id}"
                 html_body = f"""
@@ -113,7 +107,6 @@ class KafkaConsumer:
 
             logger.info(f"Sending {status} email to {email} for order {order_id}")
 
-            # Send email with proper formatting
             await email_service.send_email(
                 to=email,
                 subject=subject,
@@ -166,7 +159,6 @@ class KafkaConsumer:
                 except:
                     original_value = value_bytes.decode(errors="replace")
 
-            # Create DLQ message
             dlq_message = {
                 "original_value": original_value,
                 "error": error,
