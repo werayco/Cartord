@@ -1,8 +1,8 @@
 # Cartord AI Service - Chat WebSocket Events
 
-Frontend integration guide for building the chat UI against the AI service websocket.
+Frontend integration guide for building the chat UI against the AI service: the websocket event protocol (§1–§4) and the REST endpoint for renaming a conversation (§5).
 
-> Derived from `services/ai_service`: `routers/websocket_router.py`, `controllers/chat_controller.py`, `kafka/consumer.py`, `services/socket_registry.py`, `nodes/order_flow.py`, `services/agent_tools.py`.
+> Derived from `services/ai_service`: `routers/websocket_router.py`, `controllers/chat_controller.py`, `kafka/consumer.py`, `services/socket_registry.py`, `nodes/order_flow.py`, `services/agent_tools.py`, `services/title_generator.py`, `routers/conversation.py`.
 
 ---
 
@@ -12,7 +12,7 @@ Frontend integration guide for building the chat UI against the AI service webso
 ws(s)://<host>/api/v1/ws/chat?token=<ACCESS_JWT>
 ```
 
-- The JWT goes in the **`token` query param** (browsers can't set headers on a WebSocket). It must be an **access** token (`type: "access"`), signed HS256 by the auth service.
+- The JWT goes in the **`token` query param**. It must be an **access** token , signed HS256 by the auth service.
 - On a missing, invalid or expired token the server rejects the connection **before accepting the handshake** (it closes with `1008`). Browsers usually surface this as a failed connection (`onclose` with code `1006`), not `1008`, so treat "failed to open" as "refresh the token and retry".
 - After the connection is open, an unexpected server failure closes the socket with code **`1011`**.
 - The AI service listens on port `9000` by default (see the root README). Use whatever your gateway or ingress exposes.
@@ -55,6 +55,7 @@ Every event is a JSON object with a **`type`** discriminator. Parse each frame a
 | `question` | The agent needs more input; the turn is paused | `question`, `conversation_id`, `message_id` |
 | `done` | The reply is complete and saved | `conversation_id`, `user_message_id`, `assistant_message_id` |
 | `error` | Something failed | `error`, plus ids **only for stream errors** |
+| `title` | An auto-generated title is ready for a **new** conversation | `title`, `conversation_id` (no `message_id`) |
 
 ### ID cheat sheet
 
@@ -77,7 +78,7 @@ Sent immediately after the user's message is committed. It confirms receipt and 
 {"type":"ack","message_id":"xxxxx","conversation_id":"xxxxx"}
 ```
 
-UI use: mark the user bubble as "sent", store `conversation_id`, show a typing indicator until the next event.
+UI use: mark the user bubble as "sent", store `conversation_id`, show a typing indicator until the next event. For a new chat, this is also the moment to add it to the sidebar with a placeholder name ("New chat") until its `title` arrives (§3.7).
 
 ### 3.2 `thought`
 
@@ -175,9 +176,39 @@ Two different shapes use the same `type`:
 
 A stream error ends the turn: **no `done` follows**. Show the error on the matching bubble (by `message_id`) and offer a retry. When retrying, send the text as a **new** message with a new `message_id`.
 
+### 3.7 `title`
+
+The auto-generated title for a **new** conversation, used for the sidebar entry.
+
+```json
+{"type":"title","conversation_id":"xxxxx","title":"Wallet balance check"}
+```
+
+- **Only once per conversation**, and only for the **first message of a new conversation** (the one you sent without a `conversation_id`). Follow-up messages never produce a `title` event.
+- It is generated in the background, in parallel with the reply. It usually arrives somewhere between `ack` and `done`, but it **can arrive after `done`** (or after a `question`), so don't tie it to the end of the turn.
+- **No `message_id`.** A title belongs to the conversation, not to a turn. Route it by `conversation_id`.
+- Short by design: aimed at 6 words or fewer, hard-capped at 60 characters, in the user's language, without quotes or trailing punctuation.
+- It is **not** part of the assistant's reply: it never appears as a `token` and is not stored as a message.
+- **Best-effort.** If generation fails, no event is sent and the stored title stays `null`. Fall back to "New chat" (or a truncated first message) and never wait on it or show a spinner indefinitely.
+- If the user renames the conversation (§8) before the generated title is ready, the rename wins and **no `title` event is sent** at all.
+- Conversations created before this feature existed have a `null` title and will never receive one.
+
+UI use: add the sidebar entry on `ack` with a placeholder, then swap in the text when `title` arrives.
+
 ---
 
 ## 4. Typical sequences
+
+**New chat (first message, with auto-title)**
+```
+→ {content:"how much do i have in my wallet?"}                   ← no conversation_id
+← ack      {conversation_id: "C1", message_id: "M1"}              ← learn C1 here
+← thought  "Retrieving your wallet balance..."
+← title    {conversation_id: "C1", title: "Wallet balance check"} ← can land anywhere from here on
+← token    "Your wallet balance is 1500.00."
+← done
+```
+The `title` position varies: it may also arrive after `done`.
 
 **Simple lookup (wallet balance)**
 ```
@@ -220,129 +251,39 @@ A stream error ends the turn: **no `done` follows**. Show the error on the match
 
 ---
 
-## 5. TypeScript types
 
-```ts
-type UUID = string;
 
-export interface AckEvent {
-  type: "ack";
-  message_id: UUID;
-  conversation_id: UUID;
-}
+## 5. REST: rename a conversation
 
-export interface ThoughtEvent {
-  type: "thought";
-  message: string;
-  node?: string; // absent for tool-originated thoughts
-  conversation_id: UUID;
-  message_id: UUID; // the user's message id
-}
+Renaming is a plain REST call that returns JSON. **It does not emit anything over the websocket.**
 
-export interface TokenEvent {
-  type: "token";
-  delta: string;
-  conversation_id: UUID;
-  message_id: UUID; // the user's message id
-}
-
-export interface QuestionEvent {
-  type: "question";
-  question: string;
-  conversation_id: UUID;
-  message_id: UUID;
-}
-
-export interface DoneEvent {
-  type: "done";
-  conversation_id: UUID;
-  user_message_id: UUID;
-  assistant_message_id: UUID;
-}
-
-export interface ErrorEvent {
-  type: "error";
-  error: string;
-  // present for stream errors, absent for protocol errors
-  conversation_id?: UUID;
-  message_id?: UUID;
-}
-
-export type ServerEvent =
-  | AckEvent
-  | ThoughtEvent
-  | TokenEvent
-  | QuestionEvent
-  | DoneEvent
-  | ErrorEvent;
-
-export interface ClientMessage {
-  content: string;
-  conversation_id?: UUID;
-  message_id?: UUID;
-}
+```
+PATCH /api/v1/conversations/{conversation_id}
+Authorization: Bearer <ACCESS_JWT>
+Content-Type: application/json
 ```
 
----
+Note the auth difference: REST takes the token in the `Authorization` header; only the websocket uses the `?token=` query param.
 
-## 6. Client example
+**Request body**
 
-```ts
-export class ChatSocket {
-  private ws!: WebSocket;
-  conversationId?: UUID;
-
-  constructor(
-    private url: string,
-    private getToken: () => string,
-    private onEvent: (e: ServerEvent) => void,
-  ) {}
-
-  connect() {
-    this.ws = new WebSocket(`${this.url}/api/v1/ws/chat?token=${encodeURIComponent(this.getToken())}`);
-    this.ws.onmessage = (ev) => {
-      const event = JSON.parse(ev.data) as ServerEvent;
-      if (event.type === "ack") this.conversationId = event.conversation_id;
-      this.onEvent(event);
-    };
-    this.ws.onclose = () => {/* refresh token, back off, reconnect */};
-  }
-
-  /** Returns the message_id so the UI can render the user bubble immediately. */
-  send(content: string): UUID {
-    const message_id = crypto.randomUUID();
-    const msg: ClientMessage = { content, message_id, conversation_id: this.conversationId };
-    this.ws.send(JSON.stringify(msg));
-    return message_id;
-  }
-}
+```json
+{"title": "My wallet questions"}
 ```
 
-State handling sketch (keyed by the **user's** `message_id`):
+- 1 to 100 characters after trimming.
+- Runs of spaces and newlines are collapsed to a single space, so `"  a   b\n c "` is stored as `"a b c"`.
 
-```ts
-function reduce(state: Chat, e: ServerEvent): Chat {
-  switch (e.type) {
-    case "ack":      return markSent(state, e.message_id);
-    case "thought":  return setStatus(state, e.message_id, e.message);
-    case "token":    return appendToAssistant(clearStatus(state, e.message_id), e.message_id, e.delta);
-    case "question": return finishWithQuestion(state, e.message_id, e.question); // show as assistant bubble, enable reply
-    case "done":     return finalize(state, e.user_message_id, e.assistant_message_id);
-    case "error":    return e.message_id
-                       ? failTurn(state, e.message_id, e.error)
-                       : showToast(state, e.error); // protocol error: no ids
-  }
-}
+**Response `200`**
+
+```json
+{"id": "xxxxx", "title": "My wallet questions"}
 ```
 
----
+**Errors**
 
-## 7. Things to be aware of
-
-1. **Route by `message_id`.** The server publishes everything for a conversation on one channel, so if the user sends a second message before the first finishes, events interleave. The ids are how you tell them apart. A single socket can also carry several conversations; route by `conversation_id` too.
-2. **No replay.** Events are live-only. If the socket drops mid-reply you lose the remaining `token`s. Only the completed reply (after `done`) is persisted.
-3. **A socket only receives a conversation's events after you've sent a message for it on that connection.** After a reconnect, you won't get further events for an in-flight turn until you send a new message.
-4. **`question` text isn't persisted.** Only completed replies (those ending in `done`) are saved as assistant messages, so a question bubble won't be in the stored history after a reload. Keep it in local UI state if you need it.
-5. **Product choices aren't delivered yet.** When several products match, the backend builds an `options` list (number, name, price, description) for the interrupt, but the websocket only forwards `question`. Until the backend adds an `options` field to the `question` event, the UI can't show the list the question refers to.
-6. **`done` has no `message_id`.** It uses `user_message_id` instead; don't look for `message_id` on it.
-7. **Re-sending the same `message_id` fails.** Generate a fresh UUID for every message, including retries.
+| Status | Cause |
+|---|---|
+| `404` | Conversation doesn't exist **or belongs to another user** (the two are deliberately indistinguishable) |
+| `422` | Title blank or longer than 100 characters, or `conversation_id` isn't a valid UUID |
+| `401` / `403` | Missing, invalid or expired token |

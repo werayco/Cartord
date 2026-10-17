@@ -91,9 +91,7 @@ class KafkaConsumer:
                     await self.handle_message_created(payload)
                     await loop.run_in_executor(None, self.consumer.commit, msg)
                 except Exception as e:
-                    logger.error(
-                        f"Failed to process message at offset {msg.offset()}: {e}"
-                    )
+                    logger.error(f"Failed to process message at offset {msg.offset()}: {e}")
                     logger.error(f"Message key: {key_bytes}, value: {_redact(value_bytes)}")
                     await loop.run_in_executor(
                         None, self._send_to_dlq, key_bytes, value_bytes, str(e)
