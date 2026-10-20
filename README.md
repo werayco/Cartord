@@ -37,19 +37,6 @@ A mini e-commerce ordering system built to demonstrate production-grade backend
 architecture: event-driven microservices, resilience patterns, an AI shopping
 assistant, and full observability, deployed on Docker Compose or Kubernetes.
 
-## Table of Contents
-
-- [Microservices](#microservices)
-- [Architecture Patterns](#architecture-patterns)
-- [Observability](#observability)
-- [Infrastructure](#infrastructure)
-- [System Architecture](#system-architecture)
-- [Running with Docker Compose](#running-with-docker-compose)
-- [Running on Kubernetes](#running-on-kubernetes)
-- [Accessing Kubernetes Services with kubefwd](#accessing-kubernetes-services-with-kubefwd)
-- [Other Make Targets](#other-make-targets)
-- [API Documentation](#api-documentation)
-
 ## Microservices
 
 | Service                  | Port   | Responsibility                                                                                                                                                     |
@@ -136,6 +123,145 @@ A typical order flow looks like this:
 5. Payment consumes the order event and processes the wallet transaction.
 6. Search and Notification consume the relevant events and update their own
    view of the data (search index, customer email).
+
+
+# System design
+
+## Ordering Request Cycle
+
+```mermaid
+flowchart LR
+    Buyer([Buyer])
+    OrderSvc[Order Service]
+    InvSvc[Inventory Service]
+    OrderDLQ[(Order DLQ)]
+    CDC1{{CDC}}
+    OrderTopic[[Order Topic]]
+    PaySvc[Payment Service]
+    PayDLQ[(Payment DLQ Topic)]
+    CDC2{{CDC}}
+    PayTopic[[Payment Topic]]
+    NotifSvc[Notification Service]
+    NotifDLQ[(Notification DLQ Topic)]
+
+    Buyer -->|"(1) Place Order<br/>idempotency-key"| OrderSvc
+    OrderSvc -->|response| Buyer
+
+    OrderSvc -.->|"(2) reserve_item"| InvSvc
+    OrderSvc -.-> InvSvc
+    OrderSvc -.-> OrderDLQ
+
+    OrderSvc -.->|"(3) order.created"| CDC1
+    CDC1 -.->|"(4) order.created"| OrderTopic
+    OrderTopic -->|"(5) order.created"| PaySvc
+    PaySvc --> PayDLQ
+
+    PaySvc -->|"(6) payment.succeeded / payment.failed"| CDC2
+    CDC2 -.->|"(7) payment.succeeded / payment.failed"| PayTopic
+
+    OrderSvc -.->|"(9) consumes payment.succeeded / payment.failed"| PayTopic
+    NotifSvc -.->|"(8) consumes payment.succeeded / payment.failed"| PayTopic
+    NotifSvc -.-> NotifDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class OrderSvc,InvSvc,PaySvc,NotifSvc service;
+    class OrderTopic,PayTopic topic;
+    class OrderDLQ,PayDLQ,NotifDLQ dlq;
+    class CDC1,CDC2 cdc;
+```
+
+## Inventory Request Cycle
+
+```mermaid
+flowchart LR
+    Admin([Admin / Seller])
+    InvSvc[Inventory Service]
+    CDC{{CDC}}
+    InvTopic[[Inventory Topic]]
+    SearchSvc["Search Service<br/>(Elastic Search)"]
+    InvDLQ[(Inventory DLQ Topic)]
+
+    Admin -->|"request"| InvSvc
+    InvSvc -->|"(1) inventory data / response"| Admin
+
+    InvSvc -.->|"(3) inventory events"| CDC
+    CDC -.->|"(4) inventory events"| InvTopic
+    InvTopic -->|"(5) inventory events"| SearchSvc
+    SearchSvc --> InvDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class InvSvc,SearchSvc service;
+    class InvTopic topic;
+    class InvDLQ dlq;
+    class CDC cdc;
+```
+
+## Authentication Request Cycle
+
+```mermaid
+flowchart LR
+    User([Buyer / Seller])
+    AuthSvc[Auth Service]
+    CDC{{CDC}}
+    AuthTopic[[Auth Topic]]
+    PaySvc[Payment Service]
+    AuthDLQ[(Auth DLQ Topic)]
+
+    User -->|"request"| AuthSvc
+    AuthSvc -->|"(1) response"| User
+
+    AuthSvc -.->|"(3) inventory events"| CDC
+    CDC -.->|"(4) order.created"| AuthTopic
+    AuthTopic -->|"(5) order.created"| PaySvc
+    PaySvc --> AuthDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class AuthSvc,PaySvc service;
+    class AuthTopic topic;
+    class AuthDLQ dlq;
+    class CDC cdc;
+```
+
+## AI Chat Request Cycle
+
+```mermaid
+flowchart LR
+    Buyer([Buyer])
+    AISvc[AI Service]
+    CDC{{CDC}}
+    ChatTopic[[Chat Topic]]
+    AIConsumer[AI Consumer]
+    ChatDLQ[(Chat DLQ Topic)]
+
+    Buyer -->|"{#quot;content#quot;: #quot;how are you?#quot;}"| AISvc
+    AISvc -->|"(1) stream responses"| Buyer
+
+    AISvc -.->|"(3) message.created"| CDC
+    CDC -.->|"(4) message.created"| ChatTopic
+    ChatTopic -->|"(5)"| AIConsumer
+    AIConsumer --> ChatDLQ
+    AIConsumer -->|"response"| AISvc
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class AISvc,AIConsumer service;
+    class ChatTopic topic;
+    class ChatDLQ dlq;
+    class CDC cdc;
+```
+
+You can view it on Excalidraw [here](https://excalidraw.com/#json=VO1WdblZfp9knItQtbI-Q,IRz6M5c0A1t55nCuJuPqeA).
 
 ## Data and storage
 
