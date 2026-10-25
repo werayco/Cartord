@@ -73,6 +73,7 @@ class SellerController:
                     payload={
                         "customer_id": str(add_seller.id),
                         "email": add_seller.email,
+                        "username": add_seller.username,
                     },
                 )
             )

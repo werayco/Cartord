@@ -34,7 +34,7 @@ class BuyerController:
             OutboxEvent(
                 event_type="buyer.registered",
                 aggregate_id=str(buyer_data.id),
-                payload={"customer_id": str(buyer_data.id), "email": buyer_data.email},
+                payload={"customer_id": str(buyer_data.id), "email": buyer_data.email, "username": buyer_data.username},
             )
         )
 

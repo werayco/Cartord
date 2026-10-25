@@ -50,9 +50,7 @@ class KafkaConsumer:
         try:
             email = event_data.get("email")
             if not email:
-                logger.error(
-                    "No email found in %s registration event", role
-                )
+                logger.error("No email found in %s registration event", role)
                 return
 
             email = email.strip()
@@ -61,7 +59,7 @@ class KafkaConsumer:
                 return
 
             name = html.escape(
-                str(event_data.get("name") or "there").strip()
+                str(event_data.get("username") or "there").strip()
             )
 
             if role == "buyer":

@@ -136,6 +136,9 @@ ps-ch:
 wsl-ch:
 	sudo find . -type d -name "__pycache__" -exec rm -rf {} +
 
+truncate:
+	docker exec -it cartord-pg psql -U rayco -d auth_db -c "TRUNCATE buyer;"
+
 git:
 	git add .
 	git commit -m "$(filter-out $@,$(MAKECMDGOALS))"
