@@ -17,6 +17,18 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class MFAEnrollmentRequest(BaseModel):
+    password: str
+
+
+class MFACodeRequest(BaseModel):
+    code: str = Field(pattern=r"^[0-9]{6}$")
+
+
+class MFALoginRequest(MFACodeRequest):
+    challenge_token: str
+
+
 class ChangePasswordRequest(BaseModel):
     old_password: str
     new_password: str

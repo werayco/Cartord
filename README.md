@@ -365,6 +365,37 @@ curl http://localhost:9001/api/v1/health   # auth_service
 Swagger UI is available per service at `http://localhost:<port>/docs`
 (e.g. `http://localhost:9001/docs`).
 
+### Authenticator-app MFA
+
+Buyers and sellers can enable optional TOTP MFA. Set `MFA_ENCRYPTION_KEY` in the
+auth service environment to a key generated with:
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Keep this key in your deployment secret store and back it up: changing or losing
+it makes enrolled MFA secrets unreadable. Apply the auth-service migration with
+`alembic upgrade head` from `services/auth_service` (the service also creates the
+new table on startup). For Kubernetes, add `MFA_ENCRYPTION_KEY` to the existing
+`cartord-secrets` secret consumed by the auth-service deployment.
+
+For either account type, use its `/api/v1/auth/{buyer|seller}` prefix:
+
+1. With an access token, `POST /mfa/enrollment` with `{"password":"..."}`. Add
+   the returned `otpauth_uri` to an authenticator app (or enter its `secret`).
+   Enrollment expires after 10 minutes.
+2. `POST /mfa/enrollment/verify` with `{"code":"123456"}` to enable MFA.
+3. Login with the normal `/login` endpoint. If MFA is enabled, it returns
+   `mfa_required` and a short-lived `challenge_token` instead of access/refresh
+   tokens. Submit both that token and the current six-digit code to
+   `/login/mfa` to finish login.
+
+Enrollment allows at most five code attempts per enrollment; login allows five
+code attempts per account in each five-minute window. A successfully used TOTP
+time step cannot be replayed. Use HTTPS because the enrollment secret is
+returned to the client.
+
 Other useful UIs once the stack is up:
 
 | UI       | URL                      |

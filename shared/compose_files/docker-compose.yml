@@ -26,7 +26,7 @@ services:
       retries: 5
     networks:
       - mynet
-
+  
   debezium:
     image: debezium/connect:2.7.3.Final 
     container_name: cartord-dz

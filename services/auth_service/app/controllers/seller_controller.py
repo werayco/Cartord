@@ -3,11 +3,18 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.schemas import LoginRequest, RegisterAdmin, RegisterSeller, Roles
-from app.core.utils import get_tokens, hash_password, verify_password
+from app.core.schemas import (
+    LoginRequest,
+    MFALoginRequest,
+    RegisterAdmin,
+    RegisterSeller,
+    Roles,
+)
+from app.core.utils import hash_password, verify_password
 from app.db.session import AsyncSessionLocal
 from app.models import Seller
 from app.models.outbox import OutboxEvent
+from app.services.mfa import complete_login, login_after_password, remove_credential
 
 
 class SellerController:
@@ -127,6 +134,7 @@ class SellerController:
             )
 
         try:
+            await remove_credential(seller.id, "seller", db)
             await db.delete(seller)
             await db.commit()
             return {"message": "User deleted successfully"}
@@ -142,5 +150,10 @@ class SellerController:
         seller = result.scalar_one_or_none()
         if not seller or not verify_password(payload.password, seller.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
-        tokens = await get_tokens(seller)
-        return {"response": "Login successful", "tokens": tokens}
+        return await login_after_password(seller, "seller", db)
+
+    @staticmethod
+    async def complete_mfa_login(payload: MFALoginRequest, db: AsyncSession):
+        return await complete_login(
+            payload.challenge_token, payload.code, "seller", Seller, db
+        )

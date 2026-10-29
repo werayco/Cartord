@@ -2,10 +2,20 @@ from fastapi import HTTPException, status
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.schemas import ChangePasswordRequest, LoginRequest, RegisterRequest
+from app.core.schemas import (
+    ChangePasswordRequest,
+    LoginRequest,
+    MFALoginRequest,
+    RegisterRequest,
+)
 from app.core.utils import get_tokens, hash_password, verify_password
 from app.models.buyer import Buyer
 from app.models.outbox import OutboxEvent
+from app.services.mfa import (
+    complete_login,
+    login_after_password,
+    remove_credential,
+)
 
 
 class BuyerController:
@@ -51,8 +61,13 @@ class BuyerController:
         buyer = result.scalar_one_or_none()
         if not buyer or not verify_password(payload.password, buyer.password):
             raise HTTPException(status_code=401, detail="Invalid username or password")
-        tokens = await get_tokens(buyer)
-        return {"response": "Login successful", "tokens": tokens}
+        return await login_after_password(buyer, "buyer", db)
+
+    @staticmethod
+    async def complete_mfa_login(payload: MFALoginRequest, db: AsyncSession):
+        return await complete_login(
+            payload.challenge_token, payload.code, "buyer", Buyer, db
+        )
 
     @staticmethod
     async def update_user(
@@ -90,6 +105,7 @@ class BuyerController:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Password is incorrect",
             )
+        await remove_credential(current_user.id, "buyer", db)
         await db.delete(current_user)
         await db.commit()
         return {"response": "Account deleted successfully"}
