@@ -1,19 +1,4 @@
 services:
-  minio:
-    image: bitnamilegacy/minio:2025.7.23-debian-12-r5
-    container_name: cartord-minio
-    ports:
-      - "9100:9000"
-      - "9101:9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-cartord}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-cartord-local-password}
-    volumes:
-      - minio_data:/bitnami/minio/data
-    restart: unless-stopped
-    networks:
-      - mynet
-
   ai_service:
     build:
       context: ../../services/ai_service
@@ -84,9 +69,6 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:-cartord-local-password}}
       MINIO_BUCKET: ${MINIO_BUCKET:-product-images}
       MINIO_CORS_ORIGINS: ${MINIO_CORS_ORIGINS:-http://localhost:8081,http://127.0.0.1:8081,http://localhost:5173,http://127.0.0.1:5173}
-    depends_on:
-      minio:
-        condition: service_started
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -227,4 +209,3 @@ networks:
 volumes:
   hf_cache:
   frontend_node_modules:
-  minio_data:

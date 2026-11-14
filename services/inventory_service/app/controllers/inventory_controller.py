@@ -29,7 +29,7 @@ class InventoryCRUD:
             payload["seller_id"] = current_user.get("id")
             (sku,) = await generate_skus(db, 1)
             payload["sku"] = sku
-            record = Inventory(**payload)
+            record = Inventory(**payload, images=[])
 
             db.add(record)
             await db.flush()
@@ -49,7 +49,8 @@ class InventoryCRUD:
 
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.exception("Inventory creation failed")
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @staticmethod
     async def add_inventory_items(
@@ -67,7 +68,7 @@ class InventoryCRUD:
             for item, sku in zip(payloads, skus):
                 item["seller_id"] = current_user.get("id")
                 item["sku"] = sku
-            records = [Inventory(**item) for item in payloads]
+            records = [Inventory(**item, images=[]) for item in payloads]
 
             db.add_all(records)
             await db.flush()
@@ -87,7 +88,8 @@ class InventoryCRUD:
 
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.exception("Bulk inventory creation failed")
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @staticmethod
     async def delete_inventory_item(
@@ -117,7 +119,7 @@ class InventoryCRUD:
                 detail="Inventory item not found",
             )
 
-        if role == Roles.SELLER.value and record.seller_id != user_id:
+        if role == Roles.SELLER.value and str(record.seller_id) != str(user_id):
             raise HTTPException(
                 status_code=403,
                 detail="Permission denied.",
@@ -178,7 +180,7 @@ class InventoryCRUD:
                 detail="Inventory item not found",
             )
 
-        if role == Roles.SELLER.value and record.seller_id != user_id:
+        if role == Roles.SELLER.value and str(record.seller_id) != str(user_id):
             raise HTTPException(
                 status_code=403,
                 detail="Permission denied.",

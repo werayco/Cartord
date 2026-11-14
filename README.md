@@ -377,8 +377,9 @@ Product images are stored by the MinIO service on ports `9100` (S3 API) and
 MinIO credentials are for local development only. Set `MINIO_ROOT_USER`,
 `MINIO_ROOT_PASSWORD`, `MINIO_ACCESS_KEY`, and `MINIO_SECRET_KEY` in
 `shared/compose_files/.env` before using a non-local deployment. The browser
-uploads directly to `MINIO_PUBLIC_ENDPOINT`; make sure
-`MINIO_CORS_ORIGINS` includes the frontend's exact origin.
+uploads directly to `MINIO_PUBLIC_ENDPOINT`. Community MinIO does not support
+per-bucket CORS, so `MINIO_CORS_ORIGINS` is applied to the MinIO server as
+`MINIO_API_CORS_ALLOW_ORIGIN`. Include the frontend's exact origin.
 
 ## 5. Initialize the platform
 

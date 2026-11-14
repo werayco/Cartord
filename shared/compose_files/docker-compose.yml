@@ -1,4 +1,25 @@
 services:
+  minio:
+    image: bitnamilegacy/minio:2025.7.23-debian-12-r5
+    container_name: cartord-minio
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-cartord}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-cartord-local-password}
+      MINIO_API_CORS_ALLOW_ORIGIN: ${MINIO_CORS_ORIGINS:-http://localhost:8081,http://127.0.0.1:8081,http://localhost:5173,http://127.0.0.1:5173}
+    volumes:
+      - minio_data:/bitnami/minio/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - mynet
   postgres:
     image: pgvector/pgvector:pg16
     container_name: cartord-pg
@@ -230,6 +251,7 @@ volumes:
   esdata:
   kafka_data:
   redis_data:
+  minio_data:
 
 networks:
   mynet:

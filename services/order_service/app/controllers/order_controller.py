@@ -187,6 +187,17 @@ class OrderController:
             )
 
     @staticmethod
+    def _order_record(order) -> dict:
+        return {
+            "id": str(order.id),
+            "sku": order.sku,
+            "quantity": order.quantity,
+            "unit_price": float(order.unit_price),
+            "status": order.status.value,
+            "created_at": order.created_at.isoformat() if order.created_at else None,
+        }
+
+    @staticmethod
     async def get_summary(current_user, db):
         try:
             if not current_user or not current_user.get("id"):
@@ -284,6 +295,10 @@ class OrderController:
             return {
                 "message": "\n".join(lines),
                 "status": "successful",
+                "total_orders": len(orders),
+                "delivered_orders": len(delivered),
+                "total_spend": float(total_spend),
+                "orders": [OrderController._order_record(order) for order in orders],
             }
 
         except Exception:

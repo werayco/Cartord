@@ -38,7 +38,6 @@ const buyerNav: NavItem[] = [
   { to: "/buyer/orders", label: "My Orders", icon: "clipboard" },
   { to: "/buyer/cart", label: "My Cart", icon: "cart" },
   { to: "/buyer/wishlist", label: "Wishlist", icon: "heart" },
-  { to: "/buyer/wallet", label: "Wallet", icon: "wallet" },
   { to: "/buyer/notifications", label: "Notifications", icon: "bell" },
   { to: "/buyer/profile", label: "Settings", icon: "settings" },
 ];
@@ -112,7 +111,7 @@ export default function App() {
           <Route path="orders" element={<BuyerOrders />} />
           <Route path="cart" element={<Cart />} />
           <Route path="wishlist" element={<Wishlist />} />
-          <Route path="wallet" element={<WalletPage />} />
+          <Route path="wallet" element={<Navigate to="/buyer" replace />} />
           <Route path="notifications" element={notificationsGap} />
           <Route path="profile" element={<BuyerProfile />} />
         </Route>

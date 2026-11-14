@@ -37,6 +37,9 @@ class ProductImageStorage:
             config=Config(
                 signature_version="s3v4",
                 s3={"addressing_style": "path"},
+                # MinIO does not implement the CRC checksum headers boto3 sends by default.
+                request_checksum_calculation="when_required",
+                response_checksum_validation="when_required",
             ),
         )
 
@@ -80,25 +83,7 @@ class ProductImageStorage:
                 raise
             client.create_bucket(Bucket=settings.MINIO_BUCKET)
 
-        origins = [
-            origin.strip()
-            for origin in settings.MINIO_CORS_ORIGINS.split(",")
-            if origin.strip()
-        ]
-        client.put_bucket_cors(
-            Bucket=settings.MINIO_BUCKET,
-            CORSConfiguration={
-                "CORSRules": [
-                    {
-                        "AllowedOrigins": origins,
-                        "AllowedMethods": ["GET", "PUT", "HEAD"],
-                        "AllowedHeaders": ["*"],
-                        "ExposeHeaders": ["ETag"],
-                        "MaxAgeSeconds": 3600,
-                    }
-                ]
-            },
-        )
+        self._allow_browser_uploads(client)
         client.put_bucket_policy(
             Bucket=settings.MINIO_BUCKET,
             Policy=json.dumps(
@@ -115,6 +100,40 @@ class ProductImageStorage:
                 }
             ),
         )
+
+    def _allow_browser_uploads(self, client) -> None:
+        origins = [
+            origin.strip()
+            for origin in settings.MINIO_CORS_ORIGINS.split(",")
+            if origin.strip()
+        ]
+        if not origins:
+            return
+        try:
+            client.put_bucket_cors(
+                Bucket=settings.MINIO_BUCKET,
+                CORSConfiguration={
+                    "CORSRules": [
+                        {
+                            "AllowedOrigins": origins,
+                            "AllowedMethods": ["GET", "PUT", "HEAD"],
+                            "AllowedHeaders": ["*"],
+                            "ExposeHeaders": ["ETag"],
+                            "MaxAgeSeconds": 3600,
+                        }
+                    ]
+                },
+            )
+        except ClientError as error:
+            code = error.response.get("Error", {}).get("Code")
+            # Community MinIO does not implement bucket CORS. Local Compose sets
+            # MINIO_API_CORS_ALLOW_ORIGIN on the MinIO server instead.
+            if code != "NotImplemented":
+                raise
+            logger.info(
+                "Storage server does not support bucket CORS for %s",
+                settings.MINIO_BUCKET,
+            )
 
     async def create_upload_url(
         self, object_key: str, content_type: str, file_size: int

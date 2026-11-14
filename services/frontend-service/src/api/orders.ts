@@ -7,9 +7,23 @@ export interface OrderResult {
   status: string;
 }
 
+export interface CustomerOrder {
+  id: string;
+  sku: string;
+  quantity: number;
+  unit_price: number;
+  status: string;
+  created_at: string | null;
+}
+
 export interface OrderSummary {
   message: string;
   status: string;
+  error?: string;
+  total_orders?: number;
+  delivered_orders?: number;
+  total_spend?: number;
+  orders?: CustomerOrder[];
 }
 
 export const ordersApi = {

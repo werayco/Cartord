@@ -13,7 +13,6 @@ const buyerMenu = [
   { to: "/buyer/orders", label: "My Orders", icon: "clipboard" },
   { to: "/buyer/cart", label: "My Cart", icon: "cart" },
   { to: "/buyer/wishlist", label: "Wishlist", icon: "heart" },
-  { to: "/buyer/wallet", label: "Wallet", icon: "wallet" },
   { to: "/buyer/notifications", label: "Notifications", icon: "bell" },
   { to: "/buyer/profile", label: "Settings", icon: "settings" },
 ] satisfies Array<{ to: string; label: string; icon: IconName; end?: boolean }>;
