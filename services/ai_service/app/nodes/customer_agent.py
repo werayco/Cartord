@@ -11,6 +11,7 @@ llm = ChatGroq(
     api_key=settings.LLM_API_KEY,
     temperature=settings.TEMPERATURE,
     streaming=True,
+    max_tokens=512,
 )
 
 llm_customer = llm.bind_tools(CUSTOMER_TOOLS)

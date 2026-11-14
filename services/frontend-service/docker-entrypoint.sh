@@ -1,0 +1,16 @@
+#!/bin/sh
+# Writes runtime config from environment variables, then starts nginx.
+cat > /usr/share/nginx/html/config.js <<JS
+window.__CARTORD_CONFIG__ = {
+  VITE_AUTH_SERVICE_URL: "${VITE_AUTH_SERVICE_URL}",
+  VITE_INVENTORY_SERVICE_URL: "${VITE_INVENTORY_SERVICE_URL}",
+  VITE_ORDER_SERVICE_URL: "${VITE_ORDER_SERVICE_URL}",
+  VITE_PAYMENT_SERVICE_URL: "${VITE_PAYMENT_SERVICE_URL}",
+  VITE_SEARCH_SERVICE_URL: "${VITE_SEARCH_SERVICE_URL}",
+  VITE_AI_SERVICE_URL: "${VITE_AI_SERVICE_URL}",
+  VITE_AI_WS_URL: "${VITE_AI_WS_URL}",
+  VITE_AI_WS_MESSAGE_FIELD: "${VITE_AI_WS_MESSAGE_FIELD}",
+  VITE_CURRENCY: "${VITE_CURRENCY}"
+};
+JS
+exec nginx -g 'daemon off;'

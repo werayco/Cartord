@@ -1,4 +1,19 @@
 services:
+  minio:
+    image: bitnamilegacy/minio:2025.7.23-debian-12-r5
+    container_name: cartord-minio
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-cartord}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-cartord-local-password}
+    volumes:
+      - minio_data:/bitnami/minio/data
+    restart: unless-stopped
+    networks:
+      - mynet
+
   ai_service:
     build:
       context: ../../services/ai_service
@@ -17,10 +32,11 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9000", "--reload"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/api/v1/health || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/v1/health', timeout=2)"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 180s
     networks:
       - mynet
 
@@ -62,6 +78,15 @@ services:
     environment:
       OTEL_SERVICE_NAME: inventory_service
       SENTRY_DSN: ${GLITCHTIP_INVENTORY_DSN}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-http://localhost:9100}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:-cartord}}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:-cartord-local-password}}
+      MINIO_BUCKET: ${MINIO_BUCKET:-product-images}
+      MINIO_CORS_ORIGINS: ${MINIO_CORS_ORIGINS:-http://localhost:8081,http://127.0.0.1:8081,http://localhost:5173,http://127.0.0.1:5173}
+    depends_on:
+      minio:
+        condition: service_started
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
     restart: unless-stopped
     healthcheck:
@@ -137,10 +162,11 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9005", "--reload"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9005/api/v1/health || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9005/api/v1/health', timeout=2)"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
     networks:
       - mynet
 
@@ -161,10 +187,36 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9007", "--reload"]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9007/api/v1/health || exit 1"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9007/api/v1/health', timeout=2)"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
+    networks:
+      - mynet
+
+  frontend_service:
+    build:
+      context: ../../services/frontend-service
+      dockerfile: Dockerfile
+      target: dev
+    container_name: frontend_service
+    ports:
+      - "8081:5173"
+    volumes:
+      - "../../services/frontend-service:/app"
+      - "frontend_node_modules:/app/node_modules"
+    environment:
+      VITE_AUTH_SERVICE_URL: http://localhost:9001
+      VITE_INVENTORY_SERVICE_URL: http://localhost:9002
+      VITE_ORDER_SERVICE_URL: http://localhost:9004
+      VITE_PAYMENT_SERVICE_URL: http://localhost:9005
+      VITE_SEARCH_SERVICE_URL: http://localhost:9007
+      VITE_AI_SERVICE_URL: http://localhost:9000
+      VITE_AI_WS_URL: ws://localhost:9000/api/v1/ws/chat
+      VITE_AI_WS_MESSAGE_FIELD: content
+      VITE_CURRENCY: NGN
+    restart: unless-stopped
     networks:
       - mynet
 
@@ -174,3 +226,5 @@ networks:
 
 volumes:
   hf_cache:
+  frontend_node_modules:
+  minio_data:

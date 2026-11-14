@@ -20,6 +20,9 @@ dependencies:
 - name: search-service
   repository: file://charts/search-service
   version: 0.1.0
+- name: frontend-service
+  repository: file://charts/frontend-service
+  version: 0.1.0
 - name: postgres
   repository: file://charts/postgres
   version: 0.1.0
@@ -53,5 +56,5 @@ dependencies:
 - name: debezium-connect
   repository: file://charts/debezium-connect
   version: 0.1.0
-digest: sha256:ecf01bbbfd198b3aed6d4b738066ceb07376ebbe1080c7f3681ffa4cf0a234b1
-generated: "2026-10-07T02:01:27.7866536-07:00"
+digest: sha256:71353479bad5e480284b62769d43de5ce838203c2a43735b38123fbbd453d7a5
+generated: "2026-11-14T10:35:00Z"

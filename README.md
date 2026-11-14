@@ -78,6 +78,7 @@ assistant, and full observability, deployed on Docker Compose or Kubernetes.
 - **Redis** - idempotency key store and caching
 - **Elasticsearch** - search index
 - **Kafka + Debezium** - event streaming and CDC-based outbox relay
+- **MinIO** - S3-compatible product image storage
 - **Kubernetes** - deployment, StatefulSets for stateful workloads
 - **Docker Compose** - local development
 
@@ -271,6 +272,7 @@ The project uses a distributed setup with service-specific storage.
 - Redis is used for idempotency and short-lived state.
 - Elasticsearch is used for search-related read models.
 - Kafka is used for event streaming between services.
+- MinIO stores product image objects; inventory stores their metadata and search indexes image URLs.
 
 ## Deployment
 
@@ -308,14 +310,39 @@ Copy the example env file into the location the compose files read from
 and fill in real values:
 
 ```bash
-cp shared/.env.example shared/compose_files/.env
+cp shared/compose_files/.env.example shared/compose_files/.env
 ```
 
 `shared/compose_files/.env` is git-ignored - it holds the actual secrets
 (DB credentials, admin bootstrap user, JWT keys, etc.) used by every
 service.
 
-## 3. Generate the JWT signing secret
+Prompt-injection screening for the AI service is off by default. To enable it,
+set `PROMPT_INJECTION_GUARD_ENABLED=true` in this file. The
+`meta-llama/Llama-Prompt-Guard-2-22M` model is gated on Hugging Face; accept its
+access terms and set `HF_TOKEN` to a token authorized to download it.
+
+## 3. Evaluate the AI service
+
+The AI service has offline regression tests and opt-in model evaluations. With
+the stack running, run the intent and embedding evaluations inside the service:
+
+```bash
+docker compose -f shared/compose_files/services.docker-compose.yml exec ai_service \
+  python -m app.evals.evaluate_intents
+docker compose -f shared/compose_files/services.docker-compose.yml exec ai_service \
+  python -m app.evals.evaluate_embeddings
+```
+
+The intent eval reports intent accuracy and exact slot matches. The embedding
+eval reports vector hit rate@3 and mean reciprocal rank against a small labeled
+document set. Both use threshold checks and may call configured model
+providers; they are not part of the fast unit-test suite. Embedding metrics test
+nearest-vector ranking only, not the database-backed hybrid search end to end.
+Edit the case files in `services/ai_service/app/evals/` as product behavior
+changes.
+
+## 4. Generate the JWT signing secret
 
 Auth (and every service that verifies tokens) uses HS256 with a shared
 secret. Generate one and copy it into `shared/compose_files/.env`:
@@ -327,7 +354,7 @@ make gen-secret
 This prints a secure random secret that should be assigned to
 `JWT_PRIVATE_KEY` in `shared/compose_files/.env`.
 
-## 4. Start the stack
+## 5. Start the stack
 
 ```bash
 make run
@@ -342,8 +369,16 @@ docker-compose -f shared/compose_files/services.docker-compose.yml up -d
 
 The first file brings up infrastructure (Postgres, Kafka, Debezium,
 Elasticsearch, Redis, Prometheus, Grafana, Jaeger, otel-collector,
-GlitchTip, Mailpit). The second builds and starts all seven application
-services on top of it.
+GlitchTip, Mailpit). The second builds and starts the application services,
+frontend, and MinIO on top of it.
+
+Product images are stored by the MinIO service on ports `9100` (S3 API) and
+`9101` (console), with data persisted in the `minio_data` volume. The sample
+MinIO credentials are for local development only. Set `MINIO_ROOT_USER`,
+`MINIO_ROOT_PASSWORD`, `MINIO_ACCESS_KEY`, and `MINIO_SECRET_KEY` in
+`shared/compose_files/.env` before using a non-local deployment. The browser
+uploads directly to `MINIO_PUBLIC_ENDPOINT`; make sure
+`MINIO_CORS_ORIGINS` includes the frontend's exact origin.
 
 ## 5. Initialize the platform
 
@@ -419,6 +454,13 @@ Create or update the `cartord-secrets` Secret from
 make k8s-secret
 make k8s
 ```
+
+Kubernetes uses an externally provisioned S3-compatible bucket; the chart does
+not deploy MinIO. Configure `inventory-service.productImages.endpoint`,
+`publicEndpoint`, `bucket`, and `corsOrigins` in the Helm values. Add
+`MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` to `cartord-secrets`. The public
+endpoint must be reachable by browsers and the bucket CORS policy must allow
+the frontend's exact origin.
 
 > **Note:** the chart runs Kafka with a single broker, so its internal topic
 > replication settings are set to `1`.

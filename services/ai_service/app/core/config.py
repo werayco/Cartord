@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
     LLM_API_KEY: str = ""
     TEMPERATURE: float = 0.1
+    PROMPT_INJECTION_GUARD_ENABLED: bool = False
+    HF_TOKEN: str = ""
 
     REDIS_HOST: str
     REDIS_PORT: int

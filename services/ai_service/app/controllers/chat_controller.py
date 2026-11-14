@@ -6,6 +6,7 @@ from app.core.logging import logger
 from app.models.conversation import Conversation
 from app.models.message import Message
 from app.models.outbox import OutboxEvent
+from app.services.prompt_injection_guard import detect_prompt_injection
 
 
 class ChatController:
@@ -23,6 +24,15 @@ class ChatController:
                 message_id = str(uuid.uuid4())
 
             message_id = uuid.UUID(message_id)
+
+            if await detect_prompt_injection(content):
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "error": "Message blocked because it may contain a prompt injection.",
+                    }
+                )
+                return None
 
             if conversation_id:
                 logger.info(

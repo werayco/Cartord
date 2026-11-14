@@ -9,6 +9,12 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: "inventory-service"
 
+productImages:
+  endpoint: ""
+  publicEndpoint: ""
+  bucket: "product-images"
+  corsOrigins: ""
+
 serviceAccount:
   create: true
   automount: true

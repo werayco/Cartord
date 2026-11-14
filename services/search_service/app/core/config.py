@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "search_service"
     SENTRY_DSN: str = ""
+    ALLOW_ORIGINS: str = "*"
     ELASTICSEARCH_HOST: str
     ELASTICSEARCH_PORT: int
     ELASTICSEARCH_SCHEME: str = "http"

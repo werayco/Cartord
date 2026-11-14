@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 
 from app import models  # noqa: F401  <-- ensures all models register with Base.metadata
@@ -39,6 +40,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app, engine)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.ALLOW_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(payment_router)
 
 

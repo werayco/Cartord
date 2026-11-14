@@ -20,6 +20,7 @@ slot_llm = ChatGroq(
     model="openai/gpt-oss-safeguard-20b",
     api_key=settings.LLM_API_KEY,
     temperature=0,
+    max_tokens=128,
 ).with_structured_output(OrderSlots)
 
 

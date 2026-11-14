@@ -2,11 +2,13 @@ import secrets
 
 from fastapi import HTTPException, Request, status
 from sqlalchemy import inspect, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import generate_skus, logger, settings, to_json_safe
 from app.core.schemas import *
 from app.models import Inventory, OutboxEvent
+from app.services.inventory_events import inventory_event_payload
 
 ALLOW_ROLES = (Roles.ADMIN.value, Roles.SELLER.value)
 
@@ -37,7 +39,7 @@ class InventoryCRUD:
                 OutboxEvent(
                     event_type="inventory.created",
                     aggregate_id=str(record.id),
-                    payload=payload,
+                    payload=inventory_event_payload(record),
                 )
             )
 
@@ -76,7 +78,7 @@ class InventoryCRUD:
                     OutboxEvent(
                         event_type="inventory.created",
                         aggregate_id=str(db_record.id),
-                        payload=item_dict,
+                        payload=inventory_event_payload(db_record),
                     )
                 )
 
@@ -103,7 +105,9 @@ class InventoryCRUD:
             )
 
         result = await db.execute(
-            select(Inventory).where(Inventory.sku == inventory.sku)
+            select(Inventory)
+            .options(selectinload(Inventory.images))
+            .where(Inventory.sku == inventory.sku)
         )
         record = result.scalar_one_or_none()
 
@@ -162,7 +166,9 @@ class InventoryCRUD:
             )
 
         result = await db.execute(
-            select(Inventory).where(Inventory.sku == inventory.sku)
+            select(Inventory)
+            .options(selectinload(Inventory.images))
+            .where(Inventory.sku == inventory.sku)
         )
         record = result.scalar_one_or_none()
 
@@ -190,16 +196,11 @@ class InventoryCRUD:
 
             await db.flush()
 
-            payload = {
-                col.key: getattr(record, col.key)
-                for col in inspect(record).mapper.column_attrs
-            }
-
             db.add(
                 OutboxEvent(
                     event_type="inventory.updated",
                     aggregate_id=str(record.id),
-                    payload=to_json_safe(payload),
+                    payload=inventory_event_payload(record),
                 )
             )
 
@@ -262,7 +263,7 @@ class InventoryCRUD:
 
     @staticmethod
     async def get_inventory_item(db: AsyncSession, current_user: dict):
-        query = select(Inventory)
+        query = select(Inventory).options(selectinload(Inventory.images))
         if current_user.get("role") == Roles.SELLER.value:
             seller_id = current_user.get("id")
             if not seller_id:
@@ -271,4 +272,4 @@ class InventoryCRUD:
 
         result = await db.execute(query)
         records = result.scalars().all()
-        return records
+        return [inventory_event_payload(record) for record in records]

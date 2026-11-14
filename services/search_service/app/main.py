@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pyfiglet import Figlet
 
 from app.core.config import settings
@@ -36,6 +37,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 setup_telemetry(app)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.ALLOW_ORIGINS],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(search_router)
 
 

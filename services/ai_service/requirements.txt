@@ -36,6 +36,7 @@ python-jose[cryptography]==3.3.0
 psycopg[binary,pool]
 langgraph-checkpoint-postgres
 sentence-transformers
+transformers
 langchain-text-splitters
 langchain
 langgraph

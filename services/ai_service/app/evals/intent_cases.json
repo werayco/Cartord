@@ -1,0 +1,44 @@
+[
+  {
+    "id": "order-explicit-product-and-quantity",
+    "message": "I want to buy 2 bags of coffee",
+    "expected_intent": "place_order",
+    "expected_product_query": "bags of coffee",
+    "expected_quantity": 2
+  },
+  {
+    "id": "order-without-details",
+    "message": "I'd like to place an order",
+    "expected_intent": "place_order",
+    "expected_product_query": null,
+    "expected_quantity": null
+  },
+  {
+    "id": "wallet-balance",
+    "message": "How much money is left in my wallet?",
+    "expected_intent": "check_balance",
+    "expected_product_query": null,
+    "expected_quantity": null
+  },
+  {
+    "id": "general-product-question",
+    "message": "What is the difference between arabica and robusta coffee?",
+    "expected_intent": "general",
+    "expected_product_query": null,
+    "expected_quantity": null
+  },
+  {
+    "id": "order-explicit-quantity",
+    "message": "Please order 3 notebooks",
+    "expected_intent": "place_order",
+    "expected_product_query": "notebooks",
+    "expected_quantity": 3
+  },
+  {
+    "id": "general-greeting",
+    "message": "Hi, what can you help me with?",
+    "expected_intent": "general",
+    "expected_product_query": null,
+    "expected_quantity": null
+  }
+]

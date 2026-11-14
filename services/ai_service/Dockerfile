@@ -33,7 +33,7 @@ RUN chown -R appuser:appuser /app /home/appuser
 USER appuser
 
 ENV PATH=/home/appuser/.local/bin:$PATH
-ENV HF_HOME=/app/.cache/huggingface
+ENV HF_HOME=/home/appuser/.cache/huggingface
 
 EXPOSE 8000
 
