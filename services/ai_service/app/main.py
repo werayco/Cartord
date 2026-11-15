@@ -10,6 +10,7 @@ from app.kafka.consumer import kafka_manager
 from app.routers.document import router as document_router
 from app.routers.conversation import router as conversation_router
 from app.routers.websocket_router import router as chat_router
+from app.services.ingest_internal_data import ingest_internal_data
 from app.services.telemetry import setup_telemetry
 
 if settings.SENTRY_DSN and "@" in settings.SENTRY_DSN:
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
     print(f.renderText("AI Service"))
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+    await ingest_internal_data()
     consumer_task = asyncio.create_task(kafka_manager.consume())
     yield
     kafka_manager.stop()

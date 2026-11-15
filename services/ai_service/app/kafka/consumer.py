@@ -2,7 +2,7 @@ import asyncio
 import json
 import re
 from confluent_kafka import Consumer, Producer
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.types import Command
 from opentelemetry.instrumentation.confluent_kafka import ConfluentKafkaInstrumentor
 from opentelemetry.trace import get_tracer_provider
@@ -164,7 +164,11 @@ class KafkaConsumer:
                     logger.info("the astream returned a 'messages' stream mode")
                     logger.info(f"the data is {data}")
                     message, metadata = data
-                    if isinstance(message.content, str) and message.content:
+                    if (
+                        isinstance(message, AIMessage)
+                        and isinstance(message.content, str)
+                        and message.content
+                    ):
                         full_reply += message.content
                         await redis_client.publish(
                             channel,
@@ -182,17 +186,19 @@ class KafkaConsumer:
                     logger.info(f"the data is {data}")
                     if "__interrupt__" in data:
                         interrupt_obj = data["__interrupt__"][0]
-                        await redis_client.publish(
-                            channel,
-                            json.dumps(
-                                {
-                                    "type": "question",
-                                    "conversation_id": conversation_id,
-                                    "message_id": message_id,
-                                    "question": interrupt_obj.value["question"],
-                                }
-                            ),
-                        )
+                        value = interrupt_obj.value
+                        question = value["question"] if isinstance(value, dict) else str(value)
+                        payload = {
+                            "type": "question",
+                            "conversation_id": conversation_id,
+                            "message_id": message_id,
+                            "question": question,
+                        }
+                        if isinstance(value, dict) and isinstance(value.get("cards"), list) and value["cards"]:
+                            payload["cards"] = value["cards"]
+                        elif isinstance(value, dict) and value.get("card"):
+                            payload["card"] = value["card"]
+                        await redis_client.publish(channel, json.dumps(payload))
                         return
         except Exception:
             await redis_client.publish(

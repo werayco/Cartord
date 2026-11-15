@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import logger
 from app.core.schemas import OrderPayload, OrderStatus
-from app.core.utils import update_inventory
+from app.core.utils import commit_inventory, update_inventory
 from app.models.order import Order
 from app.models.outbox import OutboxEvent
 from app.services.idempotency import idempotency
@@ -160,6 +160,13 @@ class OrderController:
 
         order.status = OrderStatus.CONFIRMED
         await db.commit()
+
+        try:
+            await commit_inventory(sku=order.sku, quantity=order.quantity)
+        except Exception as e:
+            logger.critical(
+                f"Order {order_id} confirmed but stock was not reduced: {e}"
+            )
 
     @staticmethod
     async def fail_order(payment_event: dict, db: AsyncSession):

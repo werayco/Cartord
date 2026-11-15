@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.controllers.inventory_controller import InventoryCRUD
 from app.core.schemas import (
+    InventoryCommit,
     InventoryCreateResponse,
     InventoryCreateSchema,
     InventoryReserve,
@@ -67,6 +68,13 @@ async def reserve_item(
     inventory: InventoryReserve, req: Request, db: AsyncSession = Depends(get_db)
 ):
     return await InventoryCRUD.reserve_inventory(inventory, req, db)
+
+
+@inventory_router.patch("/commit")
+async def commit_sale(
+    sale: InventoryCommit, req: Request, db: AsyncSession = Depends(get_db)
+):
+    return await InventoryCRUD.commit_sale(sale, req, db)
 
 
 @inventory_router.post(

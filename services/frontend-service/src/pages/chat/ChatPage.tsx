@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
-import { ChatSocket, type ChatStatus, type IncomingChat } from "../../api/ai";
+import { ChatSocket, type ChatCard, type ChatStatus, type IncomingChat } from "../../api/ai";
 import { tokenStore } from "../../api/tokenStore";
 import type { Product } from "../../api/types";
 import { useAuth } from "../../context/AuthContext";
@@ -8,6 +8,7 @@ import { usePersisted } from "../../hooks/usePersisted";
 import { ProductCard } from "../../components/ProductCard";
 import { Logo } from "../../components/Logo";
 import { Icon } from "../../components/ui/Icon";
+import { AssistantCards, AssistantMarkdown } from "../../components/chat/AssistantContent";
 import { ThoughtTicker } from "../../components/chat/ThoughtTicker";
 import { homeFor } from "../../lib/routes";
 import { uid } from "../../lib/uid";
@@ -17,6 +18,7 @@ interface Message {
   from: "user" | "assistant";
   text: string;
   products?: Product[];
+  cards?: ChatCard[];
   error?: boolean;
   thoughts?: string[];
   isThinking?: boolean;
@@ -54,6 +56,7 @@ export default function ChatPage() {
   const bottom = useRef<HTMLDivElement>(null);
 
   const active = useMemo(() => chats.find((c) => c.id === activeId) ?? null, [chats, activeId]);
+  const lastMessageId = active?.messages[active.messages.length - 1]?.id;
   const activePending = pendingRef.current;
   const pendingAssistantMessage =
     active && activePending?.conversationId === active.id
@@ -101,6 +104,16 @@ export default function ChatPage() {
     [setChats],
   );
 
+  const appendCard = useCallback(
+    (conversationId: string, messageId: string, card: ChatCard) =>
+      updateAssistantMessage(conversationId, messageId, (message) => ({
+        ...message,
+        cards: [...(message.cards ?? []), card],
+        isThinking: false,
+      })),
+    [updateAssistantMessage],
+  );
+
   const appendToken = useCallback(
     (conversationId: string, messageId: string, delta: string) =>
       updateAssistantMessage(conversationId, messageId, (message) => ({
@@ -129,7 +142,7 @@ export default function ChatPage() {
     (
       conversationId: string,
       messageId: string,
-      response?: { text?: string; products?: Product[]; error?: boolean },
+      response?: { text?: string; products?: Product[]; card?: ChatCard; cards?: ChatCard[]; error?: boolean },
     ) =>
       updateAssistantMessage(conversationId, messageId, (message) => ({
         ...message,
@@ -138,6 +151,11 @@ export default function ChatPage() {
             ? `${message.text}\n\n${response.text}`
             : response?.text || message.text,
         products: response?.products ?? message.products,
+        cards: response?.cards?.length
+          ? [...(message.cards ?? []), ...response.cards]
+          : response?.card
+            ? [...(message.cards ?? []), response.card]
+            : message.cards,
         error: response?.error ?? message.error,
         isThinking: false,
       })),
@@ -205,6 +223,11 @@ export default function ChatPage() {
         return;
       }
 
+      if (m.type === "card") {
+        if (id && m.card) appendCard(id, m.messageId ?? pending?.messageId ?? uid(), m.card);
+        return;
+      }
+
       window.clearTimeout(timer.current);
       setWaiting(false);
       if (m.type === "done") {
@@ -213,12 +236,14 @@ export default function ChatPage() {
         return;
       }
 
-      if (id && (m.text || m.products.length > 0)) {
+      const incomingCards = m.cards?.length ? m.cards : m.card ? [m.card] : [];
+      if (id && (m.text || m.products.length > 0 || incomingCards.length > 0)) {
         const assistantMessageId = m.messageId ?? pending?.messageId;
         if (assistantMessageId) {
           finishAssistantMessage(id, assistantMessageId, {
             text: m.text,
             products: m.products,
+            cards: incomingCards,
             error: m.type === "error",
           });
         } else {
@@ -227,13 +252,14 @@ export default function ChatPage() {
             from: "assistant",
             text: m.text,
             products: m.products,
+            cards: incomingCards,
             error: m.type === "error",
           });
         }
       }
       pendingRef.current = null;
     },
-    [append, appendThought, appendToken, finishAssistantMessage, setChats],
+    [append, appendCard, appendThought, appendToken, finishAssistantMessage, setChats],
   );
 
   useEffect(() => {
@@ -263,9 +289,7 @@ export default function ChatPage() {
     setSidebar(false);
   };
 
-  const send = (e?: FormEvent) => {
-    e?.preventDefault();
-    const text = draft.trim();
+  const deliver = (text: string) => {
     if (!text || waiting) return;
     let id = activeId;
     if (!id) {
@@ -279,7 +303,6 @@ export default function ChatPage() {
     setChats((all) => all.map((c) => (c.id === convId && c.messages.length === 0 ? { ...c, title: text.slice(0, 40) } : c)));
     const messageId = uid();
     append(convId, { id: messageId, from: "user", text });
-    setDraft("");
     const serverId = chats.find((chat) => chat.id === convId)?.serverId;
     pendingRef.current = { conversationId: convId, messageId };
     if (socket.current?.send(text, messageId, serverId)) {
@@ -302,6 +325,14 @@ export default function ChatPage() {
       pendingRef.current = null;
       append(convId, { id: uid(), from: "assistant", text: "You're not connected to the assistant right now. Reconnecting; send your message again in a moment.", error: true });
     }
+  };
+
+  const send = (e?: FormEvent) => {
+    e?.preventDefault();
+    const text = draft.trim();
+    if (!text || waiting) return;
+    setDraft("");
+    deliver(text);
   };
 
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -391,10 +422,22 @@ export default function ChatPage() {
                     onExited={() => clearThoughtTicker(active.id, m.id.slice("assistant-".length))}
                   />
                 )}
-                {m.text && (
-                  <p className={`whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${m.from === "user" ? "rounded-br-sm bg-brand-600 text-white" : m.error ? "rounded-bl-sm bg-red-50 text-red-700" : "rounded-bl-sm bg-white shadow-card"}`}>
+                {m.text && m.from === "assistant" && !m.error ? (
+                  <AssistantMarkdown text={m.text} />
+                ) : m.text ? (
+                  <p className={`whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm ${m.from === "user" ? "rounded-br-sm bg-brand-600 text-white" : "rounded-bl-sm bg-red-50 text-red-700"}`}>
                     {m.text}
                   </p>
+                ) : null}
+                {m.cards && m.cards.length > 0 && (
+                  <AssistantCards
+                    cards={m.cards}
+                    onChoose={
+                      m.id === lastMessageId && !waiting && status === "open"
+                        ? deliver
+                        : undefined
+                    }
+                  />
                 )}
                 {m.products && m.products.length > 0 && (
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

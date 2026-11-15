@@ -47,6 +47,11 @@ class InventoryReserve(BaseModel):
     reserved_quantity: int | None
 
 
+class InventoryCommit(BaseModel):
+    sku: str
+    quantity: int
+
+
 class InventoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

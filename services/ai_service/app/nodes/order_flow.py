@@ -16,11 +16,41 @@ from app.services.agent_tools import call_service, fetch_item_details
 CANCEL_WORDS = {"cancel", "never mind", "nevermind", "stop", "no thanks", "no"}
 CONFIRM_WORDS = {"yes", "y", "confirm", "yeah", "yep", "sure", "go ahead", "do it"}
 
+
+def _price(value) -> float:
+    return float(value)
+
+
+def _product_choices(items: list) -> dict:
+    return {
+        "kind": "product_choices",
+        "items": [
+            {
+                "number": number,
+                "name": item["name"],
+                "price": _price(item["unit_price"]),
+                "description": item.get("description") or "",
+            }
+            for number, item in enumerate(items, 1)
+        ],
+    }
+
+
+def _order_summary(draft: dict) -> dict:
+    return {
+        "kind": "order_summary",
+        "name": draft.get("product_name") or draft["sku"],
+        "sku": draft["sku"],
+        "quantity": int(draft["quantity"]),
+        "unit_price": _price(draft["price"]),
+        "total": _price(draft["total"]),
+    }
+
 slot_llm = ChatGroq(
     model="openai/gpt-oss-safeguard-20b",
     api_key=settings.LLM_API_KEY,
     temperature=0,
-    max_tokens=128,
+    max_tokens=512,
 ).with_structured_output(OrderSlots)
 
 
@@ -66,15 +96,19 @@ async def collect_order_details(
             },
         )
 
-    slots: OrderSlots = await slot_llm.ainvoke(
-        [HumanMessage(content=str(answer))], config
-    )  # this extracts product_query and quantity from the user's answer
+    text = str(answer).strip()
+    if text.isdecimal():
+        draft["quantity"] = int(text)
+    else:
+        slots: OrderSlots = await slot_llm.ainvoke(
+            [HumanMessage(content=text)], config
+        )  # this extracts product_query and quantity from the user's answer
 
-    if slots.product_query:
-        draft["product_query"] = slots.product_query
+        if slots.product_query:
+            draft["product_query"] = slots.product_query
 
-    if slots.quantity:
-        draft["quantity"] = slots.quantity
+        if slots.quantity:
+            draft["quantity"] = slots.quantity
 
     return Command(goto="collect_order_details", update={"order_draft": draft})
 
@@ -151,15 +185,7 @@ async def validate_item(
         answer = interrupt(
             {
                 "question": "I found several products. Which one would you like? Reply with its number, or cancel.",
-                "options": [
-                    {
-                        "number": i,
-                        "name": item["name"],
-                        "price": item["unit_price"],
-                        "description": item.get("description", ""),
-                    }
-                    for i, item in enumerate(items, 1)
-                ],
+                "card": _product_choices(items),
             }
         )
 
@@ -197,7 +223,8 @@ async def validate_item(
     draft.pop("search_matches", None)
     draft["sku"] = item["sku"]
     draft["product_name"] = item["name"]
-    draft["price"] = item["unit_price"]
+    draft["price"] = _price(item["unit_price"])
+    draft["quantity"] = int(draft["quantity"])
     return Command(goto="check_wallet", update={"order_draft": draft})
 
 
@@ -213,7 +240,9 @@ async def check_wallet(
         }
     )
     draft = dict(state.get("order_draft") or {})
-    total = draft["price"] * draft["quantity"]
+    price = _price(draft["price"])
+    quantity = int(draft["quantity"])
+    total = price * quantity
     url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     wallet = await call_service("GET", url, state["user_id"], "wallet:read")
 
@@ -229,7 +258,9 @@ async def check_wallet(
             },
         )
 
-    balance = wallet["current_balance"]
+    balance = _price(wallet["current_balance"])
+    draft["price"] = price
+    draft["quantity"] = quantity
     if balance < total:
         return Command(
             goto=END,
@@ -263,8 +294,11 @@ async def confirm_order(
     draft = dict(state.get("order_draft") or {})
     answer = interrupt(
         {
-            "question": f"That's {draft['quantity']} x {draft.get('product_name', draft['sku'])} for a total of "
-            f"{draft['total']:.2f}. Should I place the order?"
+            "question": "Should I place this order?",
+            "cards": [
+                _order_summary(draft),
+                {"kind": "yes_no", "yes": "Yes", "no": "No"},
+            ],
         }
     )
 

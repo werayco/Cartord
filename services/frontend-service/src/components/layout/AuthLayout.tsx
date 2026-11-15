@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { Logo } from "../Logo";
 import { Icon } from "../ui/Icon";
 
@@ -36,8 +36,10 @@ export function AuthLayout() {
       </aside>
       <main className="flex items-center justify-center bg-cream px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
-          <div className="mb-8 lg:hidden">
-            <Logo />
+          <div className="mb-8 flex justify-center lg:hidden">
+            <Link to="/" aria-label="Cartord home" className="inline-flex">
+              <img src="/cartord-logo-alone.png" alt="" className="h-10 w-auto" />
+            </Link>
           </div>
           <Outlet />
         </div>

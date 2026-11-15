@@ -264,6 +264,56 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
+    async def commit_sale(sale: InventoryCommit, req: Request, db: AsyncSession):
+        incoming_key = req.headers.get("SHARED_API_KEY")
+        if not incoming_key or not secrets.compare_digest(
+            incoming_key, settings.SERVICE_SHARED_KEY
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing shared API key",
+            )
+        if sale.quantity < 1:
+            raise HTTPException(status_code=400, detail="Quantity must be at least 1")
+
+        result = await db.execute(
+            select(Inventory)
+            .where(Inventory.sku == sale.sku)
+            .options(selectinload(Inventory.images))
+        )
+        record = result.scalar_one_or_none()
+        if not record:
+            raise HTTPException(status_code=404, detail="Inventory item not found")
+        if record.reserved_quantity < sale.quantity or record.available_quantity < sale.quantity:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Cannot complete sale for SKU {sale.sku}",
+            )
+
+        try:
+            record.available_quantity -= sale.quantity
+            record.reserved_quantity -= sale.quantity
+            await db.flush()
+            db.add(
+                OutboxEvent(
+                    event_type="inventory.updated",
+                    aggregate_id=str(record.id),
+                    payload=inventory_event_payload(record),
+                )
+            )
+            await db.commit()
+            await db.refresh(record)
+            return {
+                "message": "Sale recorded",
+                "available_quantity": record.available_quantity,
+                "reserved_quantity": record.reserved_quantity,
+                "status": "successful",
+            }
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
     async def get_inventory_item(db: AsyncSession, current_user: dict):
         query = select(Inventory).options(selectinload(Inventory.images))
         if current_user.get("role") == Roles.SELLER.value:

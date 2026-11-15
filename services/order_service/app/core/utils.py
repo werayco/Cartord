@@ -65,6 +65,33 @@ async def update_inventory(sku: str, reserved_quantity: int) -> dict:
             return response_json
 
 
+@inventory_breaker
+async def commit_inventory(sku: str, quantity: int) -> dict:
+    url = f"{settings.INVENTORY_BASE_URL}/inventory/commit"
+    headers = {"SHARED_API_KEY": settings.SERVICE_SHARED_KEY}
+
+    async with aiohttp.ClientSession() as session:
+        logger.info("Recording a completed sale with the inventory service")
+        async with session.patch(
+            url,
+            json={"sku": sku, "quantity": quantity},
+            headers=headers,
+        ) as response:
+            if response.status >= 400:
+                try:
+                    error_body = await response.json()
+                except (aiohttp.ContentTypeError, json.JSONDecodeError):
+                    detail = response.reason
+                else:
+                    detail = (
+                        error_body.get("detail", response.reason)
+                        if isinstance(error_body, dict)
+                        else response.reason
+                    )
+                raise HTTPException(status_code=response.status, detail=detail)
+            return await response.json()
+
+
 def seralize_to_json(data):
     try:
         return json.dumps(data).encode("utf-8")
