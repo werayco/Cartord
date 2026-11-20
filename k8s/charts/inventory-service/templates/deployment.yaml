@@ -51,6 +51,24 @@ spec:
           {{- with .Values.env }}
           env:
             {{- toYaml . | nindent 12 }}
+            - name: MINIO_ENDPOINT
+              value: {{ $.Values.productImages.endpoint | quote }}
+            - name: MINIO_PUBLIC_ENDPOINT
+              value: {{ $.Values.productImages.publicEndpoint | quote }}
+            - name: MINIO_BUCKET
+              value: {{ $.Values.productImages.bucket | quote }}
+            - name: MINIO_CORS_ORIGINS
+              value: {{ $.Values.productImages.corsOrigins | quote }}
+          {{- else }}
+          env:
+            - name: MINIO_ENDPOINT
+              value: {{ $.Values.productImages.endpoint | quote }}
+            - name: MINIO_PUBLIC_ENDPOINT
+              value: {{ $.Values.productImages.publicEndpoint | quote }}
+            - name: MINIO_BUCKET
+              value: {{ $.Values.productImages.bucket | quote }}
+            - name: MINIO_CORS_ORIGINS
+              value: {{ $.Values.productImages.corsOrigins | quote }}
           {{- end }}
           {{- with .Values.envFrom }}
           envFrom:

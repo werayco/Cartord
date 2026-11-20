@@ -1,3 +1,4 @@
+import asyncio
 from email.message import EmailMessage
 from typing import Literal
 
@@ -14,7 +15,6 @@ class EmailService:
         self,
         provider: EmailProvider | None = None,
         *,
-        resend_api_key: str | None = None,
         smtp_host: str | None = None,
         smtp_port: int | None = None,
         smtp_username: str | None = None,
@@ -24,7 +24,6 @@ class EmailService:
         mailpit_port: int | None = None,
     ):
         self.provider = provider or settings.EMAIL_PROVIDER
-        self.resend_api_key = resend_api_key or settings.RESEND_API_KEY
         self.smtp_host = smtp_host or settings.SMTP_HOST
         self.smtp_port = smtp_port or settings.SMTP_PORT
         self.smtp_username = smtp_username or settings.SMTP_USERNAME
@@ -51,7 +50,6 @@ class EmailService:
                 html_body=html_body,
                 from_email=from_email,
                 from_name=from_name,
-                resend_api_key=self.resend_api_key,
             )
         elif self.provider == "smtp":
             await self._send_with_smtp(
@@ -66,16 +64,6 @@ class EmailService:
                 smtp_password=self.smtp_password,
                 smtp_use_tls=self.smtp_use_tls,
             )
-        elif self.provider == "mailpit":
-            await self._send_with_mailpit(
-                to=to,
-                subject=subject,
-                html_body=html_body,
-                from_email=from_email,
-                from_name=from_name,
-                mailpit_host=self.mailpit_host,
-                mailpit_port=self.mailpit_port,
-            )
         else:
             raise ValueError(f"Unsupported email provider: {self.provider}")
 
@@ -87,13 +75,15 @@ class EmailService:
         html_body: str,
         from_email: str,
         from_name: str | None,
-        resend_api_key: str,
     ) -> None:
-        resend.api_key = resend_api_key
-        sender = f"{from_name} <{from_email}>" if from_name else from_email
-        resend.Emails.send(
-            {"from": sender, "to": [to], "subject": subject, "html": html_body}
-        )
+        resend.api_key = settings.RESEND_API_KEY
+        params: resend.Emails.SendParams = {
+            "from": "noreply@devrayco.name.ng",
+            "to": [to],
+            "subject": subject,
+            "html": html_body,
+        }
+        await asyncio.to_thread(resend.Emails.send, params)
 
     @staticmethod
     async def _send_with_smtp(
@@ -123,23 +113,4 @@ class EmailService:
             start_tls=smtp_use_tls,
         )
 
-    @staticmethod
-    async def _send_with_mailpit(
-        *,
-        to: str,
-        subject: str,
-        html_body: str,
-        from_email: str,
-        from_name: str | None,
-        mailpit_host: str,
-        mailpit_port: int,
-    ) -> None:
-        msg = EmailMessage()
-        msg["From"] = f"{from_name} <{from_email}>" if from_name else from_email
-        msg["To"] = to
-        msg["Subject"] = subject
-        msg.add_alternative(html_body, subtype="html")
-        await aiosmtplib.send(msg, hostname=mailpit_host, port=mailpit_port)
-
-
-email_service = EmailService(provider="smtp")
+email_service = EmailService(provider=settings.EMAIL_PROVIDER)

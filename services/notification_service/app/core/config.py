@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     MAILPIT_PORT: int = 1025
     EMAIL_FROM: str = "noreply@example.com"
 
+    EMAIL_PROVIDER: str = "resend"  # or "resend" or "smtp"
+
     class Config:
         env_file = ".env"
 

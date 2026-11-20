@@ -9,6 +9,7 @@ from app.core.schemas import *
 from app.core.utils import cache_refresh_tokens, get_current_user_dep
 from app.db.session import get_db
 from app.models.seller import Seller
+from app.services.mfa import confirm_enrollment, start_enrollment
 
 seller_router = APIRouter(prefix="/api/v1/auth/seller", tags=["auth"])
 
@@ -40,6 +41,31 @@ async def get_all_sellers(
 @seller_router.post("/login")
 async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     return await SellerController.login(payload, db)
+
+
+@seller_router.post("/login/mfa")
+async def complete_mfa_login(
+    payload: MFALoginRequest, db: AsyncSession = Depends(get_db)
+):
+    return await SellerController.complete_mfa_login(payload, db)
+
+
+@seller_router.post("/mfa/enrollment")
+async def begin_mfa_enrollment(
+    payload: MFAEnrollmentRequest,
+    current_user: Seller = Depends(get_current_user_dep(Seller)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await start_enrollment(current_user, "seller", payload.password, db)
+
+
+@seller_router.post("/mfa/enrollment/verify")
+async def verify_mfa_enrollment(
+    payload: MFACodeRequest,
+    current_user: Seller = Depends(get_current_user_dep(Seller)),
+    db: AsyncSession = Depends(get_db),
+):
+    return await confirm_enrollment(current_user, "seller", payload.code, db)
 
 
 @seller_router.post("/refresh")

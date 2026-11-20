@@ -37,19 +37,6 @@ A mini e-commerce ordering system built to demonstrate production-grade backend
 architecture: event-driven microservices, resilience patterns, an AI shopping
 assistant, and full observability, deployed on Docker Compose or Kubernetes.
 
-## Table of Contents
-
-- [Microservices](#microservices)
-- [Architecture Patterns](#architecture-patterns)
-- [Observability](#observability)
-- [Infrastructure](#infrastructure)
-- [System Architecture](#system-architecture)
-- [Running with Docker Compose](#running-with-docker-compose)
-- [Running on Kubernetes](#running-on-kubernetes)
-- [Accessing Kubernetes Services with kubefwd](#accessing-kubernetes-services-with-kubefwd)
-- [Other Make Targets](#other-make-targets)
-- [API Documentation](#api-documentation)
-
 ## Microservices
 
 | Service                  | Port   | Responsibility                                                                                                                                                     |
@@ -91,6 +78,7 @@ assistant, and full observability, deployed on Docker Compose or Kubernetes.
 - **Redis** - idempotency key store and caching
 - **Elasticsearch** - search index
 - **Kafka + Debezium** - event streaming and CDC-based outbox relay
+- **MinIO** - S3-compatible product image storage
 - **Kubernetes** - deployment, StatefulSets for stateful workloads
 - **Docker Compose** - local development
 
@@ -137,6 +125,145 @@ A typical order flow looks like this:
 6. Search and Notification consume the relevant events and update their own
    view of the data (search index, customer email).
 
+
+# System design
+
+## Ordering Request Cycle
+
+```mermaid
+flowchart LR
+    Buyer([Buyer])
+    OrderSvc[Order Service]
+    InvSvc[Inventory Service]
+    OrderDLQ[(Order DLQ)]
+    CDC1{{CDC}}
+    OrderTopic[[Order Topic]]
+    PaySvc[Payment Service]
+    PayDLQ[(Payment DLQ Topic)]
+    CDC2{{CDC}}
+    PayTopic[[Payment Topic]]
+    NotifSvc[Notification Service]
+    NotifDLQ[(Notification DLQ Topic)]
+
+    Buyer -->|"(1) Place Order<br/>idempotency-key"| OrderSvc
+    OrderSvc -->|response| Buyer
+
+    OrderSvc -.->|"(2) reserve_item"| InvSvc
+    OrderSvc -.-> InvSvc
+    OrderSvc -.-> OrderDLQ
+
+    OrderSvc -.->|"(3) order.created"| CDC1
+    CDC1 -.->|"(4) order.created"| OrderTopic
+    OrderTopic -->|"(5) order.created"| PaySvc
+    PaySvc --> PayDLQ
+
+    PaySvc -->|"(6) payment.succeeded / payment.failed"| CDC2
+    CDC2 -.->|"(7) payment.succeeded / payment.failed"| PayTopic
+
+    OrderSvc -.->|"(9) consumes payment.succeeded / payment.failed"| PayTopic
+    NotifSvc -.->|"(8) consumes payment.succeeded / payment.failed"| PayTopic
+    NotifSvc -.-> NotifDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class OrderSvc,InvSvc,PaySvc,NotifSvc service;
+    class OrderTopic,PayTopic topic;
+    class OrderDLQ,PayDLQ,NotifDLQ dlq;
+    class CDC1,CDC2 cdc;
+```
+
+## Inventory Request Cycle
+
+```mermaid
+flowchart LR
+    Admin([Admin / Seller])
+    InvSvc[Inventory Service]
+    CDC{{CDC}}
+    InvTopic[[Inventory Topic]]
+    SearchSvc["Search Service<br/>(Elastic Search)"]
+    InvDLQ[(Inventory DLQ Topic)]
+
+    Admin -->|"request"| InvSvc
+    InvSvc -->|"(1) inventory data / response"| Admin
+
+    InvSvc -.->|"(3) inventory events"| CDC
+    CDC -.->|"(4) inventory events"| InvTopic
+    InvTopic -->|"(5) inventory events"| SearchSvc
+    SearchSvc --> InvDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class InvSvc,SearchSvc service;
+    class InvTopic topic;
+    class InvDLQ dlq;
+    class CDC cdc;
+```
+
+## Authentication Request Cycle
+
+```mermaid
+flowchart LR
+    User([Buyer / Seller])
+    AuthSvc[Auth Service]
+    CDC{{CDC}}
+    AuthTopic[[Auth Topic]]
+    PaySvc[Payment Service]
+    AuthDLQ[(Auth DLQ Topic)]
+
+    User -->|"request"| AuthSvc
+    AuthSvc -->|"(1) response"| User
+
+    AuthSvc -.->|"(3) inventory events"| CDC
+    CDC -.->|"(4) order.created"| AuthTopic
+    AuthTopic -->|"(5) order.created"| PaySvc
+    PaySvc --> AuthDLQ
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class AuthSvc,PaySvc service;
+    class AuthTopic topic;
+    class AuthDLQ dlq;
+    class CDC cdc;
+```
+
+## AI Chat Request Cycle
+
+```mermaid
+flowchart LR
+    Buyer([Buyer])
+    AISvc[AI Service]
+    CDC{{CDC}}
+    ChatTopic[[Chat Topic]]
+    AIConsumer[AI Consumer]
+    ChatDLQ[(Chat DLQ Topic)]
+
+    Buyer -->|"{#quot;content#quot;: #quot;how are you?#quot;}"| AISvc
+    AISvc -->|"(1) stream responses"| Buyer
+
+    AISvc -.->|"(3) message.created"| CDC
+    CDC -.->|"(4) message.created"| ChatTopic
+    ChatTopic -->|"(5)"| AIConsumer
+    AIConsumer --> ChatDLQ
+    AIConsumer -->|"response"| AISvc
+
+    classDef service fill:#3a3a3a,stroke:#888,color:#fff;
+    classDef topic fill:#0f3d24,stroke:#2e8b57,color:#fff;
+    classDef dlq fill:#0f3a3f,stroke:#2aa4a4,color:#fff;
+    classDef cdc fill:#6b2b2b,stroke:#c05050,color:#fff;
+    class AISvc,AIConsumer service;
+    class ChatTopic topic;
+    class ChatDLQ dlq;
+    class CDC cdc;
+```
+
+You can view it on Excalidraw [here](https://excalidraw.com/#json=VO1WdblZfp9knItQtbI-Q,IRz6M5c0A1t55nCuJuPqeA).
+
 ## Data and storage
 
 The project uses a distributed setup with service-specific storage.
@@ -145,6 +272,7 @@ The project uses a distributed setup with service-specific storage.
 - Redis is used for idempotency and short-lived state.
 - Elasticsearch is used for search-related read models.
 - Kafka is used for event streaming between services.
+- MinIO stores product image objects; inventory stores their metadata and search indexes image URLs.
 
 ## Deployment
 
@@ -182,14 +310,39 @@ Copy the example env file into the location the compose files read from
 and fill in real values:
 
 ```bash
-cp shared/.env.example shared/compose_files/.env
+cp shared/compose_files/.env.example shared/compose_files/.env
 ```
 
 `shared/compose_files/.env` is git-ignored - it holds the actual secrets
 (DB credentials, admin bootstrap user, JWT keys, etc.) used by every
 service.
 
-## 3. Generate the JWT signing secret
+Prompt-injection screening for the AI service is off by default. To enable it,
+set `PROMPT_INJECTION_GUARD_ENABLED=true` in this file. The
+`meta-llama/Llama-Prompt-Guard-2-22M` model is gated on Hugging Face; accept its
+access terms and set `HF_TOKEN` to a token authorized to download it.
+
+## 3. Evaluate the AI service
+
+The AI service has offline regression tests and opt-in model evaluations. With
+the stack running, run the intent and embedding evaluations inside the service:
+
+```bash
+docker compose -f shared/compose_files/services.docker-compose.yml exec ai_service \
+  python -m app.evals.evaluate_intents
+docker compose -f shared/compose_files/services.docker-compose.yml exec ai_service \
+  python -m app.evals.evaluate_embeddings
+```
+
+The intent eval reports intent accuracy and exact slot matches. The embedding
+eval reports vector hit rate@3 and mean reciprocal rank against a small labeled
+document set. Both use threshold checks and may call configured model
+providers; they are not part of the fast unit-test suite. Embedding metrics test
+nearest-vector ranking only, not the database-backed hybrid search end to end.
+Edit the case files in `services/ai_service/app/evals/` as product behavior
+changes.
+
+## 4. Generate the JWT signing secret
 
 Auth (and every service that verifies tokens) uses HS256 with a shared
 secret. Generate one and copy it into `shared/compose_files/.env`:
@@ -201,7 +354,7 @@ make gen-secret
 This prints a secure random secret that should be assigned to
 `JWT_PRIVATE_KEY` in `shared/compose_files/.env`.
 
-## 4. Start the stack
+## 5. Start the stack
 
 ```bash
 make run
@@ -216,8 +369,17 @@ docker-compose -f shared/compose_files/services.docker-compose.yml up -d
 
 The first file brings up infrastructure (Postgres, Kafka, Debezium,
 Elasticsearch, Redis, Prometheus, Grafana, Jaeger, otel-collector,
-GlitchTip, Mailpit). The second builds and starts all seven application
-services on top of it.
+GlitchTip, Mailpit). The second builds and starts the application services,
+frontend, and MinIO on top of it.
+
+Product images are stored by the MinIO service on ports `9100` (S3 API) and
+`9101` (console), with data persisted in the `minio_data` volume. The sample
+MinIO credentials are for local development only. Set `MINIO_ROOT_USER`,
+`MINIO_ROOT_PASSWORD`, `MINIO_ACCESS_KEY`, and `MINIO_SECRET_KEY` in
+`shared/compose_files/.env` before using a non-local deployment. The browser
+uploads directly to `MINIO_PUBLIC_ENDPOINT`. Community MinIO does not support
+per-bucket CORS, so `MINIO_CORS_ORIGINS` is applied to the MinIO server as
+`MINIO_API_CORS_ALLOW_ORIGIN`. Include the frontend's exact origin.
 
 ## 5. Initialize the platform
 
@@ -238,6 +400,37 @@ curl http://localhost:9001/api/v1/health   # auth_service
 
 Swagger UI is available per service at `http://localhost:<port>/docs`
 (e.g. `http://localhost:9001/docs`).
+
+### Authenticator-app MFA
+
+Buyers and sellers can enable optional TOTP MFA. Set `MFA_ENCRYPTION_KEY` in the
+auth service environment to a key generated with:
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Keep this key in your deployment secret store and back it up: changing or losing
+it makes enrolled MFA secrets unreadable. Apply the auth-service migration with
+`alembic upgrade head` from `services/auth_service` (the service also creates the
+new table on startup). For Kubernetes, add `MFA_ENCRYPTION_KEY` to the existing
+`cartord-secrets` secret consumed by the auth-service deployment.
+
+For either account type, use its `/api/v1/auth/{buyer|seller}` prefix:
+
+1. With an access token, `POST /mfa/enrollment` with `{"password":"..."}`. Add
+   the returned `otpauth_uri` to an authenticator app (or enter its `secret`).
+   Enrollment expires after 10 minutes.
+2. `POST /mfa/enrollment/verify` with `{"code":"123456"}` to enable MFA.
+3. Login with the normal `/login` endpoint. If MFA is enabled, it returns
+   `mfa_required` and a short-lived `challenge_token` instead of access/refresh
+   tokens. Submit both that token and the current six-digit code to
+   `/login/mfa` to finish login.
+
+Enrollment allows at most five code attempts per enrollment; login allows five
+code attempts per account in each five-minute window. A successfully used TOTP
+time step cannot be replayed. Use HTTPS because the enrollment secret is
+returned to the client.
 
 Other useful UIs once the stack is up:
 
@@ -262,6 +455,13 @@ Create or update the `cartord-secrets` Secret from
 make k8s-secret
 make k8s
 ```
+
+Kubernetes uses an externally provisioned S3-compatible bucket; the chart does
+not deploy MinIO. Configure `inventory-service.productImages.endpoint`,
+`publicEndpoint`, `bucket`, and `corsOrigins` in the Helm values. Add
+`MINIO_ACCESS_KEY` and `MINIO_SECRET_KEY` to `cartord-secrets`. The public
+endpoint must be reachable by browsers and the bucket CORS policy must allow
+the frontend's exact origin.
 
 > **Note:** the chart runs Kafka with a single broker, so its internal topic
 > replication settings are set to `1`.

@@ -1,6 +1,6 @@
 from typing import Literal
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_groq import ChatGroq
 from langgraph.types import Command
@@ -10,7 +10,10 @@ from app.core.schemas import IntentClassification
 from app.services.agent_state import AgentState
 
 classifier_llm = ChatGroq(
-    model="openai/gpt-oss-safeguard-20b", api_key=settings.LLM_API_KEY, temperature=0
+    model="openai/gpt-oss-safeguard-20b",
+    api_key=settings.LLM_API_KEY,
+    temperature=0,
+    max_tokens=256,
 ).with_structured_output(IntentClassification)
 
 INTENT_SYSTEM_PROMPT = (
@@ -24,7 +27,15 @@ INTENT_SYSTEM_PROMPT = (
 async def classify_intent(
     state: AgentState, config: RunnableConfig
 ) -> Command[Literal["collect_order_details", "wallet_balance", "general_agent"]]:
-    messages = [SystemMessage(content=INTENT_SYSTEM_PROMPT), *state["messages"]]
+    latest_user_message = next(
+        message
+        for message in reversed(state["messages"])
+        if isinstance(message, HumanMessage)
+    )
+    messages = [
+        SystemMessage(content=INTENT_SYSTEM_PROMPT),
+        latest_user_message,
+    ]
     result: IntentClassification = await classifier_llm.ainvoke(messages, config)
 
     if result.intent == "place_order":

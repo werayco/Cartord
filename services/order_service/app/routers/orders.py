@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,11 +11,11 @@ from app.db.session import get_db
 order_router = APIRouter(prefix="/api/v1/order", tags=["order"])
 
 
-@order_router.post("/place/{idempotency_key}", response_model=OrderResponse)
+@order_router.post("/place/{idempotency_key}", response_model=list[OrderResponse])
 async def place_order(
-    payload: OrderPayload,
+    payload: list[OrderPayload],
     idempotency_key: str,
-    current_user: str = Depends(get_current_user),
+    current_user: dict[str, Any] = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     return await OrderController.place_order(payload, current_user, db, idempotency_key)

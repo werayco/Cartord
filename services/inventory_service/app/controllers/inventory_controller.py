@@ -2,11 +2,13 @@ import secrets
 
 from fastapi import HTTPException, Request, status
 from sqlalchemy import inspect, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import generate_skus, logger, settings, to_json_safe
 from app.core.schemas import *
 from app.models import Inventory, OutboxEvent
+from app.services.inventory_events import inventory_event_payload
 
 ALLOW_ROLES = (Roles.ADMIN.value, Roles.SELLER.value)
 
@@ -27,7 +29,7 @@ class InventoryCRUD:
             payload["seller_id"] = current_user.get("id")
             (sku,) = await generate_skus(db, 1)
             payload["sku"] = sku
-            record = Inventory(**payload)
+            record = Inventory(**payload, images=[])
 
             db.add(record)
             await db.flush()
@@ -37,7 +39,7 @@ class InventoryCRUD:
                 OutboxEvent(
                     event_type="inventory.created",
                     aggregate_id=str(record.id),
-                    payload=payload,
+                    payload=inventory_event_payload(record),
                 )
             )
 
@@ -47,7 +49,8 @@ class InventoryCRUD:
 
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.exception("Inventory creation failed")
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @staticmethod
     async def add_inventory_items(
@@ -65,7 +68,7 @@ class InventoryCRUD:
             for item, sku in zip(payloads, skus):
                 item["seller_id"] = current_user.get("id")
                 item["sku"] = sku
-            records = [Inventory(**item) for item in payloads]
+            records = [Inventory(**item, images=[]) for item in payloads]
 
             db.add_all(records)
             await db.flush()
@@ -76,7 +79,7 @@ class InventoryCRUD:
                     OutboxEvent(
                         event_type="inventory.created",
                         aggregate_id=str(db_record.id),
-                        payload=item_dict,
+                        payload=inventory_event_payload(db_record),
                     )
                 )
 
@@ -85,7 +88,8 @@ class InventoryCRUD:
 
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=str(e))
+            logger.exception("Bulk inventory creation failed")
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @staticmethod
     async def delete_inventory_item(
@@ -103,7 +107,9 @@ class InventoryCRUD:
             )
 
         result = await db.execute(
-            select(Inventory).where(Inventory.sku == inventory.sku)
+            select(Inventory)
+            .options(selectinload(Inventory.images))
+            .where(Inventory.sku == inventory.sku)
         )
         record = result.scalar_one_or_none()
 
@@ -113,7 +119,7 @@ class InventoryCRUD:
                 detail="Inventory item not found",
             )
 
-        if role == Roles.SELLER.value and record.seller_id != user_id:
+        if role == Roles.SELLER.value and str(record.seller_id) != str(user_id):
             raise HTTPException(
                 status_code=403,
                 detail="Permission denied.",
@@ -162,7 +168,9 @@ class InventoryCRUD:
             )
 
         result = await db.execute(
-            select(Inventory).where(Inventory.sku == inventory.sku)
+            select(Inventory)
+            .options(selectinload(Inventory.images))
+            .where(Inventory.sku == inventory.sku)
         )
         record = result.scalar_one_or_none()
 
@@ -172,7 +180,7 @@ class InventoryCRUD:
                 detail="Inventory item not found",
             )
 
-        if role == Roles.SELLER.value and record.seller_id != user_id:
+        if role == Roles.SELLER.value and str(record.seller_id) != str(user_id):
             raise HTTPException(
                 status_code=403,
                 detail="Permission denied.",
@@ -190,16 +198,11 @@ class InventoryCRUD:
 
             await db.flush()
 
-            payload = {
-                col.key: getattr(record, col.key)
-                for col in inspect(record).mapper.column_attrs
-            }
-
             db.add(
                 OutboxEvent(
                     event_type="inventory.updated",
                     aggregate_id=str(record.id),
-                    payload=to_json_safe(payload),
+                    payload=inventory_event_payload(record),
                 )
             )
 
@@ -261,8 +264,58 @@ class InventoryCRUD:
             raise HTTPException(status_code=500, detail=str(e))
 
     @staticmethod
+    async def commit_sale(sale: InventoryCommit, req: Request, db: AsyncSession):
+        incoming_key = req.headers.get("SHARED_API_KEY")
+        if not incoming_key or not secrets.compare_digest(
+            incoming_key, settings.SERVICE_SHARED_KEY
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing shared API key",
+            )
+        if sale.quantity < 1:
+            raise HTTPException(status_code=400, detail="Quantity must be at least 1")
+
+        result = await db.execute(
+            select(Inventory)
+            .where(Inventory.sku == sale.sku)
+            .options(selectinload(Inventory.images))
+        )
+        record = result.scalar_one_or_none()
+        if not record:
+            raise HTTPException(status_code=404, detail="Inventory item not found")
+        if record.reserved_quantity < sale.quantity or record.available_quantity < sale.quantity:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Cannot complete sale for SKU {sale.sku}",
+            )
+
+        try:
+            record.available_quantity -= sale.quantity
+            record.reserved_quantity -= sale.quantity
+            await db.flush()
+            db.add(
+                OutboxEvent(
+                    event_type="inventory.updated",
+                    aggregate_id=str(record.id),
+                    payload=inventory_event_payload(record),
+                )
+            )
+            await db.commit()
+            await db.refresh(record)
+            return {
+                "message": "Sale recorded",
+                "available_quantity": record.available_quantity,
+                "reserved_quantity": record.reserved_quantity,
+                "status": "successful",
+            }
+        except Exception as e:
+            await db.rollback()
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @staticmethod
     async def get_inventory_item(db: AsyncSession, current_user: dict):
-        query = select(Inventory)
+        query = select(Inventory).options(selectinload(Inventory.images))
         if current_user.get("role") == Roles.SELLER.value:
             seller_id = current_user.get("id")
             if not seller_id:
@@ -271,4 +324,4 @@ class InventoryCRUD:
 
         result = await db.execute(query)
         records = result.scalars().all()
-        return records
+        return [inventory_event_payload(record) for record in records]

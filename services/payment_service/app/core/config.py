@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     OTEL_SERVICE_NAME: str = "payment_service"
     SENTRY_DSN: str = ""
+    ALLOW_ORIGINS: str = "*"
     PAYMENT_DATABASE_URL: str
     SERVICE_SHARED_KEY: str
     OTEL_EXPORTER_OTLP_ENDPOINT: str

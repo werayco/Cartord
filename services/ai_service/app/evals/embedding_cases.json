@@ -1,0 +1,78 @@
+{
+  "documents": [
+    {
+      "id": "password-reset",
+      "text": "To reset your password, choose Forgot password on the sign-in page and follow the reset link sent to your email."
+    },
+    {
+      "id": "change-email",
+      "text": "To change the email address on your account, update it from your profile settings and verify the new address."
+    },
+    {
+      "id": "track-order",
+      "text": "To track a purchase, open Orders in your account and select the order to view its current delivery status."
+    },
+    {
+      "id": "cancel-order",
+      "text": "Orders can be cancelled from the order details page before the seller begins processing them."
+    },
+    {
+      "id": "wallet-balance",
+      "text": "Your available wallet balance is displayed in the Wallet section of your account."
+    },
+    {
+      "id": "wallet-top-up",
+      "text": "Add funds to your Cartord wallet from Wallet by choosing Add funds and completing payment."
+    },
+    {
+      "id": "return-item",
+      "text": "Start a return from order details, choose the item and reason, and follow the return instructions."
+    },
+    {
+      "id": "seller-inventory",
+      "text": "Sellers can manage stock quantities and availability from the inventory section of the seller dashboard."
+    }
+  ],
+  "queries": [
+    {
+      "id": "forgot-login-password",
+      "text": "I can't sign in because I forgot my password. How can I change it?",
+      "relevant_document_id": "password-reset"
+    },
+    {
+      "id": "update-account-address",
+      "text": "Where can I replace the email linked to my profile?",
+      "relevant_document_id": "change-email"
+    },
+    {
+      "id": "delivery-progress",
+      "text": "How do I see where my order is and when it will arrive?",
+      "relevant_document_id": "track-order"
+    },
+    {
+      "id": "stop-unprocessed-order",
+      "text": "Can I cancel a purchase that has not been processed yet?",
+      "relevant_document_id": "cancel-order"
+    },
+    {
+      "id": "available-funds",
+      "text": "How much credit do I currently have in Cartord?",
+      "relevant_document_id": "wallet-balance"
+    },
+    {
+      "id": "deposit-money",
+      "text": "How can I put more money into my account wallet?",
+      "relevant_document_id": "wallet-top-up"
+    },
+    {
+      "id": "send-back-purchase",
+      "text": "I want to return something I bought. Where do I start?",
+      "relevant_document_id": "return-item"
+    },
+    {
+      "id": "update-stock",
+      "text": "As a seller, where do I change how many units of an item are available?",
+      "relevant_document_id": "seller-inventory"
+    }
+  ]
+}

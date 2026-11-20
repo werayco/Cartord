@@ -11,6 +11,7 @@ llm = ChatGroq(
     api_key=settings.LLM_API_KEY,
     temperature=settings.TEMPERATURE,
     streaming=True,
+    max_tokens=512,
 )
 
 llm_customer = llm.bind_tools(CUSTOMER_TOOLS)
@@ -19,7 +20,9 @@ CUSTOMER_SYSTEM_PROMPT = (
     "You are Cartord's shopping assistant. Help the customer manage their existing "
     "orders and answer questions using the tools available to you. Never invent order, "
     "product, or account data you have not fetched with a tool. Placing new orders is "
-    "handled by a separate flow, not by you."
+    "handled by a separate flow, not by you. "
+    "When you present several rows, such as prices, write them as a Markdown table "
+    "and keep the surrounding text as normal sentences. Do not use HTML."
 )
 
 

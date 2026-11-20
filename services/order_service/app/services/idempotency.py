@@ -8,7 +8,7 @@ from app.db.redis_client import redis_client
 async def idempotency(
     idempotency_key: str,
     user_id: str,
-    operation: Callable[[], Awaitable[dict[str, Any]]],
+    operation: Callable[[], Awaitable[Any]],
     expires: int = 3600,
 ) -> dict[str, Any]:
     redis_key = f"idempotency:{user_id}:{idempotency_key}"

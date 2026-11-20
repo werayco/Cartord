@@ -10,6 +10,7 @@ from langgraph.types import Command, interrupt
 
 from app.core.config import settings
 from app.core.schemas import OrderSlots
+from app.core.utils import _image_url, _order_summary, _price, _product_choices
 from app.services.agent_state import AgentState
 from app.services.agent_tools import call_service, fetch_item_details
 
@@ -20,6 +21,7 @@ slot_llm = ChatGroq(
     model="openai/gpt-oss-safeguard-20b",
     api_key=settings.LLM_API_KEY,
     temperature=0,
+    max_tokens=512,
 ).with_structured_output(OrderSlots)
 
 
@@ -65,15 +67,19 @@ async def collect_order_details(
             },
         )
 
-    slots: OrderSlots = await slot_llm.ainvoke(
-        [HumanMessage(content=str(answer))], config
-    )  # this extracts product_query and quantity from the user's answer
+    text = str(answer).strip()
+    if text.isdecimal():
+        draft["quantity"] = int(text)
+    else:
+        slots: OrderSlots = await slot_llm.ainvoke(
+            [HumanMessage(content=text)], config
+        )  # this extracts product_query and quantity from the user's answer
 
-    if slots.product_query:
-        draft["product_query"] = slots.product_query
+        if slots.product_query:
+            draft["product_query"] = slots.product_query
 
-    if slots.quantity:
-        draft["quantity"] = slots.quantity
+        if slots.quantity:
+            draft["quantity"] = slots.quantity
 
     return Command(goto="collect_order_details", update={"order_draft": draft})
 
@@ -150,15 +156,7 @@ async def validate_item(
         answer = interrupt(
             {
                 "question": "I found several products. Which one would you like? Reply with its number, or cancel.",
-                "options": [
-                    {
-                        "number": i,
-                        "name": item["name"],
-                        "price": item["unit_price"],
-                        "description": item.get("description", ""),
-                    }
-                    for i, item in enumerate(items, 1)
-                ],
+                "card": _product_choices(items),
             }
         )
 
@@ -196,7 +194,9 @@ async def validate_item(
     draft.pop("search_matches", None)
     draft["sku"] = item["sku"]
     draft["product_name"] = item["name"]
-    draft["price"] = item["unit_price"]
+    draft["price"] = _price(item["unit_price"])
+    draft["quantity"] = int(draft["quantity"])
+    draft["image_url"] = _image_url(item)
     return Command(goto="check_wallet", update={"order_draft": draft})
 
 
@@ -212,7 +212,9 @@ async def check_wallet(
         }
     )
     draft = dict(state.get("order_draft") or {})
-    total = draft["price"] * draft["quantity"]
+    price = _price(draft["price"])
+    quantity = int(draft["quantity"])
+    total = price * quantity
     url = f"{settings.PAYMENT_BASE_URL}/wallets/buyer"
     wallet = await call_service("GET", url, state["user_id"], "wallet:read")
 
@@ -228,7 +230,9 @@ async def check_wallet(
             },
         )
 
-    balance = wallet["current_balance"]
+    balance = _price(wallet["current_balance"])
+    draft["price"] = price
+    draft["quantity"] = quantity
     if balance < total:
         return Command(
             goto=END,
@@ -262,8 +266,11 @@ async def confirm_order(
     draft = dict(state.get("order_draft") or {})
     answer = interrupt(
         {
-            "question": f"That's {draft['quantity']} x {draft.get('product_name', draft['sku'])} for a total of "
-            f"{draft['total']:.2f}. Should I place the order?"
+            "question": "Should I place this order?",
+            "cards": [
+                _order_summary(draft),
+                {"kind": "yes_no", "yes": "Yes", "no": "No"},
+            ],
         }
     )
 
@@ -291,9 +298,9 @@ async def place_order_node(state: AgentState) -> Command[Literal["__end__"]]:
     draft = dict(state.get("order_draft") or {})
     idempotency_key = str(uuid4())
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/place/{idempotency_key}"
-    payload = {"sku": draft["sku"], "quantity": draft["quantity"]}
+    payload = [{"sku": draft["sku"], "quantity": draft["quantity"]}]
     if draft.get("delivery_address_id"):
-        payload["delivery_address_id"] = draft["delivery_address_id"]
+        payload[0]["delivery_address_id"] = draft["delivery_address_id"]
 
     result = await call_service(
         "POST", url, state["user_id"], "orders:write", json=payload

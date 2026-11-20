@@ -32,6 +32,15 @@ class ElasticsearchClient:
                 "available_quantity": {"type": "integer"},
                 "unit_price": {"type": "float"},
                 "sku": {"type": "keyword"},
+                "images": {
+                    "type": "nested",
+                    "properties": {
+                        "id": {"type": "keyword"},
+                        "url": {"type": "keyword", "index": False},
+                        "alt_text": {"type": "text"},
+                        "sort_order": {"type": "integer"},
+                    },
+                },
             }
         }
 
@@ -55,9 +64,19 @@ class ElasticsearchClient:
             await self.client.index(
                 index=self.index_name, id=str(value["id"]), document=value
             )
+            logger.info(
+                "Indexed product sku=%s image_count=%s",
+                value.get("sku"),
+                len(value.get("images") or []),
+            )
         elif key == "inventory.updated":
-            await self.client.update(
+            await self.client.index(
                 index=self.index_name, id=str(value["id"]), document=value
+            )
+            logger.info(
+                "Updated product search document sku=%s image_count=%s",
+                value.get("sku"),
+                len(value.get("images") or []),
             )
         elif key == "inventory.deleted":
             await self.client.delete(index=self.index_name, id=str(value["id"]))
@@ -120,6 +139,7 @@ class ElasticsearchClient:
                 "available_quantity": hit["_source"]["available_quantity"],
                 "unit_price": hit["_source"]["unit_price"],
                 "sku": hit["_source"]["sku"],
+                "images": hit["_source"].get("images") or [],
             }
             for hit in hits
         ]

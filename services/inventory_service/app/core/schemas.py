@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, RootModel
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 
 class InventorySchema(BaseModel):
@@ -46,14 +47,46 @@ class InventoryReserve(BaseModel):
     reserved_quantity: int | None
 
 
+class InventoryCommit(BaseModel):
+    sku: str
+    quantity: int
+
+
 class InventoryResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     name: str
+    description: str | None = None
     sku: str
     unit_price: float
     available_quantity: int
+    reserved_quantity: int = 0
     created_at: datetime
+    images: list["ProductImageResponse"] = Field(default_factory=list)
+
+
+class ProductImageResponse(BaseModel):
+    id: UUID
+    url: str
+    alt_text: str | None = None
+    sort_order: int
+
+
+class ProductImageUploadRequest(BaseModel):
+    content_type: str
+    file_size: int = Field(gt=0)
+    alt_text: str | None = Field(default=None, max_length=255)
+
+
+class ProductImageUploadResponse(BaseModel):
+    image_id: UUID
+    object_key: str
+    upload_url: str
+    content_type: str
+
+
+class ProductImageCompleteRequest(BaseModel):
+    image_id: UUID
 
 
 class InventoryAdminItem(InventoryResponse):

@@ -8,6 +8,7 @@ from opentelemetry.trace import get_tracer_provider
 
 from app.core.config import settings
 from app.services.email_client import email_service
+import html
 
 logger = logging.getLogger(__name__)
 
@@ -44,19 +45,108 @@ class KafkaConsumer:
                 return v.decode() if isinstance(v, bytes) else v
         return None
 
+
+    async def _send_welcome_email(self, event_data: dict, role: str):
+        try:
+            email = event_data.get("email")
+            if not email:
+                logger.error("No email found in %s registration event", role)
+                return
+
+            email = email.strip()
+            if not self._is_valid_email(email):
+                logger.error("Invalid email address: %s", email)
+                return
+
+            name = html.escape(
+                str(event_data.get("username") or "there").strip()
+            )
+
+            if role == "buyer":
+                subject = "Welcome to Cartord!"
+                heading = "Welcome to Cartord!"
+                message = (
+                    "Discover products, find what you need, "
+                    "and enjoy a seamless shopping experience."
+                )
+                next_step = (
+                    "Start exploring our marketplace and find "
+                    "something you'll love."
+                )
+            elif role == "seller":
+                subject = "Welcome to Cartord Seller Community!"
+                heading = "Welcome to the Cartord Seller Community!"
+                message = (
+                    "We're excited to have you on board. "
+                    "Cartord gives you a place to showcase your "
+                    "products and connect with buyers."
+                )
+                next_step = (
+                    "Get started by setting up your store, "
+                    "adding your products, and preparing to "
+                    "receive orders."
+                )
+            else:
+                logger.error("Unsupported welcome email role: %s", role)
+                return
+
+            html_body = f"""
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport"
+                      content="width=device-width, initial-scale=1.0">
+                <title>{html.escape(subject)}</title>
+            </head>
+            <body style="margin:0; padding:24px;
+                         font-family:Arial,sans-serif;
+                         color:#333; background-color:#f5f5f5;">
+                <div style="max-width:600px; margin:0 auto;
+                            padding:32px; background:#ffffff;
+                            border-radius:8px;">
+                    <h1 style="color:#2563eb;">{heading}</h1>
+                    <p>Hi {name},</p>
+                    <p>{message}</p>
+                    <p>{next_step}</p>
+                    <p>We're glad you're here!</p>
+                    <p>Best regards,<br>The Cartord Team</p>
+                </div>
+            </body>
+            </html>
+            """
+
+            await email_service.send_email(
+                to=email,
+                subject=subject,
+                html_body=html_body,
+                from_email=settings.EMAIL_FROM.strip(),
+                from_name="Cartord",
+            )
+
+            logger.info(
+                "%s welcome email sent to %s",
+                role.capitalize(),
+                email,
+            )
+
+        except Exception:
+            logger.exception(
+                "Failed to send %s welcome email", role
+            )
+            raise
+
+
     async def _send_payment_email(self, event_data: dict, status: str):
         try:
             email = event_data.get("email")
             if not email:
                 logger.error(f"No email found in payment data: {event_data}")
-                # Try to get email from customer_id if available
                 customer_id = event_data.get("customer_id")
                 if customer_id:
                     logger.info(
                         f"Attempting to fetch email for customer_id: {customer_id}"
                     )
-                    # You would call a service here to get the customer's email
-                    # For now, we'll just log and skip
                     return
                 return
 
@@ -64,16 +154,13 @@ class KafkaConsumer:
             order_id = event_data.get("order_id", "Unknown")
             subtotal = event_data.get("subtotal", 0.00)
 
-            # Convert status to lowercase for consistency
             status = status.lower()
 
-            # Clean and validate email
             email = email.strip()
             if not self._is_valid_email(email):
                 logger.error(f"Invalid email address: {email}")
                 return
 
-            # Email subject and body
             if status == "succeeded":
                 subject = f"Payment Successful - Order #{order_id}"
                 html_body = f"""
@@ -113,7 +200,6 @@ class KafkaConsumer:
 
             logger.info(f"Sending {status} email to {email} for order {order_id}")
 
-            # Send email with proper formatting
             await email_service.send_email(
                 to=email,
                 subject=subject,
@@ -148,8 +234,10 @@ class KafkaConsumer:
                 await self._send_payment_email(value, "succeeded")
             elif event_type == "payment.failed":
                 await self._send_payment_email(value, "failed")
-            else:
-                logger.info(f"Ignoring event type: {event_type}")
+            elif event_type == "buyer.registered":
+                await self._send_welcome_email(value, "buyer")
+            elif event_type == "seller.registered":
+                await self._send_welcome_email(value, "seller")
 
             return True, None
         except Exception as e:
@@ -166,7 +254,6 @@ class KafkaConsumer:
                 except:
                     original_value = value_bytes.decode(errors="replace")
 
-            # Create DLQ message
             dlq_message = {
                 "original_value": original_value,
                 "error": error,
@@ -186,7 +273,7 @@ class KafkaConsumer:
             )
 
     async def consume(self):
-        self.consumer.subscribe(["payment"])
+        self.consumer.subscribe(["payment", "auth"])
         self._running = True
         loop = asyncio.get_event_loop()
 

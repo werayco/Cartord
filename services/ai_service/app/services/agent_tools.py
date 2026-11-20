@@ -99,15 +99,21 @@ async def change_delivery_address(
         "profile:write",
         json={"shipping_address": shipping_address},
     )
+    if result.get("error"):
+        writer({"type": "thought", "message": "I couldn't update your shipping address."})
+        return {"error": result.get("message", "Shipping address update failed.")}
+
     writer(
         {
-            "type": "thought",
-            "message": "Your shipping address has been updated."
-            if not result.get("error")
-            else "I couldn't update your shipping address.",
+            "type": "card",
+            "card": {
+                "kind": "shipping_address",
+                "shipping_address": shipping_address,
+            },
         }
     )
-    return result
+    writer({"type": "thought", "message": "Your shipping address has been updated."})
+    return "Shipping address updated."
 
 
 @tool
@@ -118,16 +124,41 @@ async def get_order_summary(user_id: Annotated[str, InjectedState("user_id")]) -
 
     url = f"{settings.ORDER_BASE_URL}/api/v1/order/summary"
     result = await call_service("GET", url, user_id, "orders:read")
-    writer({"type": "thought", "message": "Almost Done..."})
+    if result.get("error"):
+        writer({"type": "thought", "message": "I couldn't retrieve your order analytics."})
+        return {"error": result.get("message", "Order summary unavailable.")}
+
+    orders = []
+    for raw in (result.get("orders") or [])[:12]:
+        orders.append(
+            {
+                "sku": raw.get("sku") or "",
+                "quantity": int(raw.get("quantity") or 0),
+                "unit_price": float(raw.get("unit_price") or 0),
+                "status": raw.get("status") or "",
+                "created_at": raw.get("created_at") or "",
+            }
+        )
     writer(
         {
-            "type": "thought",
-            "message": "Your order analytics are ready."
-            if not result.get("error")
-            else "I couldn't retrieve your order analytics.",
+            "type": "card",
+            "card": {
+                "kind": "order_history",
+                "total_orders": int(result.get("total_orders") or 0),
+                "delivered_orders": int(result.get("delivered_orders") or 0),
+                "total_spend": float(result.get("total_spend") or 0),
+                "orders": orders,
+            },
         }
     )
-    return result
+    writer({"type": "thought", "message": "Your order analytics are ready."})
+    total_orders = int(result.get("total_orders") or 0)
+    delivered_orders = int(result.get("delivered_orders") or 0)
+    total_spend = float(result.get("total_spend") or 0)
+    return (
+        f"Totals: {total_orders} orders, {delivered_orders} delivered, "
+        f"spend {total_spend:.2f}."
+    )
 
 
 @tool

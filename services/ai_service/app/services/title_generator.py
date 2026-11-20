@@ -14,6 +14,7 @@ title_llm = ChatGroq(
     model="openai/gpt-oss-safeguard-20b", # openai/gpt-oss-safeguard-20b
     api_key=settings.LLM_API_KEY,
     temperature=0.2,
+    max_tokens=64,
 )
 
 TITLE_PROMPT = (
