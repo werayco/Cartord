@@ -6,22 +6,18 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 
-# The database owns the counter that produces the "xxxx" in CTD-xxxx.
-# The application only adds the "CTD-" prefix (see inventory_controller.py).
 sku_seq = Sequence("inventory_sku_seq", start=1, minvalue=1, metadata=Base.metadata)
 
 
 class Inventory(Base):
     __tablename__ = "inventory"
 
-    # (id, sku) together are the composite primary key.
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(String(255), nullable=True)
     unit_price: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
 
-    # Still unique on its own: other services (order, search, ai) look products up by sku alone.
     sku: Mapped[str] = mapped_column(
         String(50), primary_key=True, autoincrement=False, unique=True
     )

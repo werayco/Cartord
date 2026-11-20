@@ -59,6 +59,15 @@ function ProductChoices({ items }: { items: ProductChoice[] }) {
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-800">
             {item.number}
           </span>
+          {item.imageUrl ? (
+            <img
+              src={item.imageUrl}
+              alt=""
+              className="h-14 w-14 shrink-0 rounded-lg object-cover bg-brand-50"
+            />
+          ) : (
+            <div className="h-14 w-14 shrink-0 rounded-lg bg-brand-50" />
+          )}
           <div className="min-w-0">
             <p className="font-semibold">{item.name}</p>
             <p className="text-sm text-ink/70">{money(item.price)}</p>
@@ -111,13 +120,24 @@ function ShippingAddress({ card }: { card: Extract<ChatCard, { kind: "shipping_a
 function OrderSummary({ card }: { card: Extract<ChatCard, { kind: "order_summary" }> }) {
   return (
     <div className="rounded-2xl bg-white px-4 py-3 shadow-card">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Order</p>
-      <p className="mt-1 font-bold">{card.name}</p>
-      <p className="text-sm text-ink/70">
-        {card.quantity} × {money(card.unitPrice)}
-      </p>
-      <p className="mt-2 text-sm font-semibold">Total {money(card.total)}</p>
-      {card.sku && <p className="mt-1 text-xs text-ink/45">{card.sku}</p>}
+      <div className="flex gap-3">
+        {card.imageUrl ? (
+          <img
+            src={card.imageUrl}
+            alt=""
+            className="h-16 w-16 shrink-0 rounded-lg object-cover bg-brand-50"
+          />
+        ) : null}
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink/45">Order</p>
+          <p className="mt-1 font-bold">{card.name}</p>
+          <p className="text-sm text-ink/70">
+            {card.quantity} × {money(card.unitPrice)}
+          </p>
+          <p className="mt-2 text-sm font-semibold">Total {money(card.total)}</p>
+          {card.sku && <p className="mt-1 text-xs text-ink/45">{card.sku}</p>}
+        </div>
+      </div>
     </div>
   );
 }

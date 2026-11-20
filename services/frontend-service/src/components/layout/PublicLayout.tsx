@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { Logo } from "../Logo";
 import { Icon, type IconName } from "../ui/Icon";
 import { LinkButton } from "../ui/Button";
@@ -20,16 +20,8 @@ const buyerMenu = [
 function Navbar() {
   const { status, role, logout } = useAuth();
   const { cartCount } = useShop();
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const isBuyer = status === "authed" && role === "buyer";
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    navigate(q.trim() ? `/shop?q=${encodeURIComponent(q.trim())}` : "/shop");
-    setOpen(false);
-  };
 
   const link = ({ isActive }: { isActive: boolean }) =>
     `rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${isActive ? "bg-white/15" : "hover:bg-white/10"}`;
@@ -43,17 +35,7 @@ function Navbar() {
           <NavLink to="/signup?role=seller" className={link}>Sell</NavLink>
           {status !== "authed" && <NavLink to="/chat" className={link}>AI assistant</NavLink>}
         </nav>
-        <form onSubmit={submit} role="search" className="relative ml-auto hidden max-w-xl flex-1 md:block">
-          <Icon name="search" size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink/45" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            aria-label="Search products"
-            placeholder="Search for products…"
-            className="w-full rounded-full bg-white py-2.5 pl-10 pr-4 text-sm text-ink placeholder:text-ink/45 focus:outline-none focus:ring-2 focus:ring-lime-400"
-          />
-        </form>
-        <div className="ml-auto flex items-center gap-2 md:ml-0">
+        <div className="ml-auto flex items-center gap-2">
           {role === "buyer" && (
             <Link to="/buyer/cart" className="relative rounded-full p-2 hover:bg-white/10" aria-label={`Cart, ${cartCount} items`}>
               <Icon name="cart" size={20} />
@@ -84,15 +66,6 @@ function Navbar() {
       </div>
       {open && isBuyer && (
         <div className="absolute right-4 top-full z-50 w-72 max-w-[calc(100vw-2rem)] rounded-2xl border border-ink/10 bg-white p-3 text-ink shadow-xl sm:right-6">
-          <form onSubmit={submit} role="search" className="mb-3 md:hidden">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              aria-label="Search products"
-              placeholder="Search products…"
-              className="w-full rounded-full border border-ink/10 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
-            />
-          </form>
           <nav className="space-y-1" aria-label="Buyer menu">
             {buyerMenu.map((item) => (
               <NavLink
@@ -125,15 +98,6 @@ function Navbar() {
       )}
       {open && !isBuyer && (
         <div className="space-y-3 border-t border-white/10 px-4 py-4 lg:hidden">
-          <form onSubmit={submit} role="search">
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              aria-label="Search products"
-              placeholder="Search for products…"
-              className="w-full rounded-full bg-white px-4 py-2.5 text-sm text-ink focus:outline-none"
-            />
-          </form>
           <div className="flex flex-col gap-1">
             <NavLink to="/shop" className={link} onClick={() => setOpen(false)}>Shop</NavLink>
             <NavLink to="/signup?role=seller" className={link} onClick={() => setOpen(false)}>Sell</NavLink>

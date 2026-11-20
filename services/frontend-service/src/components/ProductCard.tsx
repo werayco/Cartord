@@ -30,7 +30,7 @@ export function ProductVisual({ product, className = "h-36" }: { product: Produc
 
 export function StockBadge({ qty }: { qty: number }) {
   if (qty <= 0) return <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">Out of stock</span>;
-  if (qty <= 5) return <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">Only {qty} left</span>;
+  if (qty < 10) return <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">Only {qty} left</span>;
   return <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700">In stock</span>;
 }
 

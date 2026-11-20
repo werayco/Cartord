@@ -8,6 +8,7 @@ export interface ProductChoice {
   name: string;
   price: number;
   description: string;
+  imageUrl?: string;
 }
 
 export interface HistoryOrder {
@@ -20,7 +21,7 @@ export interface HistoryOrder {
 
 export type ChatCard =
   | { kind: "product_choices"; items: ProductChoice[] }
-  | { kind: "order_summary"; name: string; sku: string; quantity: number; unitPrice: number; total: number }
+  | { kind: "order_summary"; name: string; sku: string; quantity: number; unitPrice: number; total: number; imageUrl?: string }
   | { kind: "order_history"; totalOrders: number; deliveredOrders: number; totalSpend: number; orders: HistoryOrder[] }
   | { kind: "yes_no"; yes: string; no: string }
   | { kind: "shipping_address"; shippingAddress: string };
@@ -64,6 +65,7 @@ export function readCard(value: unknown): ChatCard | undefined {
         name: item.name,
         price,
         description: typeof item.description === "string" ? item.description : "",
+        imageUrl: typeof item.image_url === "string" && item.image_url ? item.image_url : undefined,
       });
     }
     return items.length ? { kind: "product_choices", items } : undefined;
@@ -112,6 +114,7 @@ export function readCard(value: unknown): ChatCard | undefined {
       quantity,
       unitPrice,
       total,
+      imageUrl: typeof card.image_url === "string" && card.image_url ? card.image_url : undefined,
     };
   }
   return undefined;

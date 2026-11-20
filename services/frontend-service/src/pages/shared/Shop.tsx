@@ -9,14 +9,34 @@ import { EmptyState, ErrorState, Skeleton } from "../../components/ui/feedback";
 
 type Sort = "relevance" | "price-asc" | "price-desc";
 
+const PAGE_SIZE = 30;
+
 export default function Shop() {
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
+  const page = Math.max(1, Number(params.get("page")) || 1);
   const [draft, setDraft] = useState(query);
   const [sort, setSort] = useState<Sort>("relevance");
   const [inStockOnly, setInStockOnly] = useState(false);
 
   useEffect(() => setDraft(query), [query]);
+
+  const setQueryParam = (next: string) => {
+    setParams((current) => {
+      const nextParams = new URLSearchParams(current);
+      if (next) nextParams.set("q", next);
+      else nextParams.delete("q");
+      nextParams.delete("page");
+      return nextParams;
+    });
+  };
+
+  useEffect(() => {
+    const next = draft.trim();
+    if (next === query) return;
+    const timer = window.setTimeout(() => setQueryParam(next), 300);
+    return () => window.clearTimeout(timer);
+  }, [draft, query]);
 
   const { data, loading, error, reload } = useAsync(
     (s) => (query ? searchApi.items(query, s) : searchApi.all(s)),
@@ -25,13 +45,27 @@ export default function Shop() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    setParams(draft.trim() ? { q: draft.trim() } : {});
+    setQueryParam(draft.trim());
   };
 
   let items = data ?? [];
   if (inStockOnly) items = items.filter((p) => p.available_quantity > 0);
   if (sort === "price-asc") items = [...items].sort((a, b) => a.unit_price - b.unit_price);
   if (sort === "price-desc") items = [...items].sort((a, b) => b.unit_price - a.unit_price);
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = items.slice(start, start + PAGE_SIZE);
+
+  const goToPage = (nextPage: number) => {
+    setParams((current) => {
+      const nextParams = new URLSearchParams(current);
+      if (nextPage <= 1) nextParams.delete("page");
+      else nextParams.set("page", String(nextPage));
+      return nextParams;
+    });
+  };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -66,18 +100,41 @@ export default function Shop() {
           <EmptyState
             icon="search"
             title="Nothing matched"
-            action={query ? <Button variant="outline" onClick={() => setParams({})}>Clear search</Button> : undefined}
+            action={query ? <Button variant="outline" onClick={() => setQueryParam("")}>Clear search</Button> : undefined}
           >
             {query ? "Try a different word, or ask the AI assistant to help you find it." : "No products have been listed yet."}
           </EmptyState>
         ) : (
           <>
-            <p className="mb-4 text-sm text-ink/60">{items.length} product{items.length === 1 ? "" : "s"}</p>
+            <p className="mb-4 text-sm text-ink/60">
+              Showing {start + 1}–{start + pageItems.length} of {items.length} product{items.length === 1 ? "" : "s"}
+            </p>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {items.map((p) => (
+              {pageItems.map((p) => (
                 <ProductCard key={p.sku} product={p} />
               ))}
             </div>
+            {totalPages > 1 && (
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  disabled={currentPage <= 1}
+                  onClick={() => goToPage(currentPage - 1)}
+                >
+                  Previous
+                </Button>
+                <p className="text-sm font-semibold text-ink/70">
+                  Page {currentPage} of {totalPages}
+                </p>
+                <Button
+                  variant="outline"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => goToPage(currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>

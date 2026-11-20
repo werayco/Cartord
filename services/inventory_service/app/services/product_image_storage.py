@@ -37,7 +37,6 @@ class ProductImageStorage:
             config=Config(
                 signature_version="s3v4",
                 s3={"addressing_style": "path"},
-                # MinIO does not implement the CRC checksum headers boto3 sends by default.
                 request_checksum_calculation="when_required",
                 response_checksum_validation="when_required",
             ),
@@ -126,8 +125,6 @@ class ProductImageStorage:
             )
         except ClientError as error:
             code = error.response.get("Error", {}).get("Code")
-            # Community MinIO does not implement bucket CORS. Local Compose sets
-            # MINIO_API_CORS_ALLOW_ORIGIN on the MinIO server instead.
             if code != "NotImplemented":
                 raise
             logger.info(

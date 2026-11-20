@@ -71,3 +71,42 @@ def deserialize_from_json(data):
         return json.loads(data.decode("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
         raise ValueError(f"Data deserialization error: {e}")
+
+
+def _price(value) -> float:
+    return float(value)
+
+
+def _image_url(item: dict) -> str:
+    for image in item.get("images") or []:
+        if isinstance(image, dict) and image.get("url"):
+            return str(image["url"])
+    return ""
+
+
+def _product_choices(items: list) -> dict:
+    return {
+        "kind": "product_choices",
+        "items": [
+            {
+                "number": number,
+                "name": item["name"],
+                "price": _price(item["unit_price"]),
+                "description": item.get("description") or "",
+                "image_url": _image_url(item),
+            }
+            for number, item in enumerate(items, 1)
+        ],
+    }
+
+
+def _order_summary(draft: dict) -> dict:
+    return {
+        "kind": "order_summary",
+        "name": draft.get("product_name") or draft["sku"],
+        "sku": draft["sku"],
+        "quantity": int(draft["quantity"]),
+        "unit_price": _price(draft["price"]),
+        "total": _price(draft["total"]),
+        "image_url": draft.get("image_url") or "",
+    }

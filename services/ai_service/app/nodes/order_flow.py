@@ -10,41 +10,12 @@ from langgraph.types import Command, interrupt
 
 from app.core.config import settings
 from app.core.schemas import OrderSlots
+from app.core.utils import _image_url, _order_summary, _price, _product_choices
 from app.services.agent_state import AgentState
 from app.services.agent_tools import call_service, fetch_item_details
 
 CANCEL_WORDS = {"cancel", "never mind", "nevermind", "stop", "no thanks", "no"}
 CONFIRM_WORDS = {"yes", "y", "confirm", "yeah", "yep", "sure", "go ahead", "do it"}
-
-
-def _price(value) -> float:
-    return float(value)
-
-
-def _product_choices(items: list) -> dict:
-    return {
-        "kind": "product_choices",
-        "items": [
-            {
-                "number": number,
-                "name": item["name"],
-                "price": _price(item["unit_price"]),
-                "description": item.get("description") or "",
-            }
-            for number, item in enumerate(items, 1)
-        ],
-    }
-
-
-def _order_summary(draft: dict) -> dict:
-    return {
-        "kind": "order_summary",
-        "name": draft.get("product_name") or draft["sku"],
-        "sku": draft["sku"],
-        "quantity": int(draft["quantity"]),
-        "unit_price": _price(draft["price"]),
-        "total": _price(draft["total"]),
-    }
 
 slot_llm = ChatGroq(
     model="openai/gpt-oss-safeguard-20b",
@@ -225,6 +196,7 @@ async def validate_item(
     draft["product_name"] = item["name"]
     draft["price"] = _price(item["unit_price"])
     draft["quantity"] = int(draft["quantity"])
+    draft["image_url"] = _image_url(item)
     return Command(goto="check_wallet", update={"order_draft": draft})
 
 
